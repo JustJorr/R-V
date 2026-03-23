@@ -11,15 +11,35 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error(err));
 
-// Create Worker schema and model
-const workerSchema = new mongoose.Schema({
+// ===== SCHEMAS =====
+
+// User Schema (Workers, Managers, Admins)
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
   },
-  rating: {
-    type: Number,
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
     required: true
+  },
+  role: {
+    type: String,
+    enum: ["user", "manager", "admin"],
+    default: "user"
+  },
+  averageRating: {
+    type: Number,
+    default: 0
+  },
+  totalRatings: {
+    type: Number,
+    default: 0
   },
   createdAt: {
     type: Date,
@@ -27,32 +47,170 @@ const workerSchema = new mongoose.Schema({
   }
 });
 
-const Worker = mongoose.model("Worker", workerSchema);
+// Rating Schema
+const ratingSchema = new mongoose.Schema({
+  ratedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  ratedUser: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  score: {
+    type: Number,
+    required: true,
+    min: 0,
+    max: 5
+  },
+  comment: {
+    type: String
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
 
+const User = mongoose.model("User", userSchema);
+const Rating = mongoose.model("Rating", ratingSchema);
 
-app.get("/api/workers", async (req, res) => {
+// ===== ENDPOINTS =====
+
+// GET all users (workers)
+app.get("/api/users", async (req, res) => {
   try {
-    const workers = await Worker.find();
-    res.json(workers);
+    const users = await User.find({ role: "user" }).select("-password");
+    res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
+// GET single user with their ratings
+app.get("/api/users/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    const ratings = await Rating.find({ ratedUser: req.params.id })
+      .populate("ratedBy", "name")
+      .sort({ createdAt: -1 });
+    
+    res.json({
+      user,
+      ratings
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-app.post("/api/workers", async (req, res) => {
-  const worker = new Worker({
+// POST new user (register)
+app.post("/api/users", async (req, res) => {
+  const user = new User({
     name: req.body.name,
-    rating: req.body.rating
+    email: req.body.email,
+    password: req.body.password,
+    role: req.body.role || "user"
   });
 
   try {
-    const newWorker = await worker.save();
-    res.status(201).json(newWorker);
+    const newUser = await user.save();
+    res.status(201).json(newUser);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
 });
 
+// LOGIN endpoint
+app.post("/api/login", async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(400).json({ message: "User not found" });
+    
+    if (user.password !== req.body.password) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      averageRating: user.averageRating
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST new rating
+app.post("/api/ratings", async (req, res) => {
+  const rating = new Rating({
+    ratedBy: req.body.ratedBy,
+    ratedUser: req.body.ratedUser,
+    score: req.body.score,
+    comment: req.body.comment
+  });
+
+  try {
+    const newRating = await rating.save();
+    
+    // Update user's average rating
+    const allRatings = await Rating.find({ ratedUser: req.body.ratedUser });
+    const avgScore = allRatings.reduce((sum, r) => sum + r.score, 0) / allRatings.length;
+    
+    await User.findByIdAndUpdate(req.body.ratedUser, {
+      averageRating: avgScore,
+      totalRatings: allRatings.length
+    });
+
+    res.status(201).json(newRating);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// GET manager dashboard data (all workers with latest ratings)
+app.get("/api/manager/dashboard", async (req, res) => {
+  try {
+    const workers = await User.find({ role: "user" })
+      .select("_id name email averageRating totalRatings createdAt")
+      .sort({ averageRating: -1 });
+
+    const workersWithLatestRating = await Promise.all(
+      workers.map(async (worker) => {
+        const latestRating = await Rating.findOne({ ratedUser: worker._id })
+          .populate("ratedBy", "name")
+          .sort({ createdAt: -1 });
+
+        return {
+          ...worker._doc,
+          latestRating
+        };
+      })
+    );
+
+    res.json(workersWithLatestRating);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET ratings for a specific user
+app.get("/api/ratings/user/:userId", async (req, res) => {
+  try {
+    const ratings = await Rating.find({ ratedUser: req.params.userId })
+      .populate("ratedBy", "name role")
+      .sort({ createdAt: -1 });
+
+    res.json(ratings);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ===== START SERVER =====
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
