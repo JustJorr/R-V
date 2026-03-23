@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import "./styles/App.css";
 import LoginPage from "./pages/LoginPage";
 import ManagerDashboard from "./pages/ManagerDashboard";
+import WorkerDashboard from "./pages/WorkerDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -37,9 +39,9 @@ function App() {
   if (user.role === "manager") {
     return <ManagerDashboard user={user} onLogout={handleLogout} />;
   } else if (user.role === "admin") {
-    return <div>Admin Dashboard - Coming Soon</div>;
+    return <AdminDashboard user={user} onLogout={handleLogout} />;
   } else {
-    return <div>Worker Dashboard - Coming Soon</div>;
+    return <WorkerDashboard user={user} onLogout={handleLogout} />;
   }
 }
 

@@ -59,7 +59,19 @@ const ratingSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
-  score: {
+  technicalSkills: {
+    type: Number,
+    required: true,
+    min: 0,
+    max: 5
+  },
+  communication: {
+    type: Number,
+    required: true,
+    min: 0,
+    max: 5
+  },
+  teamwork: {
     type: Number,
     required: true,
     min: 0,
@@ -76,8 +88,6 @@ const ratingSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", userSchema);
 const Rating = mongoose.model("Rating", ratingSchema);
-
-// ===== ENDPOINTS =====
 
 // GET all users (workers)
 app.get("/api/users", async (req, res) => {
@@ -150,16 +160,25 @@ app.post("/api/ratings", async (req, res) => {
   const rating = new Rating({
     ratedBy: req.body.ratedBy,
     ratedUser: req.body.ratedUser,
-    score: req.body.score,
+    technicalSkills: req.body.technicalSkills,
+    communication: req.body.communication,
+    teamwork: req.body.teamwork,
     comment: req.body.comment
   });
 
   try {
     const newRating = await rating.save();
     
-    // Update user's average rating
+    // Update user's average rating across all ratings
     const allRatings = await Rating.find({ ratedUser: req.body.ratedUser });
-    const avgScore = allRatings.reduce((sum, r) => sum + r.score, 0) / allRatings.length;
+    
+    // Calculate average of all 3 fields
+    let totalScore = 0;
+    allRatings.forEach(r => {
+      const ratingAvg = (r.technicalSkills + r.communication + r.teamwork) / 3;
+      totalScore += ratingAvg;
+    });
+    const avgScore = (totalScore / allRatings.length).toFixed(2);
     
     await User.findByIdAndUpdate(req.body.ratedUser, {
       averageRating: avgScore,

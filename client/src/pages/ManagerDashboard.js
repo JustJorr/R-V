@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { managerService } from "../services/api";
 import { getRatingColor, getRatingStatus } from "../utils/helpers";
+import RatingForm from "../components/RatingForm";
 import "../styles/ManagerDashboard.css";
 
 function ManagerDashboard({ user, onLogout }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [ratingWorker, setRatingWorker] = useState(null);
   const [stats, setStats] = useState({
     totalWorkers: 0,
     avgRating: 0,
@@ -44,8 +46,23 @@ function ManagerDashboard({ user, onLogout }) {
     }
   };
 
+  const handleRatingSuccess = () => {
+    setRatingWorker(null);
+    fetchDashboardData();
+  };
+
   return (
     <div className="manager-dashboard">
+      {/* Rating Form Modal */}
+      {ratingWorker && (
+        <RatingForm
+          worker={ratingWorker}
+          userId={user._id}
+          onSuccess={handleRatingSuccess}
+          onCancel={() => setRatingWorker(null)}
+        />
+      )}
+
       {/* Header */}
       <div className="dashboard-header">
         <div className="header-content">
@@ -109,6 +126,7 @@ function ManagerDashboard({ user, onLogout }) {
                   <th>Total Ratings</th>
                   <th>Status</th>
                   <th>Latest Rating</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -131,7 +149,14 @@ function ManagerDashboard({ user, onLogout }) {
                     <td className="latest-rating">
                       {worker.latestRating ? (
                         <div>
-                          <p className="rating-score">{worker.latestRating.score}★ by {worker.latestRating.ratedBy.name}</p>
+                          <p className="rating-fields">
+                            <span className="field">TS: {worker.latestRating.technicalSkills}★</span>
+                            <span className="field">CM: {worker.latestRating.communication}★</span>
+                            <span className="field">TW: {worker.latestRating.teamwork}★</span>
+                          </p>
+                          <p className="rating-rater">
+                            by {worker.latestRating.ratedBy ? worker.latestRating.ratedBy.name : "Unknown"}
+                          </p>
                           <p className="rating-time">
                             {new Date(worker.latestRating.createdAt).toLocaleDateString()}
                           </p>
@@ -139,6 +164,14 @@ function ManagerDashboard({ user, onLogout }) {
                       ) : (
                         <span>No ratings</span>
                       )}
+                    </td>
+                    <td className="action-cell">
+                      <button
+                        className="rate-btn"
+                        onClick={() => setRatingWorker(worker)}
+                      >
+                        Rate
+                      </button>
                     </td>
                   </tr>
                 ))}

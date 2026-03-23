@@ -49,7 +49,7 @@ function LoginPage({ onLogin }) {
 
   const handleDemoMode = () => {
     const demoUser = {
-      _id: "demo123",
+      _id: "507f1f77bcf86cd799439011", // Valid MongoDB ObjectId format
       name: "Demo Manager",
       email: "demo@example.com",
       role: "manager",

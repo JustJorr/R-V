@@ -35,11 +35,13 @@ export const managerService = {
 
 // Ratings Service
 export const ratingsService = {
-  submitRating: (ratedBy, ratedUser, score, comment) =>
+  submitRating: (ratedBy, ratedUser, technicalSkills, communication, teamwork, comment) =>
     apiClient.post("/api/ratings", { 
       ratedBy, 
       ratedUser, 
-      score, 
+      technicalSkills,
+      communication,
+      teamwork,
       comment 
     }),
   

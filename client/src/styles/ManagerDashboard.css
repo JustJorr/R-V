@@ -196,6 +196,60 @@
   font-size: 13px;
 }
 
+.rating-fields {
+  margin: 0 0 5px 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rating-fields .field {
+  background: #f0f4f8;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #667eea;
+}
+
+.rating-rater {
+  margin: 3px 0;
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.rating-time {
+  margin: 3px 0 0 0;
+  color: #999;
+  font-size: 12px;
+}
+
+.action-cell {
+  text-align: center;
+}
+
+.rate-btn {
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+}
+
+.rate-btn:active {
+  transform: translateY(0);
+}
+
 .rating-score {
   margin: 0;
   color: #333;
