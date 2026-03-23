@@ -1,6 +1,7 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
-import "./ManagerDashboard.css";
+import { managerService } from "../services/api";
+import { getRatingColor, getRatingStatus } from "../utils/helpers";
+import "../styles/ManagerDashboard.css";
 
 function ManagerDashboard({ user, onLogout }) {
   const [workers, setWorkers] = useState([]);
@@ -19,7 +20,7 @@ function ManagerDashboard({ user, onLogout }) {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/manager/dashboard");
+      const response = await managerService.getDashboard();
       setWorkers(response.data);
       
       // Calculate stats
@@ -41,20 +42,6 @@ function ManagerDashboard({ user, onLogout }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const getRatingColor = (rating) => {
-    if (rating >= 4) return "#27ae60";
-    if (rating >= 3) return "#f39c12";
-    return "#e74c3c";
-  };
-
-  const getRatingStatus = (rating) => {
-    if (rating === 0) return "No ratings yet";
-    if (rating >= 4) return "Excellent";
-    if (rating >= 3) return "Good";
-    if (rating >= 2) return "Average";
-    return "Needs Improvement";
   };
 
   return (

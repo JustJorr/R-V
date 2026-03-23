@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import "./App.css";
-import Login from "./Login";
-import ManagerDashboard from "./ManagerDashboard";
+import "./styles/App.css";
+import LoginPage from "./pages/LoginPage";
+import ManagerDashboard from "./pages/ManagerDashboard";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -30,7 +30,7 @@ function App() {
   }
 
   if (!user) {
-    return <Login onLogin={handleLogin} />;
+    return <LoginPage onLogin={handleLogin} />;
   }
 
   // Route based on user role

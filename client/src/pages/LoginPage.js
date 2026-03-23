@@ -1,8 +1,8 @@
-import axios from "axios";
 import { useState } from "react";
-import "./Login.css";
+import { authService } from "../services/api";
+import "../styles/Login.css";
 
-function Login({ onLogin }) {
+function LoginPage({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,12 +17,7 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/login", {
-        email,
-        password
-      });
-
-      // Store user in localStorage
+      const response = await authService.login(email, password);
       localStorage.setItem("user", JSON.stringify(response.data));
       onLogin(response.data);
     } catch (err) {
@@ -38,13 +33,7 @@ function Login({ onLogin }) {
     setLoading(true);
 
     try {
-      await axios.post("http://localhost:5000/api/users", {
-        name: registerName,
-        email,
-        password,
-        role: registerRole
-      });
-
+      await authService.register(registerName, email, password, registerRole);
       alert("Registration successful! Please login.");
       setShowRegister(false);
       setRegisterName("");
@@ -107,7 +96,7 @@ function Login({ onLogin }) {
               Don't have an account?{" "}
               <span onClick={() => setShowRegister(true)}>Register here</span>
             </p>
-            
+
             <div className="demo-section">
               <hr />
               <p className="demo-text">Skip to Dashboard:</p>
@@ -178,4 +167,4 @@ function Login({ onLogin }) {
   );
 }
 
-export default Login;
+export default LoginPage;
