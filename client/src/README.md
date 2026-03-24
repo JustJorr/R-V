@@ -49,7 +49,7 @@ src/
 ### `/styles` - Styling
 - One CSS file per major component
 - Responsive design patterns
-- Color scheme: Purple gradient (#667eea to #764ba2)
+- Color scheme: Purple gradient (#1a3a7f to #764ba2)
 
 ### `/utils` - Helper Functions
 - `getRatingColor()` - Convert rating to color

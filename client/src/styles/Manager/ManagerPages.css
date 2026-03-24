@@ -39,7 +39,7 @@
   align-items: flex-start;
   gap: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #1a3a7f;
   transition: all 0.3s ease;
 }
 
@@ -49,7 +49,7 @@
 }
 
 .stat-card.primary {
-  border-left-color: #667eea;
+  border-left-color: #1a3a7f;
 }
 
 .stat-card.success {
@@ -127,7 +127,7 @@
   padding: 15px;
   background: #f8f9fa;
   border-radius: 8px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #1a3a7f;
   transition: all 0.3s;
 }
 
@@ -146,7 +146,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -180,7 +180,7 @@
 }
 
 .field-badge {
-  background: #667eea;
+  background: #1a3a7f;
   color: white;
   padding: 2px 8px;
   border-radius: 3px;
@@ -221,7 +221,7 @@
   display: block;
   font-size: 24px;
   font-weight: 700;
-  color: #667eea;
+  color: #1a3a7f;
 }
 
 /* ===== MANAGER DETAILS PAGE ===== */
@@ -248,7 +248,7 @@
 }
 
 .search-input:focus {
-  border-color: #667eea;
+  border-color: #1a3a7f;
   outline: none;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
@@ -271,13 +271,13 @@
 }
 
 .filter-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #1a3a7f;
+  color: #1a3a7f;
 }
 
 .filter-btn.active {
-  background: #667eea;
-  border-color: #667eea;
+  background: #1a3a7f;
+  border-color: #1a3a7f;
   color: white;
 }
 
@@ -340,7 +340,7 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -438,7 +438,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
   color: white;
 }
 
@@ -466,8 +466,8 @@
 }
 
 .btn-outline:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #1a3a7f;
+  color: #1a3a7f;
 }
 
 .btn-danger {
@@ -497,7 +497,7 @@
   padding: 30px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-top: 4px solid #667eea;
+  border-top: 4px solid #1a3a7f;
 }
 
 .summary-card h3 {
@@ -511,7 +511,7 @@
 .big-stat {
   font-size: 36px;
   font-weight: 700;
-  color: #667eea;
+  color: #1a3a7f;
   margin: 0 0 10px 0;
 }
 
@@ -584,7 +584,7 @@
   border-radius: 10px;
   padding: 20px;
   text-align: center;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #1a3a7f;
   transition: all 0.3s;
 }
 
@@ -666,7 +666,7 @@
 
 .skill-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #1a3a7f, #764ba2);
   border-radius: 6px;
   transition: all 0.3s ease;
 }
@@ -674,7 +674,7 @@
 .skill-value {
   font-size: 14px;
   font-weight: 700;
-  color: #667eea;
+  color: #1a3a7f;
   text-align: right;
 }
 
@@ -699,7 +699,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -728,7 +728,7 @@
 
 .profile-badge {
   display: inline-block;
-  background: #667eea;
+  background: #1a3a7f;
   color: white;
   padding: 4px 12px;
   border-radius: 20px;
@@ -812,7 +812,7 @@
 }
 
 .form-input:focus {
-  border-color: #667eea;
+  border-color: #1a3a7f;
   outline: none;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }

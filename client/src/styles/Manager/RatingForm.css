@@ -27,7 +27,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #1a3a7f;
   padding-bottom: 15px;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .rating-value {
-  color: #667eea;
+  color: #1a3a7f;
   font-weight: bold;
 }
 
@@ -98,7 +98,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #667eea;
+  background: #1a3a7f;
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -111,7 +111,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #667eea;
+  background: #1a3a7f;
   cursor: pointer;
   border: none;
   transition: background 0.2s;
@@ -135,7 +135,7 @@
   border-radius: 8px;
   text-align: center;
   margin: 20px 0;
-  color: #667eea;
+  color: #1a3a7f;
   font-size: 16px;
 }
 
@@ -165,7 +165,7 @@
 
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #1a3a7f;
   box-shadow: 0 0 5px rgba(102, 126, 234, 0.1);
 }
 
@@ -198,7 +198,7 @@
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #1a3a7f 0%, #764ba2 100%);
   color: white;
 }
 

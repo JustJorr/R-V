@@ -3,144 +3,231 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: url("../../public/images/Pge Lahendong.jpeg") no-repeat center/cover;
+
+  background: 
+    linear-gradient(rgba(10, 20, 40, 0.65), rgba(10, 20, 40, 0.65)),
+    url("../../public/images/Pge Lahendong.jpeg") no-repeat center/cover;
 }
 
+/* ===== ENTRY ANIMATION ===== */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== CARD ===== */
 .login-box {
-  background: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 35px 30px;
+  border-radius: 12px;
   width: 100%;
-  max-width: 400px;
+  max-width: 380px;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+
+  /* animation */
+  animation: fadeSlideUp 0.6s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* subtle floating effect */
+.login-box:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== TITLES ===== */
 .login-box h1 {
   text-align: center;
-  color: #333;
-  margin-bottom: 30px;
-  font-size: 28px;
+  color: #1a3a7f;
+  margin-bottom: 25px;
+  font-size: 24px;
+  font-weight: 700;
 }
 
 .login-box h2 {
-  color: #667eea;
+  color: #333;
   margin-bottom: 20px;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
+/* ===== INPUTS ===== */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
-  color: #333;
+  margin-bottom: 6px;
+  color: #555;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 10px;
+  padding: 11px 12px;
   border: 1px solid #ddd;
-  border-radius: 5px;
+  border-radius: 6px;
   font-size: 14px;
-  box-sizing: border-box;
-  transition: border-color 0.3s;
+  background: #f9fafc;
+
+  transition: all 0.25s ease;
 }
 
+/* focus animation */
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 5px rgba(102, 126, 234, 0.1);
+  border-color: #1a3a7f;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(26, 58, 127, 0.15);
+  transform: scale(1.02);
 }
 
+/* ===== BUTTON ===== */
 .login-box button {
   width: 100%;
-  padding: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 11px;
+  margin-top: 5px;
+
+  background: #1a3a7f;
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 6px;
+
+  font-size: 15px;
   font-weight: 600;
+  letter-spacing: 0.3px;
+
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
+/* hover */
 .login-box button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  background: #142d63;
+  transform: translateY(-1px);
 }
 
-.login-box button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+/* click press */
+.login-box button:active {
+  transform: scale(0.97);
 }
 
+/* ripple effect */
+.login-box button::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(255,255,255,0.2);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.login-box button:active::after {
+  opacity: 1;
+}
+
+/* ===== TEXT ===== */
 .toggle-text {
   text-align: center;
   margin-top: 15px;
-  color: #666;
-  font-size: 14px;
+  font-size: 13px;
+  color: #777;
 }
 
 .toggle-text span {
-  color: #667eea;
+  color: #1a3a7f;
   cursor: pointer;
   font-weight: 600;
-  text-decoration: underline;
+  position: relative;
 }
 
-.toggle-text span:hover {
-  color: #764ba2;
+/* underline animation */
+.toggle-text span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 2px;
+  background: #1a3a7f;
+  transition: width 0.3s ease;
 }
 
+.toggle-text span:hover::after {
+  width: 100%;
+}
+
+/* ===== ERROR ===== */
 .error-message {
-  background-color: #fee;
-  color: #c33;
+  background: #fff5f5;
+  color: #d63031;
   padding: 10px;
-  border-radius: 5px;
+  border-radius: 6px;
   margin-bottom: 15px;
-  font-size: 14px;
+  font-size: 13px;
+  border: 1px solid #f5c2c2;
+
+  animation: fadeSlideUp 0.4s ease;
 }
 
+/* ===== DEMO ===== */
 .demo-section {
   margin-top: 20px;
   padding-top: 15px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.demo-section hr {
-  display: none;
+  border-top: 1px solid #eee;
 }
 
 .demo-text {
   text-align: center;
-  color: #999;
-  font-size: 12px;
+  color: #aaa;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 0 0 10px 0;
+  margin-bottom: 10px;
+  letter-spacing: 0.8px;
 }
 
 .demo-button {
   width: 100%;
   padding: 10px;
-  background: #27ae60;
-  color: white;
-  border: none;
-  border-radius: 5px;
+
+  background: transparent;
+  border: 1px solid #27ae60;
+  color: #27ae60;
+
+  border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
+
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.25s ease;
 }
 
+/* hover glow */
 .demo-button:hover {
-  background: #229954;
+  background: #27ae60;
+  color: white;
+  box-shadow: 0 0 12px rgba(39, 174, 96, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+}
+
+/* click */
+.demo-button:active {
+  transform: scale(0.97);
 }

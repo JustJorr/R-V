@@ -15,7 +15,7 @@ function ManagerNav({ currentPage, onPageChange, userName, onLogout }) {
     <nav className="manager-nav">
       <div className="nav-container">
         <div className="nav-brand">
-          <h2>NERM System</h2>
+          <img src="/PGE_Logo.png" alt="Logo" className="nav-logo" />
         </div>
 
         <button 
