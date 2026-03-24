@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { ratingsService } from "../services/api";
-import "../styles/RatingForm.css";
+import "../styles/Manager/RatingForm.css";
 
 function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, initialValues = null }) {
   const [technicalSkills, setTechnicalSkills] = useState(initialValues?.technicalSkills ?? 3);

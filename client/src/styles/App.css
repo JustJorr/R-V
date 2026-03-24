@@ -31,3 +31,12 @@ header {
 main {
   margin: 20px;
 }
+
+/* Manager Layout */
+.manager-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+

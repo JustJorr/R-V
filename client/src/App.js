@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./styles/App.css";
 import LoginPage from "./pages/LoginPage";
-import ManagerDashboard from "./pages/ManagerDashboard";
+import ManagerLayout from "./components/ManagerLayout";
 import WorkerDashboard from "./pages/WorkerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -37,7 +37,7 @@ function App() {
 
   // Route based on user role
   if (user.role === "manager") {
-    return <ManagerDashboard user={user} onLogout={handleLogout} />;
+    return <ManagerLayout user={user} onLogout={handleLogout} />;
   } else if (user.role === "admin") {
     return <AdminDashboard user={user} onLogout={handleLogout} />;
   } else {
