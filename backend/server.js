@@ -84,7 +84,14 @@ const ratingSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
+}, { 
+  indexes: [
+    { fields: { ratedBy: 1, ratedUser: 1 }, unique: true }
+  ]
 });
+
+// Create unique index on (ratedBy, ratedUser) to prevent duplicates
+ratingSchema.index({ ratedBy: 1, ratedUser: 1 }, { unique: true });
 
 const User = mongoose.model("User", userSchema);
 const Rating = mongoose.model("Rating", ratingSchema);
@@ -155,19 +162,35 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// POST new rating
+// POST new rating (or update if already exists)
 app.post("/api/ratings", async (req, res) => {
-  const rating = new Rating({
-    ratedBy: req.body.ratedBy,
-    ratedUser: req.body.ratedUser,
-    technicalSkills: req.body.technicalSkills,
-    communication: req.body.communication,
-    teamwork: req.body.teamwork,
-    comment: req.body.comment
-  });
-
   try {
-    const newRating = await rating.save();
+    // Check if manager has already rated this worker
+    const existingRating = await Rating.findOne({
+      ratedBy: req.body.ratedBy,
+      ratedUser: req.body.ratedUser
+    });
+
+    let newRating;
+    if (existingRating) {
+      // Update existing rating
+      existingRating.technicalSkills = req.body.technicalSkills;
+      existingRating.communication = req.body.communication;
+      existingRating.teamwork = req.body.teamwork;
+      existingRating.comment = req.body.comment;
+      newRating = await existingRating.save();
+    } else {
+      // Create new rating
+      const rating = new Rating({
+        ratedBy: req.body.ratedBy,
+        ratedUser: req.body.ratedUser,
+        technicalSkills: req.body.technicalSkills,
+        communication: req.body.communication,
+        teamwork: req.body.teamwork,
+        comment: req.body.comment
+      });
+      newRating = await rating.save();
+    }
     
     // Update user's average rating across all ratings
     const allRatings = await Rating.find({ ratedUser: req.body.ratedUser });
@@ -225,6 +248,32 @@ app.get("/api/ratings/user/:userId", async (req, res) => {
       .sort({ createdAt: -1 });
 
     res.json(ratings);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET all ratings made by a specific manager (to prevent duplicate ratings)
+app.get("/api/manager/ratings/:managerId", async (req, res) => {
+  try {
+    const ratings = await Rating.find({ ratedBy: req.params.managerId });
+    res.json(ratings);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET specific rating for editing (by managerId and workerId)
+app.get("/api/rating/:managerId/:workerId", async (req, res) => {
+  try {
+    const rating = await Rating.findOne({
+      ratedBy: req.params.managerId,
+      ratedUser: req.params.workerId
+    });
+    if (!rating) {
+      return res.status(404).json({ message: "No rating found" });
+    }
+    res.json(rating);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

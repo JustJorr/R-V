@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { managerService } from "../services/api";
 import { getRatingColor, getRatingStatus } from "../utils/helpers";
 import RatingForm from "../components/RatingForm";
@@ -8,6 +8,9 @@ function ManagerDashboard({ user, onLogout }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
+  const [ratedWorkerIds, setRatedWorkerIds] = useState(new Set());
+  const [isEditingRating, setIsEditingRating] = useState(false);
+  const [existingRatingData, setExistingRatingData] = useState(null);
   const [stats, setStats] = useState({
     totalWorkers: 0,
     avgRating: 0,
@@ -15,11 +18,7 @@ function ManagerDashboard({ user, onLogout }) {
     bottomWorker: null
   });
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await managerService.getDashboard();
@@ -44,11 +43,48 @@ function ManagerDashboard({ user, onLogout }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const fetchManagerRatings = useCallback(async () => {
+    try {
+      // Get all ratings made by this manager
+      const response = await managerService.getManagerRatings(user._id);
+      const ratedIds = new Set(response.data.map(rating => rating.ratedUser));
+      setRatedWorkerIds(ratedIds);
+    } catch (err) {
+      console.error("Error fetching manager ratings:", err);
+    }
+  }, [user._id]);
+
+  useEffect(() => {
+    fetchDashboardData();
+    fetchManagerRatings();
+  }, [fetchDashboardData, fetchManagerRatings]);
 
   const handleRatingSuccess = () => {
     setRatingWorker(null);
     fetchDashboardData();
+    fetchManagerRatings();
+  };
+
+  const isAlreadyRated = (workerId) => ratedWorkerIds.has(workerId);
+
+  const handleRateWorker = (worker) => {
+    setRatingWorker(worker);
+    setIsEditingRating(false);
+    setExistingRatingData(null);
+  };
+
+  const handleEditRating = async (worker) => {
+    try {
+      const response = await managerService.getExistingRating(user._id, worker._id);
+      setRatingWorker(worker);
+      setIsEditingRating(true);
+      setExistingRatingData(response.data);
+    } catch (err) {
+      console.error("Error fetching rating for editing:", err);
+      alert("Could not load rating for editing");
+    }
   };
 
   return (
@@ -60,6 +96,8 @@ function ManagerDashboard({ user, onLogout }) {
           userId={user._id}
           onSuccess={handleRatingSuccess}
           onCancel={() => setRatingWorker(null)}
+          isEditing={isEditingRating}
+          initialValues={existingRatingData}
         />
       )}
 
@@ -166,12 +204,22 @@ function ManagerDashboard({ user, onLogout }) {
                       )}
                     </td>
                     <td className="action-cell">
-                      <button
-                        className="rate-btn"
-                        onClick={() => setRatingWorker(worker)}
-                      >
-                        Rate
-                      </button>
+                      {isAlreadyRated(worker._id) ? (
+                        <button 
+                          className="rate-btn rated" 
+                          onClick={() => handleEditRating(worker)}
+                          title="Click to edit your rating"
+                        >
+                          ✓ Rated
+                        </button>
+                      ) : (
+                        <button
+                          className="rate-btn"
+                          onClick={() => handleRateWorker(worker)}
+                        >
+                          Rate
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

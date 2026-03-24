@@ -1,14 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ratingsService } from "../services/api";
 import "../styles/RatingForm.css";
 
-function RatingForm({ worker, userId, onSuccess, onCancel }) {
-  const [technicalSkills, setTechnicalSkills] = useState(3);
-  const [communication, setCommunication] = useState(3);
-  const [teamwork, setTeamwork] = useState(3);
-  const [comment, setComment] = useState("");
+function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, initialValues = null }) {
+  const [technicalSkills, setTechnicalSkills] = useState(initialValues?.technicalSkills ?? 3);
+  const [communication, setCommunication] = useState(initialValues?.communication ?? 3);
+  const [teamwork, setTeamwork] = useState(initialValues?.teamwork ?? 3);
+  const [comment, setComment] = useState(initialValues?.comment ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (initialValues) {
+      setTechnicalSkills(initialValues.technicalSkills);
+      setCommunication(initialValues.communication);
+      setTeamwork(initialValues.teamwork);
+      setComment(initialValues.comment || "");
+    }
+  }, [initialValues]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +34,7 @@ function RatingForm({ worker, userId, onSuccess, onCancel }) {
         comment
       );
 
-      alert(`Successfully rated ${worker.name}!`);
+      alert(`Successfully ${isEditing ? "updated" : "added"} rating for ${worker.name}!`);
       onSuccess();
     } catch (err) {
       setError(err.response?.data?.message || "Error submitting rating");
@@ -161,7 +170,7 @@ function RatingForm({ worker, userId, onSuccess, onCancel }) {
               className="submit-btn"
               disabled={loading}
             >
-              {loading ? "Submitting..." : "Submit Rating"}
+              {loading ? (isEditing ? "Updating..." : "Submitting...") : (isEditing ? "Update Rating" : "Submit Rating")}
             </button>
           </div>
         </form>

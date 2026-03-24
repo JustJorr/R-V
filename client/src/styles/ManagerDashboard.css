@@ -250,6 +250,17 @@
   transform: translateY(0);
 }
 
+.rate-btn.rated {
+  background: #4caf50;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.rate-btn.rated:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4);
+}
+
 .rating-score {
   margin: 0;
   color: #333;

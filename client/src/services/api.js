@@ -30,7 +30,13 @@ export const managerService = {
     apiClient.get("/api/manager/dashboard"),
   
   getRatingsForUser: (userId) =>
-    apiClient.get(`/api/ratings/user/${userId}`)
+    apiClient.get(`/api/ratings/user/${userId}`),
+
+  getManagerRatings: (managerId) =>
+    apiClient.get(`/api/manager/ratings/${managerId}`),
+
+  getExistingRating: (managerId, workerId) =>
+    apiClient.get(`/api/rating/${managerId}/${workerId}`)
 };
 
 // Ratings Service
