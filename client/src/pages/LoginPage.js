@@ -62,6 +62,10 @@ function LoginPage({ onLogin }) {
   return (
     <div className="login-container">
       <div className="login-box">
+        <div className="logo-container">
+          <img src="/PGE_Logo.png" alt="Company Logo" className="logo" />
+        </div>
+        
         <h1>Worker Rating System</h1>
 
         {error && <div className="error-message">{error}</div>}

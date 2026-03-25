@@ -231,3 +231,28 @@
 .demo-button:active {
   transform: scale(0.97);
 }
+
+/* ===== LOGO ===== */
+.logo-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+
+  animation: fadeSlideUp 0.5s ease;
+}
+
+.logo {
+  max-width: 150px;   /* keeps it small */
+  margin-right: 20px;
+  height: auto;
+  object-fit: contain;
+
+  /* subtle polish */
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+  transition: transform 0.3s ease;
+}
+
+/* tiny hover interaction */
+.logo:hover {
+  transform: scale(1.05);
+}
