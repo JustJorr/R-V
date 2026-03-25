@@ -24,7 +24,7 @@ function LoginPage({ onLogin }) {
       setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
-    }
+    }hghghj
   };
 
   const handleRegister = async (e) => {
