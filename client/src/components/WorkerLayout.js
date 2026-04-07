@@ -1,7 +1,7 @@
 import { useState } from "react";
-import WorkerNav from "../pages/User/WorkerNav";
 import WorkerHome from "../pages/User/WorkerHome";
 import WorkerRatings from "../pages/User/WorkerRatings";
+import WorkerNav from "../pages/User/WorkerNavigation";
 
 function WorkerLayout({ user, onLogout }) {
   const [currentPage, setCurrentPage] = useState("home");
