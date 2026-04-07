@@ -1,40 +1,88 @@
 import "../../styles/User/WorkerDashboard.css";
 
 function WorkerHome({ user }) {
+  // Helper for color coding ratings like the manager side
+  const getRatingColor = (rating) => {
+    if (rating >= 4) return "#4caf50"; // Success
+    if (rating >= 3) return "#2196f3"; // Info
+    return "#ff9800"; // Warning
+  };
+
   return (
-    <div className="worker-dashboard">
+    <div className="page-content worker-dashboard">
+      {/* HEADER */}
+      <div className="page-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back, <strong>{user.name}</strong> 👋</p>
+      </div>
 
-      <div className="dashboard-header">
-        <div className="header-content">
-          <h1>Dashboard</h1>
-          <p>Welcome, {user.name}</p>
+      {/* ===== SUMMARY CARDS ===== */}
+      <div className="stats-grid">
+        <div className="stat-card success">
+          <div className="stat-icon">⭐</div>
+          <div className="stat-info">
+            <h3>Average Rating</h3>
+            <p 
+              className="stat-number" 
+              style={{ color: getRatingColor(user.averageRating) }}
+            >
+              {user.averageRating ? user.averageRating.toFixed(1) : "N/A"}
+            </p>
+          </div>
+        </div>
+
+        <div className="stat-card info">
+          <div className="stat-icon">📊</div>
+          <div className="stat-info">
+            <h3>Total Reviews</h3>
+            <p className="stat-number">{user.totalRatings || 0}</p>
+          </div>
+        </div>
+
+        <div className="stat-card warning">
+          <div className="stat-icon">💬</div>
+          <div className="stat-info">
+            <h3>Feedback Received</h3>
+            <p className="stat-number">{user.totalComments || 0}</p>
+          </div>
         </div>
       </div>
 
-      <div className="content">
-        <div className="welcome-card">
-          <h2>Welcome</h2>
-          <p>Hello, {user.name}!</p>
-
-          <div className="info-box">
-            <p><strong>Email:</strong> {user.email}</p>
-            <p><strong>Role:</strong> Worker</p>
-            <p><strong>Your Rating:</strong> {user.averageRating ? user.averageRating.toFixed(1) : "No ratings yet"} ★</p>
+      {/* ===== MAIN CONTENT ===== */}
+      <div className="dashboard-grid">
+        
+        {/* Profile Overview styled as a 'Recent Section' */}
+        <div className="recent-section profile-overview">
+          <h2>Profile Overview</h2>
+          <div className="recent-list">
+            <div className="recent-item">
+              <div className="recent-worker">
+                <div className="worker-avatar">
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="worker-details">
+                  <h4>{user.name}</h4>
+                  <p className="worker-email">{user.email}</p>
+                </div>
+              </div>
+              <div className="recent-rating">
+                <span className="field-badge">Role: Worker</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="features-grid">
-          <div className="feature-card">
-            <h3>📊 View Ratings</h3>
-            <p>See your performance ratings.</p>
-          </div>
-          <div className="feature-card">
-            <h3>⭐ Rate Colleagues</h3>
-            <p>Give feedback to coworkers.</p>
+        {/* Quick Actions */}
+        <div className="recent-section quick-actions-card">
+          <h2>Quick Actions</h2>
+          <div className="actions-vertical">
+            <button className="action-btn">⭐ Rate Colleagues</button>
+            <button className="action-btn outline">📊 View My Ratings</button>
+            <button className="action-btn outline">💬 View Feedback</button>
           </div>
         </div>
+
       </div>
-
     </div>
   );
 }
