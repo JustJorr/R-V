@@ -3,7 +3,7 @@ import "../../styles/Manager/ManagerNav.css";
 function WorkerNav({ currentPage, onPageChange, userName, onLogout, collapsed, setCollapsed }) {
   const pages = [
     { id: "home", label: "Home", icon: "🏠" },
-    { id: "ratings", label: "My Ratings", icon: "⭐" },
+    { id: "ratings", label: "Rate Colleagues", icon: "⭐" },
     { id: "feedback", label: "Feedback", icon: "💬" },
     { id: "profile", label: "Profile", icon: "👤" }
   ];
