@@ -2,6 +2,7 @@ import { useState } from "react";
 import WorkerHome from "../pages/User/WorkerHome";
 import WorkerRatings from "../pages/User/WorkerRatings";
 import WorkerNav from "../pages/User/WorkerNavigation";
+import WorkerFeedback from "../pages/User/WorkerFeedback";
 
 function WorkerLayout({ user, onLogout }) {
   const [currentPage, setCurrentPage] = useState("home");
@@ -13,6 +14,8 @@ function WorkerLayout({ user, onLogout }) {
         return <WorkerHome user={user} />;
       case "ratings":
         return <WorkerRatings user={user} />;
+      case "feedback":
+        return <WorkerFeedback user={user} />;
       default:
         return <WorkerHome user={user} />;
     }

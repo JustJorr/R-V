@@ -250,7 +250,7 @@
 .search-input:focus {
   border-color: #1a3a7f;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(26, 58, 127, 0.1);
 }
 
 .filter-buttons {
@@ -281,7 +281,7 @@
   color: white;
 }
 
-/* Table */
+/* ===== TABLE ===== */
 .table-responsive {
   background: white;
   border-radius: 12px;
@@ -294,6 +294,7 @@
   border-collapse: collapse;
 }
 
+/* Header */
 .workers-table thead {
   background: #f8f9fa;
   border-bottom: 2px solid #e0e0e0;
@@ -309,13 +310,16 @@
   letter-spacing: 0.5px;
 }
 
+/* Body */
 .workers-table td {
   padding: 15px;
   border-bottom: 1px solid #f0f0f0;
   font-size: 14px;
   color: #666;
+  vertical-align: middle;
 }
 
+/* Hover */
 .workers-table tbody tr {
   transition: all 0.2s;
 }
@@ -328,12 +332,33 @@
   background: #f0f7f0;
 }
 
+/* ===== 🔥 PERFECT COLUMN ALIGNMENT ===== */
+/* # column */
+.workers-table th:nth-child(1),
+.workers-table td:nth-child(1) {
+  text-align: center;
+}
+
+/* Status column */
+.workers-table th:nth-child(4),
+.workers-table td:nth-child(4) {
+  text-align: center;
+}
+
+/* Action column */
+.workers-table th:nth-child(5),
+.workers-table td:nth-child(5) {
+  text-align: center;
+}
+
+/* ===== NAME CELL ===== */
 .worker-name-cell {
   font-weight: 600;
   color: #333;
   display: flex;
   align-items: center;
   gap: 10px;
+  justify-content: flex-start;
 }
 
 .worker-badge {
@@ -355,8 +380,11 @@
   color: #999;
 }
 
+/* ===== BADGES ===== */
 .rating-badge {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   color: white;
   padding: 6px 12px;
   border-radius: 20px;
@@ -365,7 +393,10 @@
 }
 
 .status-badge {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 100px;
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 12px;
@@ -394,6 +425,7 @@
   color: #c62828;
 }
 
+/* ===== RATING INFO ===== */
 .latest-rating-cell {
   font-size: 12px;
 }
@@ -414,6 +446,7 @@
   color: #999;
 }
 
+/* ===== UTILITIES ===== */
 .center {
   text-align: center;
 }
@@ -426,7 +459,11 @@
   text-align: center;
 }
 
+/* ===== BUTTONS ===== */
 .btn {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   padding: 8px 14px;
   border: none;
   border-radius: 6px;
@@ -444,7 +481,7 @@
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(26, 58, 127, 0.3);
 }
 
 .btn-edit,
