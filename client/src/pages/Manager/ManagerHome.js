@@ -62,7 +62,7 @@ function ManagerHome() {
   return (
     <div className="page-content manager-home">
       <div className="page-header">
-        <h1>Welcome Back! 👋</h1>
+        <h1>Welcome Back!</h1>
         <p>Here's your performance overview</p>
       </div>
 

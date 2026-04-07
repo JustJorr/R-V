@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./styles/App.css";
 import LoginPage from "./pages/LoginPage";
 import ManagerLayout from "./components/ManagerLayout";
-import WorkerDashboard from "./pages/User/WorkerDashboard";
+import WorkerLayout from "./components/WorkerLayout"; // ✅ ADD THIS
 import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
@@ -10,7 +10,6 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -35,13 +34,12 @@ function App() {
     return <LoginPage onLogin={handleLogin} />;
   }
 
-  // Route based on user role
   if (user.role === "manager") {
     return <ManagerLayout user={user} onLogout={handleLogout} />;
   } else if (user.role === "admin") {
     return <AdminDashboard user={user} onLogout={handleLogout} />;
   } else {
-    return <WorkerDashboard user={user} onLogout={handleLogout} />;
+    return <WorkerLayout user={user} onLogout={handleLogout} />;
   }
 }
 
