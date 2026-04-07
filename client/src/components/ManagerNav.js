@@ -18,7 +18,7 @@ function ManagerNav({ currentPage, onPageChange, userName, onLogout, collapsed, 
           onClick={() => setCollapsed(!collapsed)}
           title={collapsed ? "Expand" : "Collapse"}
         >
-          {collapsed ? "➡️" : "⬅️"}
+          {collapsed ? "»" : "«"}
         </button>
 
         {/* Logo */}

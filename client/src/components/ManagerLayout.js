@@ -4,7 +4,7 @@ import ManagerHome from "../pages/Manager/ManagerHome";
 import ManagerDetails from "../pages/Manager/ManagerDetails";
 import ManagerDataVisuals from "../pages/Manager/ManagerDataVisuals";
 import ManagerProfile from "../pages/Manager/ManagerProfile";
-import "../styles/ManagerLayout.css";
+import "../styles/Manager/ManagerLayout.css";
 
 function ManagerLayout({ user, onLogout }) {
   const [currentPage, setCurrentPage] = useState("home");

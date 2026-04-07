@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import "./styles/App.css";
 import LoginPage from "./pages/LoginPage";
 import ManagerLayout from "./components/ManagerLayout";
-import WorkerDashboard from "./pages/WorkerDashboard";
+import WorkerDashboard from "./pages/User/WorkerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {

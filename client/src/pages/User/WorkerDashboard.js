@@ -1,4 +1,4 @@
-import "../styles/WorkerDashboard.css";
+import "../../styles/User/WorkerDashboard.css";
 
 function WorkerDashboard({ user, onLogout }) {
   return (

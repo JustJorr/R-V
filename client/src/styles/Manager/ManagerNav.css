@@ -35,26 +35,17 @@
 /* ===== TOGGLE BUTTON ===== */
 .toggle-btn {
   position: absolute;
-  top: 24px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  color: #1a3a7f;
   border: none;
-  background: #1a3a7f;
-  color: white;
+  font-size: 35px;
   cursor: pointer;
-  font-size: 14px;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
 }
 
 .toggle-btn:hover {
-  background: #0d2354;
-  transform: scale(1.05);
+  color: #0d2354;
 }
 
 /* ===== LOGO ===== */
@@ -69,6 +60,15 @@
   height: 40px;
   width: auto;
   object-fit: contain;
+}
+
+.nav-logo {
+  transition: opacity 0.2s ease;
+}
+
+.manager-nav.collapsed .nav-logo {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* ===== NAVIGATION ===== */
