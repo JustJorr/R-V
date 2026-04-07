@@ -1,9 +1,6 @@
-import { useState } from "react";
 import "../styles/Manager/ManagerNav.css";
 
-function ManagerNav({ currentPage, onPageChange, userName, onLogout }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+function ManagerNav({ currentPage, onPageChange, userName, onLogout, collapsed, setCollapsed }) {
   const pages = [
     { id: "home", label: "Home", icon: "🏠" },
     { id: "details", label: "Details", icon: "👥" },
@@ -12,44 +9,60 @@ function ManagerNav({ currentPage, onPageChange, userName, onLogout }) {
   ];
 
   return (
-    <nav className="manager-nav">
+    <nav className={`manager-nav ${collapsed ? "collapsed" : ""}`}>
       <div className="nav-container">
+
+        {/* 🔥 Toggle button ATTACHED to sidebar */}
+        <button 
+          className="toggle-btn"
+          onClick={() => setCollapsed(!collapsed)}
+          title={collapsed ? "Expand" : "Collapse"}
+        >
+          {collapsed ? "➡️" : "⬅️"}
+        </button>
+
+        {/* Logo */}
         <div className="nav-brand">
           <img src="/PGE_Logo.png" alt="Logo" className="nav-logo" />
         </div>
 
-        <button 
-          className="mobile-toggle"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          ☰
-        </button>
-
-        <div className={`nav-menu ${mobileMenuOpen ? "active" : ""}`}>
+        {/* Menu */}
+        <div className="nav-menu">
           <div className="nav-pages">
             {pages.map((page) => (
               <button
                 key={page.id}
                 className={`nav-item ${currentPage === page.id ? "active" : ""}`}
-                onClick={() => {
-                  onPageChange(page.id);
-                  setMobileMenuOpen(false);
-                }}
+                onClick={() => onPageChange(page.id)}
+                title={page.label}
               >
                 <span className="nav-icon">{page.icon}</span>
-                <span className="nav-label">{page.label}</span>
+
+                {/* 👇 Hide text when collapsed */}
+                {!collapsed && (
+                  <span className="nav-label">{page.label}</span>
+                )}
               </button>
             ))}
           </div>
 
+          {/* User */}
           <div className="nav-user">
             <div className="user-info">
-              <div className="user-avatar">{userName.charAt(0).toUpperCase()}</div>
-              <span className="user-name">{userName}</span>
+              <div className="user-avatar">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+
+              {!collapsed && (
+                <span className="user-name">{userName}</span>
+              )}
             </div>
-            <button className="logout-btn" onClick={onLogout}>
-              Logout
-            </button>
+
+            {!collapsed && (
+              <button className="logout-btn" onClick={onLogout}>
+                Logout
+              </button>
+            )}
           </div>
         </div>
       </div>

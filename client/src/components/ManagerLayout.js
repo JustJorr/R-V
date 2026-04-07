@@ -4,9 +4,11 @@ import ManagerHome from "../pages/Manager/ManagerHome";
 import ManagerDetails from "../pages/Manager/ManagerDetails";
 import ManagerDataVisuals from "../pages/Manager/ManagerDataVisuals";
 import ManagerProfile from "../pages/Manager/ManagerProfile";
+import "../styles/ManagerLayout.css";
 
 function ManagerLayout({ user, onLogout }) {
   const [currentPage, setCurrentPage] = useState("home");
+  const [collapsed, setCollapsed] = useState(false);
 
   const renderPage = () => {
     switch (currentPage) {
@@ -25,13 +27,20 @@ function ManagerLayout({ user, onLogout }) {
 
   return (
     <div className="manager-layout">
+      {/* Sidebar */}
       <ManagerNav
         currentPage={currentPage}
         onPageChange={setCurrentPage}
         userName={user?.name || "Manager"}
         onLogout={onLogout}
+        collapsed={collapsed}
+        setCollapsed={setCollapsed}
       />
-      {renderPage()}
+
+      {/* Main Content - shifts when sidebar collapses */}
+      <div className={`main-content ${collapsed ? "collapsed" : ""}`}>
+        {renderPage()}
+      </div>
     </div>
   );
 }
