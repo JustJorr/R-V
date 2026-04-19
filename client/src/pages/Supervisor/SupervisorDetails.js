@@ -4,7 +4,7 @@ import { getRatingColor, getRatingStatus } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 
-function SupervisorDetails({ worker }) {
+function SupervisorDetails({ worker: supervisor }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
@@ -28,13 +28,13 @@ function SupervisorDetails({ worker }) {
 
   const fetchSupervisorRatings = useCallback(async () => {
     try {
-      const response = await supervisorService.getSupervisorRatings(worker._id);
+      const response = await supervisorService.getSupervisorRatings(supervisor._id);
       const ratedIds = new Set(response.data.map(rating => rating.ratedUser));
       setRatedWorkerIds(ratedIds);
     } catch (err) {
       console.error("Error fetching supervisor ratings:", err);
     }
-  }, [worker._id]);
+  }, [supervisor._id]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -57,7 +57,7 @@ function SupervisorDetails({ worker }) {
 
   const handleEditRating = async (worker) => {
     try {
-      const response = await supervisorService.getExistingRating(worker._id, worker._id);
+      const response = await supervisorService.getExistingRating(supervisor._id, worker._id);
       setRatingWorker(worker);
       setIsEditingRating(true);
       setExistingRatingData(response.data);
@@ -82,7 +82,7 @@ function SupervisorDetails({ worker }) {
       {ratingWorker && (
         <RatingForm
           worker={ratingWorker}
-          userId={worker._id}
+          userId={supervisor._id}
           onSuccess={handleRatingSuccess}
           onCancel={() => setRatingWorker(null)}
           isEditing={isEditingRating}

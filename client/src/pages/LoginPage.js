@@ -49,7 +49,7 @@ function LoginPage({ onLogin }) {
 
   const handleDemoMode = () => {
     const demoUser = {
-      _id: "507f1f77bcf86cd799439011", // Valid MongoDB ObjectId format
+      _id: "507f1f77bcf86cd799439011",
       name: "Demo Supervisor",
       email: "demo@example.com",
       role: "supervisor",
@@ -58,6 +58,19 @@ function LoginPage({ onLogin }) {
     localStorage.setItem("worker", JSON.stringify(demoUser));
     onLogin(demoUser);
   };
+
+  const handleAdminDemo = () => {
+  const demoAdmin = {
+    _id: "507f1f77bcf86cd799439012",
+    name: "Demo Admin",
+    email: "admin@example.com",
+    role: "admin",
+    averageRating: 0
+  };
+
+  localStorage.setItem("worker", JSON.stringify(demoAdmin));
+  onLogin(demoAdmin);
+};
 
   return (
     <div className="login-container">
@@ -110,6 +123,14 @@ function LoginPage({ onLogin }) {
                 onClick={handleDemoMode}
               >
                 → Go to Supervisor Dashboard (Demo)
+              </button>
+
+              <button 
+                type="button" 
+                className="demo-button"
+                onClick={handleAdminDemo}
+              >
+                → Admin Dashboard (Demo)
               </button>
             </div>
           </form>

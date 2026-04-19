@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import "./styles/App.css";
 import LoginPage from "./pages/LoginPage";
 import SupervisorLayout from "./components/SupervisorLayout";
-import WorkerLayout from "./components/WorkerLayout"; // ✅ ADD THIS
-import AdminDashboard from "./pages/AdminDashboard";
+import WorkerLayout from "./components/WorkerLayout";
+import AdminLayout from "./components/AdminLayout";
 
 function App() {
   const [worker, setUser] = useState(null);
@@ -37,7 +37,7 @@ function App() {
   if (worker.role === "supervisor") {
     return <SupervisorLayout worker={worker} onLogout={handleLogout} />;
   } else if (worker.role === "admin") {
-    return <AdminDashboard worker={worker} onLogout={handleLogout} />;
+    return <AdminLayout worker={worker} onLogout={handleLogout} />; // ✅ FIXED
   } else {
     return <WorkerLayout worker={worker} onLogout={handleLogout} />;
   }
