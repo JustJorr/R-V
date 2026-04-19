@@ -106,16 +106,16 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// GET single user with their ratings
+// GET single worker with their ratings
 app.get("/api/users/:id", async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const worker = await User.findById(req.params.id).select("-password");
     const ratings = await Rating.find({ ratedUser: req.params.id })
       .populate("ratedBy", "name")
       .sort({ createdAt: -1 });
     
     res.json({
-      user,
+      worker,
       ratings
     });
   } catch (err) {
@@ -123,9 +123,9 @@ app.get("/api/users/:id", async (req, res) => {
   }
 });
 
-// POST new user (register)
+// POST new worker (register)
 app.post("/api/users", async (req, res) => {
-  const user = new User({
+  const worker = new User({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
@@ -133,7 +133,7 @@ app.post("/api/users", async (req, res) => {
   });
 
   try {
-    const newUser = await user.save();
+    const newUser = await worker.save();
     res.status(201).json(newUser);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -143,19 +143,19 @@ app.post("/api/users", async (req, res) => {
 // LOGIN endpoint
 app.post("/api/login", async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
-    if (!user) return res.status(400).json({ message: "User not found" });
+    const worker = await User.findOne({ email: req.body.email });
+    if (!worker) return res.status(400).json({ message: "User not found" });
     
-    if (user.password !== req.body.password) {
+    if (worker.password !== req.body.password) {
       return res.status(400).json({ message: "Invalid password" });
     }
 
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      averageRating: user.averageRating
+      _id: worker._id,
+      name: worker.name,
+      email: worker.email,
+      role: worker.role,
+      averageRating: worker.averageRating
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -192,7 +192,7 @@ app.post("/api/ratings", async (req, res) => {
       newRating = await rating.save();
     }
     
-    // Update user's average rating across all ratings
+    // Update worker's average rating across all ratings
     const allRatings = await Rating.find({ ratedUser: req.body.ratedUser });
     
     // Calculate average of all 3 fields
@@ -240,8 +240,8 @@ app.get("/api/manager/dashboard", async (req, res) => {
   }
 });
 
-// GET ratings for a specific user
-app.get("/api/ratings/user/:userId", async (req, res) => {
+// GET ratings for a specific worker
+app.get("/api/ratings/worker/:userId", async (req, res) => {
   try {
     const ratings = await Rating.find({ ratedUser: req.params.userId })
       .populate("ratedBy", "name role")

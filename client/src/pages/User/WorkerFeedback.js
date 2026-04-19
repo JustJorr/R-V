@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { ratingsService } from "../../services/api";
 import "../../styles/User/WorkerDashboard.css";
 
-function WorkerFeedback({ user }) {
+function WorkerFeedback({ worker }) {
   const [managerComments, setManagerComments] = useState([]);
   const [anonymousComments, setAnonymousComments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ function WorkerFeedback({ user }) {
     try {
       setLoading(true);
 
-      const res = await ratingsService.getRatingsForUser(user._id);
+      const res = await ratingsService.getRatingsForUser(worker._id);
 
       const manager = [];
       const anonymous = [];
@@ -40,7 +40,7 @@ function WorkerFeedback({ user }) {
     } finally {
       setLoading(false);
     }
-  }, [user._id]);
+  }, [worker._id]);
 
   useEffect(() => {
     fetchFeedback();

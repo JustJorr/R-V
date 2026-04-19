@@ -4,7 +4,7 @@ import { getRatingColor, getRatingStatus } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Manager/ManagerPages.css";
 
-function ManagerDetails({ user }) {
+function ManagerDetails({ worker }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
@@ -28,13 +28,13 @@ function ManagerDetails({ user }) {
 
   const fetchManagerRatings = useCallback(async () => {
     try {
-      const response = await managerService.getManagerRatings(user._id);
+      const response = await managerService.getManagerRatings(worker._id);
       const ratedIds = new Set(response.data.map(rating => rating.ratedUser));
       setRatedWorkerIds(ratedIds);
     } catch (err) {
       console.error("Error fetching manager ratings:", err);
     }
-  }, [user._id]);
+  }, [worker._id]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -57,7 +57,7 @@ function ManagerDetails({ user }) {
 
   const handleEditRating = async (worker) => {
     try {
-      const response = await managerService.getExistingRating(user._id, worker._id);
+      const response = await managerService.getExistingRating(worker._id, worker._id);
       setRatingWorker(worker);
       setIsEditingRating(true);
       setExistingRatingData(response.data);
@@ -82,7 +82,7 @@ function ManagerDetails({ user }) {
       {ratingWorker && (
         <RatingForm
           worker={ratingWorker}
-          userId={user._id}
+          userId={worker._id}
           onSuccess={handleRatingSuccess}
           onCancel={() => setRatingWorker(null)}
           isEditing={isEditingRating}

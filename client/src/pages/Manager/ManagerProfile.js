@@ -1,12 +1,12 @@
 import { useState } from "react";
 import "../../styles/Manager/ManagerPages.css";
 
-function ManagerProfile({ user }) {
+function ManagerProfile({ worker }) {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
-    role: user?.role || "manager"
+    name: worker?.name || "",
+    email: worker?.email || "",
+    role: worker?.role || "manager"
   });
 
   const handleChange = (e) => {
@@ -25,9 +25,9 @@ function ManagerProfile({ user }) {
 
   const handleCancel = () => {
     setFormData({
-      name: user?.name || "",
-      email: user?.email || "",
-      role: user?.role || "manager"
+      name: worker?.name || "",
+      email: worker?.email || "",
+      role: worker?.role || "manager"
     });
     setEditMode(false);
   };
@@ -43,12 +43,12 @@ function ManagerProfile({ user }) {
         {/* Profile Header */}
         <div className="profile-header">
           <div className="profile-avatar-large">
-            {user?.name?.charAt(0).toUpperCase()}
+            {worker?.name?.charAt(0).toUpperCase()}
           </div>
           <div className="profile-header-info">
-            <h2>{user?.name}</h2>
-            <p className="profile-email">{user?.email}</p>
-            <span className="profile-badge">{user?.role?.toUpperCase()}</span>
+            <h2>{worker?.name}</h2>
+            <p className="profile-email">{worker?.email}</p>
+            <span className="profile-badge">{worker?.role?.toUpperCase()}</span>
           </div>
         </div>
 

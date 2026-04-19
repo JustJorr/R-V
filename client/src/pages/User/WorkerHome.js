@@ -1,11 +1,8 @@
-import { useEffect, useState, useCallback } from "react";
-import { usersService } from "../../services/api";
-import RatingForm from "../../components/RatingForm";
+import { useNavigate } from "react-router-dom";
 import "../../styles/User/WorkerDashboard.css";
 
-function WorkerHome({ user }) {
-  const [workers, setWorkers] = useState([]);
-  const [selectedWorker, setSelectedWorker] = useState(null);
+function WorkerHome({ worker }) {
+  const navigate = useNavigate();
 
   const getRatingColor = (rating) => {
     if (rating >= 4) return "#4caf50";
@@ -13,43 +10,31 @@ function WorkerHome({ user }) {
     return "#ff9800";
   };
 
-  const fetchWorkers = useCallback(async () => {
-    try {
-      const res = await usersService.getAllUsers();
-      
-      const filtered = res.data.filter(
-        (u) => u.role === "worker" && u._id !== user._id
-      );
-      
-      setWorkers(filtered);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [user._id]);
-  
-  useEffect(() => {
-    fetchWorkers();
-  }, [fetchWorkers]);
-  
   return (
     <div className="page-content worker-dashboard">
-      {/* HEADER */}
+      
+      {/* ===== HEADER ===== */}
       <div className="page-header">
         <h1>Dashboard</h1>
-        <p>Welcome back, <strong>{user.name}</strong> 👋</p>
+        <p>
+          Welcome back, <strong>{worker.name}</strong> 👋
+        </p>
       </div>
 
       {/* ===== STATS ===== */}
       <div className="stats-grid">
+        
         <div className="stat-card success">
           <div className="stat-icon">⭐</div>
           <div className="stat-info">
             <h3>Average Rating</h3>
             <p
               className="stat-number"
-              style={{ color: getRatingColor(user.averageRating) }}
+              style={{ color: getRatingColor(worker.averageRating) }}
             >
-              {user.averageRating ? user.averageRating.toFixed(1) : "N/A"}
+              {worker.averageRating
+                ? worker.averageRating.toFixed(1)
+                : "N/A"}
             </p>
           </div>
         </div>
@@ -58,7 +43,9 @@ function WorkerHome({ user }) {
           <div className="stat-icon">📊</div>
           <div className="stat-info">
             <h3>Total Reviews</h3>
-            <p className="stat-number">{user.totalRatings || 0}</p>
+            <p className="stat-number">
+              {worker.totalRatings || 0}
+            </p>
           </div>
         </div>
 
@@ -66,9 +53,12 @@ function WorkerHome({ user }) {
           <div className="stat-icon">💬</div>
           <div className="stat-info">
             <h3>Feedback</h3>
-            <p className="stat-number">{user.totalComments || 0}</p>
+            <p className="stat-number">
+              {worker.totalComments || 0}
+            </p>
           </div>
         </div>
+
       </div>
 
       {/* ===== MAIN GRID ===== */}
@@ -77,16 +67,21 @@ function WorkerHome({ user }) {
         {/* PROFILE */}
         <div className="recent-section">
           <h2>Profile Overview</h2>
+
           <div className="recent-item">
             <div className="recent-worker">
+              
               <div className="worker-avatar">
-                {user.name.charAt(0).toUpperCase()}
+                {worker.name.charAt(0).toUpperCase()}
               </div>
+
               <div className="worker-details">
-                <h4>{user.name}</h4>
-                <p className="worker-email">{user.email}</p>
+                <h4>{worker.name}</h4>
+                <p className="worker-email">{worker.email}</p>
               </div>
+
             </div>
+
             <span className="field-badge">Worker</span>
           </div>
         </div>
@@ -94,29 +89,36 @@ function WorkerHome({ user }) {
         {/* QUICK ACTIONS */}
         <div className="recent-section">
           <h2>Quick Actions</h2>
+
           <div className="actions-vertical">
-            <button className="action-btn">⭐ Rate Colleagues</button>
-            <button className="action-btn outline">📊 View My Ratings</button>
-            <button className="action-btn outline">💬 Feedback</button>
+
+            <button
+              className="action-btn"
+              onClick={() => navigate("/worker/ratings")}
+            >
+              ⭐ Rate Colleagues
+            </button>
+
+            <button
+              className="action-btn outline"
+              onClick={() => navigate("/worker/ratings")}
+            >
+              📊 View My Ratings
+            </button>
+
+            <button
+              className="action-btn outline"
+              onClick={() => navigate("/worker/feedback")}
+            >
+              💬 Feedback
+            </button>
+
           </div>
         </div>
+
       </div>
-
-
-      {/* ===== MODAL ===== */}
-      {selectedWorker && (
-        <RatingForm
-          worker={selectedWorker}
-          userId={user._id}
-          onSuccess={() => {
-            setSelectedWorker(null);
-            fetchWorkers();
-          }}
-          onCancel={() => setSelectedWorker(null)}
-        />
-      )}
     </div>
-  ); 
+  );
 }
 
 export default WorkerHome;

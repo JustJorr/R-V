@@ -47,14 +47,14 @@ function ManagerNav({ currentPage, onPageChange, userName, onLogout, collapsed, 
           </div>
 
           {/* User */}
-          <div className="nav-user">
-            <div className="user-info">
-              <div className="user-avatar">
+          <div className="nav-worker">
+            <div className="worker-info">
+              <div className="worker-avatar">
                 {userName.charAt(0).toUpperCase()}
               </div>
 
               {!collapsed && (
-                <span className="user-name">{userName}</span>
+                <span className="worker-name">{userName}</span>
               )}
             </div>
 

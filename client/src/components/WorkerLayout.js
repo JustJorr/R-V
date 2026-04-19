@@ -5,22 +5,22 @@ import WorkerNav from "../pages/User/WorkerNavigation";
 import WorkerFeedback from "../pages/User/WorkerFeedback";
 import WorkerProfile from "../pages/User/WorkerProfile";
 
-function WorkerLayout({ user, onLogout }) {
+function WorkerLayout({ worker, onLogout }) {
   const [currentPage, setCurrentPage] = useState("home");
   const [collapsed, setCollapsed] = useState(false);
 
   const renderPage = () => {
     switch (currentPage) {
       case "home":
-        return <WorkerHome user={user} />;
+        return <WorkerHome worker={worker} />;
       case "ratings":
-        return <WorkerRatings user={user} />;
+        return <WorkerRatings worker={worker} />;
       case "feedback":
-        return <WorkerFeedback user={user} />;
+        return <WorkerFeedback worker={worker} />;
       case "profile":
-        return <WorkerProfile user={user} />;
+        return <WorkerProfile worker={worker} />;
       default:
-        return <WorkerHome user={user} />;
+        return <WorkerHome worker={worker} />;
     }
   };
 
@@ -31,7 +31,7 @@ function WorkerLayout({ user, onLogout }) {
       <WorkerNav
         currentPage={currentPage}
         onPageChange={setCurrentPage}
-        userName={user?.name || "Worker"}
+        userName={worker?.name || "Worker"}
         onLogout={onLogout}
         collapsed={collapsed}
         setCollapsed={setCollapsed}

@@ -1,13 +1,13 @@
 import "../styles/AdminDashboard.css";
 
-function AdminDashboard({ user, onLogout }) {
+function AdminDashboard({ worker, onLogout }) {
   return (
     <div className="admin-dashboard">
       {/* Header */}
       <div className="dashboard-header">
         <div className="header-content">
           <h1>Admin Dashboard</h1>
-          <p>Welcome, {user.name}</p>
+          <p>Welcome, {worker.name}</p>
         </div>
         <button className="logout-btn" onClick={onLogout}>
           Logout

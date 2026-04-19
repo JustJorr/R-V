@@ -6,11 +6,11 @@ import WorkerLayout from "./components/WorkerLayout"; // ✅ ADD THIS
 import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [worker, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("user");
+    const savedUser = localStorage.getItem("worker");
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -22,7 +22,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("worker");
     setUser(null);
   };
 
@@ -30,16 +30,16 @@ function App() {
     return <div className="loading-screen">Loading...</div>;
   }
 
-  if (!user) {
+  if (!worker) {
     return <LoginPage onLogin={handleLogin} />;
   }
 
-  if (user.role === "manager") {
-    return <ManagerLayout user={user} onLogout={handleLogout} />;
-  } else if (user.role === "admin") {
-    return <AdminDashboard user={user} onLogout={handleLogout} />;
+  if (worker.role === "manager") {
+    return <ManagerLayout worker={worker} onLogout={handleLogout} />;
+  } else if (worker.role === "admin") {
+    return <AdminDashboard worker={worker} onLogout={handleLogout} />;
   } else {
-    return <WorkerLayout user={user} onLogout={handleLogout} />;
+    return <WorkerLayout worker={worker} onLogout={handleLogout} />;
   }
 }
 

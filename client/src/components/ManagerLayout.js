@@ -6,7 +6,7 @@ import ManagerDataVisuals from "../pages/Manager/ManagerDataVisuals";
 import ManagerProfile from "../pages/Manager/ManagerProfile";
 import "../styles/Manager/ManagerLayout.css";
 
-function ManagerLayout({ user, onLogout }) {
+function ManagerLayout({ worker, onLogout }) {
   const [currentPage, setCurrentPage] = useState("home");
   const [collapsed, setCollapsed] = useState(false);
 
@@ -15,11 +15,11 @@ function ManagerLayout({ user, onLogout }) {
       case "home":
         return <ManagerHome />;
       case "details":
-        return <ManagerDetails user={user} />;
+        return <ManagerDetails worker={worker} />;
       case "visuals":
         return <ManagerDataVisuals />;
       case "profile":
-        return <ManagerProfile user={user} />;
+        return <ManagerProfile worker={worker} />;
       default:
         return <ManagerHome />;
     }
@@ -31,7 +31,7 @@ function ManagerLayout({ user, onLogout }) {
       <ManagerNav
         currentPage={currentPage}
         onPageChange={setCurrentPage}
-        userName={user?.name || "Manager"}
+        userName={worker?.name || "Manager"}
         onLogout={onLogout}
         collapsed={collapsed}
         setCollapsed={setCollapsed}

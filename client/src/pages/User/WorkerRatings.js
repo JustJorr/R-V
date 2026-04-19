@@ -3,7 +3,7 @@ import { usersService, managerService } from "../../services/api";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Manager/ManagerPages.css";
 
-function WorkerRatings({ user }) {
+function WorkerRatings({ worker }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
@@ -17,8 +17,10 @@ function WorkerRatings({ user }) {
 
       const res = await usersService.getAllUsers();
 
+      console.log("USERS FROM API:", res.data);
+
       const filtered = res.data.filter(
-        (u) => u.role === "worker" && u._id !== user._id
+        (u) => u.role === "worker" && u._id !== worker._id
       );
 
       setWorkers(filtered);
@@ -26,15 +28,15 @@ function WorkerRatings({ user }) {
       // 🔥 get existing ratings
       const ratingsMap = {};
 
-      for (let worker of filtered) {
+     for (let targetWorker of filtered) {
         try {
           const r = await managerService.getExistingRating(
-            user._id,
-            worker._id
+            worker._id,          
+            targetWorker._id     
           );
 
           if (r.data) {
-            ratingsMap[worker._id] = r.data;
+            ratingsMap[targetWorker._id] = r.data;
           }
         } catch {}
       }
@@ -46,7 +48,7 @@ function WorkerRatings({ user }) {
     } finally {
       setLoading(false);
     }
-  }, [user._id]);
+  }, [worker._id]);
 
   useEffect(() => {
     fetchWorkers();
@@ -69,7 +71,7 @@ function WorkerRatings({ user }) {
       {ratingWorker && (
         <RatingForm
           worker={ratingWorker}
-          userId={user._id}
+          userId={worker._id}
           onSuccess={handleSuccess}
           onCancel={() => setRatingWorker(null)}
           isEditing={!!existingRatings[ratingWorker._id]}

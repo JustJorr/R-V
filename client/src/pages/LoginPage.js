@@ -9,7 +9,7 @@ function LoginPage({ onLogin }) {
   const [error, setError] = useState("");
   const [showRegister, setShowRegister] = useState(false);
   const [registerName, setRegisterName] = useState("");
-  const [registerRole, setRegisterRole] = useState("user");
+  const [registerRole, setRegisterRole] = useState("worker");
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,7 +18,7 @@ function LoginPage({ onLogin }) {
 
     try {
       const response = await authService.login(email, password);
-      localStorage.setItem("user", JSON.stringify(response.data));
+      localStorage.setItem("worker", JSON.stringify(response.data));
       onLogin(response.data);
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
@@ -39,7 +39,7 @@ function LoginPage({ onLogin }) {
       setRegisterName("");
       setEmail("");
       setPassword("");
-      setRegisterRole("user");
+      setRegisterRole("worker");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
     } finally {
@@ -55,7 +55,7 @@ function LoginPage({ onLogin }) {
       role: "manager",
       averageRating: 4.5
     };
-    localStorage.setItem("user", JSON.stringify(demoUser));
+    localStorage.setItem("worker", JSON.stringify(demoUser));
     onLogin(demoUser);
   };
 
@@ -152,7 +152,7 @@ function LoginPage({ onLogin }) {
                 value={registerRole}
                 onChange={(e) => setRegisterRole(e.target.value)}
               >
-                <option value="user">Worker</option>
+                <option value="worker">Worker</option>
                 <option value="manager">Manager</option>
                 <option value="admin">Admin</option>
               </select>
