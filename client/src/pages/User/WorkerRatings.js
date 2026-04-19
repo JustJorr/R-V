@@ -18,7 +18,7 @@ function WorkerRatings({ user }) {
       const res = await usersService.getAllUsers();
 
       const filtered = res.data.filter(
-        (u) => u.role === "user" && u._id !== user._id
+        (u) => u.role === "worker" && u._id !== user._id
       );
 
       setWorkers(filtered);

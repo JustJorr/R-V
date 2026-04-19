@@ -30,8 +30,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["user", "manager", "admin"],
-    default: "user"
+    enum: ["worker", "manager", "admin"],
+    default: "worker"
   },
   averageRating: {
     type: Number,
@@ -99,7 +99,7 @@ const Rating = mongoose.model("Rating", ratingSchema);
 // GET all users (workers)
 app.get("/api/users", async (req, res) => {
   try {
-    const users = await User.find({ role: "user" }).select("-password");
+    const users = await User.find({ role: "worker" }).select("-password");
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -129,7 +129,7 @@ app.post("/api/users", async (req, res) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    role: req.body.role || "user"
+    role: req.body.role || "worker"
   });
 
   try {
@@ -217,7 +217,7 @@ app.post("/api/ratings", async (req, res) => {
 // GET manager dashboard data (all workers with latest ratings)
 app.get("/api/manager/dashboard", async (req, res) => {
   try {
-    const workers = await User.find({ role: "user" })
+    const workers = await User.find({ role: "worker" })
       .select("_id name email averageRating totalRatings createdAt")
       .sort({ averageRating: -1 });
 
