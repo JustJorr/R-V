@@ -102,26 +102,6 @@ function WorkerHome({ user }) {
         </div>
       </div>
 
-      {/* ===== 🔥 NEW: RATE COLLEAGUES SECTION ===== */}
-      <div className="recent-section">
-        <h2>Rate Colleagues</h2>
-
-        <div className="features-grid">
-          {workers.map((worker) => (
-            <div key={worker._id} className="feature-card">
-              <h3>{worker.name}</h3>
-              <p>{worker.email}</p>
-
-              <button
-                className="action-btn"
-                onClick={() => setSelectedWorker(worker)}
-              >
-                ⭐ Rate
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* ===== MODAL ===== */}
       {selectedWorker && (
@@ -136,7 +116,7 @@ function WorkerHome({ user }) {
         />
       )}
     </div>
-  );
+  ); 
 }
 
 export default WorkerHome;
