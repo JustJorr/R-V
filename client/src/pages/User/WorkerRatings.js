@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { usersService, managerService } from "../../services/api";
+import { usersService, supervisorService } from "../../services/api";
 import RatingForm from "../../components/RatingForm";
-import "../../styles/Manager/ManagerPages.css";
+import "../../styles/Supervisor/SupervisorPages.css";
 
 function WorkerRatings({ worker }) {
   const [workers, setWorkers] = useState([]);
@@ -30,7 +30,7 @@ function WorkerRatings({ worker }) {
 
      for (let targetWorker of filtered) {
         try {
-          const r = await managerService.getExistingRating(
+          const r = await supervisorService.getExistingRating(
             worker._id,          
             targetWorker._id     
           );
@@ -65,7 +65,7 @@ function WorkerRatings({ worker }) {
   );
 
   return (
-    <div className="page-content manager-details">
+    <div className="page-content supervisor-details">
 
       {/* Modal */}
       {ratingWorker && (

@@ -50,9 +50,9 @@ function LoginPage({ onLogin }) {
   const handleDemoMode = () => {
     const demoUser = {
       _id: "507f1f77bcf86cd799439011", // Valid MongoDB ObjectId format
-      name: "Demo Manager",
+      name: "Demo Supervisor",
       email: "demo@example.com",
-      role: "manager",
+      role: "supervisor",
       averageRating: 4.5
     };
     localStorage.setItem("worker", JSON.stringify(demoUser));
@@ -109,7 +109,7 @@ function LoginPage({ onLogin }) {
                 className="demo-button"
                 onClick={handleDemoMode}
               >
-                → Go to Manager Dashboard (Demo)
+                → Go to Supervisor Dashboard (Demo)
               </button>
             </div>
           </form>
@@ -153,7 +153,7 @@ function LoginPage({ onLogin }) {
                 onChange={(e) => setRegisterRole(e.target.value)}
               >
                 <option value="worker">Worker</option>
-                <option value="manager">Manager</option>
+                <option value="supervisor">Supervisor</option>
                 <option value="admin">Admin</option>
               </select>
             </div>

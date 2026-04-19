@@ -13,7 +13,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 // ===== SCHEMAS =====
 
-// User Schema (Workers, Managers, Admins)
+// User Schema (Workers, Supervisors, Admins)
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ["worker", "manager", "admin"],
+    enum: ["worker", "supervisor", "admin"],
     default: "worker"
   },
   averageRating: {
@@ -165,7 +165,7 @@ app.post("/api/login", async (req, res) => {
 // POST new rating (or update if already exists)
 app.post("/api/ratings", async (req, res) => {
   try {
-    // Check if manager has already rated this worker
+    // Check if supervisor has already rated this worker
     const existingRating = await Rating.findOne({
       ratedBy: req.body.ratedBy,
       ratedUser: req.body.ratedUser
@@ -214,8 +214,8 @@ app.post("/api/ratings", async (req, res) => {
   }
 });
 
-// GET manager dashboard data (all workers with latest ratings)
-app.get("/api/manager/dashboard", async (req, res) => {
+// GET supervisor dashboard data (all workers with latest ratings)
+app.get("/api/supervisor/dashboard", async (req, res) => {
   try {
     const workers = await User.find({ role: "worker" })
       .select("_id name email averageRating totalRatings createdAt")
@@ -253,21 +253,21 @@ app.get("/api/ratings/worker/:userId", async (req, res) => {
   }
 });
 
-// GET all ratings made by a specific manager (to prevent duplicate ratings)
-app.get("/api/manager/ratings/:managerId", async (req, res) => {
+// GET all ratings made by a specific supervisor (to prevent duplicate ratings)
+app.get("/api/supervisor/ratings/:supervisorId", async (req, res) => {
   try {
-    const ratings = await Rating.find({ ratedBy: req.params.managerId });
+    const ratings = await Rating.find({ ratedBy: req.params.supervisorId });
     res.json(ratings);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
 
-// GET specific rating for editing (by managerId and workerId)
-app.get("/api/rating/:managerId/:workerId", async (req, res) => {
+// GET specific rating for editing (by supervisorId and workerId)
+app.get("/api/rating/:supervisorId/:workerId", async (req, res) => {
   try {
     const rating = await Rating.findOne({
-      ratedBy: req.params.managerId,
+      ratedBy: req.params.supervisorId,
       ratedUser: req.params.workerId
     });
     if (!rating) {

@@ -32,8 +32,8 @@ main {
   margin: 20px;
 }
 
-/* Manager Layout */
-.manager-layout {
+/* Supervisor Layout */
+.supervisor-layout {
   display: flex;
   flex-direction: column;
   min-height: 100vh;

@@ -6,7 +6,7 @@
 src/
 ├── pages/                    # Page components for different roles
 │   ├── LoginPage.js         # Login and registration page
-│   ├── ManagerDashboard.js  # Manager dashboard
+│   ├── SupervisorDashboard.js  # Supervisor dashboard
 │   ├── AdminDashboard.js    # (Coming soon) Admin dashboard
 │   └── WorkerDashboard.js   # (Coming soon) Worker dashboard
 │
@@ -20,7 +20,7 @@ src/
 ├── styles/                  # CSS files
 │   ├── App.css             # Global app styles
 │   ├── Login.css           # Login page styles
-│   └── ManagerDashboard.css # Manager dashboard styles
+│   └── SupervisorDashboard.css # Supervisor dashboard styles
 │
 ├── config/                  # Configuration files
 │   └── config.js           # App configuration and constants
@@ -35,7 +35,7 @@ src/
 
 ### `/pages` - Page Components
 - **LoginPage.js**: Handles user authentication (login/register)
-- **ManagerDashboard.js**: Displays worker overview and ratings analytics
+- **SupervisorDashboard.js**: Displays worker overview and ratings analytics
 - Future pages for Admin and Worker dashboards
 
 ### `/services` - API Integration
@@ -43,7 +43,7 @@ src/
 - Services organized by feature:
   - `authService` - Login and registration
   - `usersService` - User management
-  - `managerService` - Manager-specific endpoints
+  - `managerService` - Supervisor-specific endpoints
   - `ratingsService` - Rating management
 
 ### `/styles` - Styling

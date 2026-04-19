@@ -25,7 +25,7 @@ function WorkerLayout({ worker, onLogout }) {
   };
 
   return (
-    <div className="manager-layout">
+    <div className="supervisor-layout">
       {/* Reuse same layout class */}
 
       <WorkerNav

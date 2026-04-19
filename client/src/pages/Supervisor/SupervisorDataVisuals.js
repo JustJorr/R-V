@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { managerService } from "../../services/api";
+import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
-import "../../styles/Manager/ManagerPages.css";
+import "../../styles/Supervisor/SupervisorPages.css";
 
-function ManagerDataVisuals() {
+function SupervisorDataVisuals() {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -19,7 +19,7 @@ function ManagerDataVisuals() {
   const fetchChartData = async () => {
     try {
       setLoading(true);
-      const response = await managerService.getDashboard();
+      const response = await supervisorService.getDashboard();
       setWorkers(response.data);
 
       // Calculate statistics
@@ -61,7 +61,7 @@ function ManagerDataVisuals() {
   }
 
   return (
-    <div className="page-content manager-visuals">
+    <div className="page-content supervisor-visuals">
       <div className="page-header">
         <h1>Data Visuals & Analytics</h1>
         <p>Performance metrics and insights</p>
@@ -246,4 +246,4 @@ function ManagerDataVisuals() {
   );
 }
 
-export default ManagerDataVisuals;
+export default SupervisorDataVisuals;

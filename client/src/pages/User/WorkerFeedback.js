@@ -3,7 +3,7 @@ import { ratingsService } from "../../services/api";
 import "../../styles/User/WorkerDashboard.css";
 
 function WorkerFeedback({ worker }) {
-  const [managerComments, setManagerComments] = useState([]);
+  const [supervisorComments, setSupervisorComments] = useState([]);
   const [anonymousComments, setAnonymousComments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,20 +19,20 @@ function WorkerFeedback({ worker }) {
 
       const res = await ratingsService.getRatingsForUser(worker._id);
 
-      const manager = [];
+      const supervisor = [];
       const anonymous = [];
 
       res.data.forEach((rating) => {
         if (!rating.comment) return;
 
-        if (rating.ratedBy?.role === "manager") {
-          manager.push(rating);
+        if (rating.ratedBy?.role === "supervisor") {
+          supervisor.push(rating);
         } else {
           anonymous.push(rating);
         }
       });
 
-      setManagerComments(manager);
+      setSupervisorComments(supervisor);
       setAnonymousComments(anonymous);
 
     } catch (err) {
@@ -60,8 +60,8 @@ function WorkerFeedback({ worker }) {
         {/* HEADER */}
         <div className="feedback-header">
           <div className="feedback-left">
-            <div className={`manager-badge ${label === "anonymous" ? "anonymous" : ""}`}>
-              {label === "anonymous" ? "Anonymous" : "Manager"}
+            <div className={`supervisor-badge ${label === "anonymous" ? "anonymous" : ""}`}>
+              {label === "anonymous" ? "Anonymous" : "Supervisor"}
             </div>
             <span className="feedback-date">
               {new Date(item.createdAt).toLocaleDateString()}
@@ -95,7 +95,7 @@ function WorkerFeedback({ worker }) {
     <div className="page-content worker-dashboard">
       <div className="page-header">
         <h1>Feedback</h1>
-        <p>Manager and anonymous feedback</p>
+        <p>Supervisor and anonymous feedback</p>
       </div>
 
       {loading ? (
@@ -104,14 +104,14 @@ function WorkerFeedback({ worker }) {
         <>
           {/* ===== MANAGER SECTION ===== */}
           <div className="recent-section">
-            <h2>Manager Feedback</h2>
+            <h2>Supervisor Feedback</h2>
 
-            {managerComments.length === 0 ? (
-              <div className="no-data">No manager feedback yet.</div>
+            {supervisorComments.length === 0 ? (
+              <div className="no-data">No supervisor feedback yet.</div>
             ) : (
               <div className="feedback-list">
-                {managerComments.map((item, i) => (
-                  <div key={i}>{renderCard(item, "manager")}</div>
+                {supervisorComments.map((item, i) => (
+                  <div key={i}>{renderCard(item, "supervisor")}</div>
                 ))}
               </div>
             )}

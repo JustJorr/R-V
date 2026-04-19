@@ -1,6 +1,6 @@
-import "../styles/Manager/ManagerNav.css";
+import "../styles/Supervisor/SupervisorNav.css";
 
-function ManagerNav({ currentPage, onPageChange, userName, onLogout, collapsed, setCollapsed }) {
+function SupervisorNav({ currentPage, onPageChange, userName, onLogout, collapsed, setCollapsed }) {
   const pages = [
     { id: "home", label: "Home", icon: "🏠" },
     { id: "details", label: "Details", icon: "👥" },
@@ -9,7 +9,7 @@ function ManagerNav({ currentPage, onPageChange, userName, onLogout, collapsed, 
   ];
 
   return (
-    <nav className={`manager-nav ${collapsed ? "collapsed" : ""}`}>
+    <nav className={`supervisor-nav ${collapsed ? "collapsed" : ""}`}>
       <div className="nav-container">
 
         {/* 🔥 Toggle button ATTACHED to sidebar */}
@@ -70,4 +70,4 @@ function ManagerNav({ currentPage, onPageChange, userName, onLogout, collapsed, 
   );
 }
 
-export default ManagerNav;
+export default SupervisorNav;

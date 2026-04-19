@@ -24,19 +24,19 @@ export const usersService = {
     apiClient.get(`/api/users/${id}`)
 };
 
-// Manager Service
-export const managerService = {
+// Supervisor Service
+export const supervisorService = {
   getDashboard: () =>
-    apiClient.get("/api/manager/dashboard"),
+    apiClient.get("/api/supervisor/dashboard"),
   
   getRatingsForUser: (userId) =>
     apiClient.get(`/api/ratings/worker/${userId}`),
 
-  getManagerRatings: (managerId) =>
-    apiClient.get(`/api/manager/ratings/${managerId}`),
+  getSupervisorRatings: (supervisorId) =>
+    apiClient.get(`/api/supervisor/ratings/${supervisorId}`),
 
-  getExistingRating: (managerId, workerId) =>
-    apiClient.get(`/api/rating/${managerId}/${workerId}`)
+  getExistingRating: (supervisorId, workerId) =>
+    apiClient.get(`/api/rating/${supervisorId}/${workerId}`)
 };
 
 // Ratings Service

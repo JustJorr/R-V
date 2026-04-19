@@ -1,12 +1,12 @@
 import { useState } from "react";
-import "../../styles/Manager/ManagerPages.css";
+import "../../styles/Supervisor/SupervisorPages.css";
 
-function ManagerProfile({ worker }) {
+function SupervisorProfile({ worker }) {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
     name: worker?.name || "",
     email: worker?.email || "",
-    role: worker?.role || "manager"
+    role: worker?.role || "supervisor"
   });
 
   const handleChange = (e) => {
@@ -27,13 +27,13 @@ function ManagerProfile({ worker }) {
     setFormData({
       name: worker?.name || "",
       email: worker?.email || "",
-      role: worker?.role || "manager"
+      role: worker?.role || "supervisor"
     });
     setEditMode(false);
   };
 
   return (
-    <div className="page-content manager-profile">
+    <div className="page-content supervisor-profile">
       <div className="page-header">
         <h1>My Profile</h1>
         <p>View and manage your account settings</p>
@@ -183,4 +183,4 @@ function ManagerProfile({ worker }) {
   );
 }
 
-export default ManagerProfile;
+export default SupervisorProfile;

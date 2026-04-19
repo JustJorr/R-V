@@ -24,7 +24,7 @@
 }
 
 /* ===== MANAGER HOME PAGE ===== */
-.manager-home .stats-grid {
+.supervisor-home .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
@@ -517,7 +517,7 @@
 }
 
 /* ===== MANAGER DATA VISUALS PAGE ===== */
-.manager-visuals {
+.supervisor-visuals {
   background: white;
 }
 
@@ -716,7 +716,7 @@
 }
 
 /* ===== MANAGER PROFILE PAGE ===== */
-.manager-profile .profile-container {
+.supervisor-profile .profile-container {
   display: flex;
   flex-direction: column;
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./styles/App.css";
 import LoginPage from "./pages/LoginPage";
-import ManagerLayout from "./components/ManagerLayout";
+import SupervisorLayout from "./components/SupervisorLayout";
 import WorkerLayout from "./components/WorkerLayout"; // ✅ ADD THIS
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -34,8 +34,8 @@ function App() {
     return <LoginPage onLogin={handleLogin} />;
   }
 
-  if (worker.role === "manager") {
-    return <ManagerLayout worker={worker} onLogout={handleLogout} />;
+  if (worker.role === "supervisor") {
+    return <SupervisorLayout worker={worker} onLogout={handleLogout} />;
   } else if (worker.role === "admin") {
     return <AdminDashboard worker={worker} onLogout={handleLogout} />;
   } else {

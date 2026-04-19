@@ -1,7 +1,7 @@
 # Worker Profile Page Implementation
 
 ## Completed Steps:
-- [x] Create `client/src/pages/User/WorkerProfile.js` (modeled after ManagerProfile.js, role="users")
+- [x] Create `client/src/pages/User/WorkerProfile.js` (modeled after SupervisorProfile.js, role="users")
 - [x] Create `client/src/styles/User/WorkerProfile.css` (adapted styles)
 - [x] Update `client/src/components/WorkerLayout.js` (add import and profile case)
 

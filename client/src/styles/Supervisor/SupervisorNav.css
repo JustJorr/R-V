@@ -1,5 +1,5 @@
 /* ===== MANAGER NAVIGATION ===== */
-.manager-nav {
+.supervisor-nav {
   position: fixed;
   top: 0;
   left: 0;
@@ -18,12 +18,12 @@
 }
 
 /* 🔥 COLLAPSED (mini sidebar) */
-.manager-nav.collapsed {
+.supervisor-nav.collapsed {
   width: 70px;
 }
 
 /* ===== CONTAINER ===== */
-.manager-nav .nav-container {
+.supervisor-nav .nav-container {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -66,7 +66,7 @@
   transition: opacity 0.2s ease;
 }
 
-.manager-nav.collapsed .nav-logo {
+.supervisor-nav.collapsed .nav-logo {
   opacity: 0;
   pointer-events: none;
 }
@@ -182,34 +182,34 @@
 }
 
 /* ===== COLLAPSED BEHAVIOR ===== */
-.manager-nav.collapsed .nav-item {
+.supervisor-nav.collapsed .nav-item {
   justify-content: center;
   padding: 12px;
 }
 
-.manager-nav.collapsed .nav-brand {
+.supervisor-nav.collapsed .nav-brand {
   justify-content: center;
   padding: 0 12px 30px;
 }
 
-.manager-nav.collapsed .worker-info {
+.supervisor-nav.collapsed .worker-info {
   justify-content: center;
 }
 
 /* Hide text when collapsed */
-.manager-nav.collapsed .nav-label,
-.manager-nav.collapsed .worker-name,
-.manager-nav.collapsed .logout-btn {
+.supervisor-nav.collapsed .nav-label,
+.supervisor-nav.collapsed .worker-name,
+.supervisor-nav.collapsed .logout-btn {
   display: none;
 }
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1200px) {
-  .manager-nav {
+  .supervisor-nav {
     width: 220px;
   }
 
-  .manager-nav.collapsed {
+  .supervisor-nav.collapsed {
     width: 60px;
   }
 
@@ -219,11 +219,11 @@
 }
 
 @media (max-width: 768px) {
-  .manager-nav {
+  .supervisor-nav {
     width: 260px;
   }
 
-  .manager-nav.collapsed {
+  .supervisor-nav.collapsed {
     width: 260px;
   }
 

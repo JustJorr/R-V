@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { managerService } from "../../services/api";
+import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
-import "../../styles/Manager/ManagerPages.css";
+import "../../styles/Supervisor/SupervisorPages.css";
 
-function ManagerHome() {
+function SupervisorHome() {
   const [stats, setStats] = useState({
     totalWorkers: 0,
     avgRating: 0,
@@ -20,7 +20,7 @@ function ManagerHome() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await managerService.getDashboard();
+      const response = await supervisorService.getDashboard();
       const workers = response.data;
 
       if (workers.length > 0) {
@@ -60,7 +60,7 @@ function ManagerHome() {
   }
 
   return (
-    <div className="page-content manager-home">
+    <div className="page-content supervisor-home">
       <div className="page-header">
         <h1>Welcome Back!</h1>
         <p>Here's your performance overview</p>
@@ -162,4 +162,4 @@ function ManagerHome() {
   );
 }
 
-export default ManagerHome;
+export default SupervisorHome;

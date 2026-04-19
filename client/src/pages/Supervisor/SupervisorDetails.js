@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { managerService } from "../../services/api";
+import { supervisorService } from "../../services/api";
 import { getRatingColor, getRatingStatus } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
-import "../../styles/Manager/ManagerPages.css";
+import "../../styles/Supervisor/SupervisorPages.css";
 
-function ManagerDetails({ worker }) {
+function SupervisorDetails({ worker }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
@@ -17,7 +17,7 @@ function ManagerDetails({ worker }) {
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await managerService.getDashboard();
+      const response = await supervisorService.getDashboard();
       setWorkers(response.data);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
@@ -26,25 +26,25 @@ function ManagerDetails({ worker }) {
     }
   }, []);
 
-  const fetchManagerRatings = useCallback(async () => {
+  const fetchSupervisorRatings = useCallback(async () => {
     try {
-      const response = await managerService.getManagerRatings(worker._id);
+      const response = await supervisorService.getSupervisorRatings(worker._id);
       const ratedIds = new Set(response.data.map(rating => rating.ratedUser));
       setRatedWorkerIds(ratedIds);
     } catch (err) {
-      console.error("Error fetching manager ratings:", err);
+      console.error("Error fetching supervisor ratings:", err);
     }
   }, [worker._id]);
 
   useEffect(() => {
     fetchDashboardData();
-    fetchManagerRatings();
-  }, [fetchDashboardData, fetchManagerRatings]);
+    fetchSupervisorRatings();
+  }, [fetchDashboardData, fetchSupervisorRatings]);
 
   const handleRatingSuccess = () => {
     setRatingWorker(null);
     fetchDashboardData();
-    fetchManagerRatings();
+    fetchSupervisorRatings();
   };
 
   const isAlreadyRated = (workerId) => ratedWorkerIds.has(workerId);
@@ -57,7 +57,7 @@ function ManagerDetails({ worker }) {
 
   const handleEditRating = async (worker) => {
     try {
-      const response = await managerService.getExistingRating(worker._id, worker._id);
+      const response = await supervisorService.getExistingRating(worker._id, worker._id);
       setRatingWorker(worker);
       setIsEditingRating(true);
       setExistingRatingData(response.data);
@@ -78,7 +78,7 @@ function ManagerDetails({ worker }) {
   });
 
   return (
-    <div className="page-content manager-details">
+    <div className="page-content supervisor-details">
       {ratingWorker && (
         <RatingForm
           worker={ratingWorker}
@@ -217,4 +217,4 @@ function ManagerDetails({ worker }) {
   );
 }
 
-export default ManagerDetails;
+export default SupervisorDetails;

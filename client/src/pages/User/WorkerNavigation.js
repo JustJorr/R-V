@@ -1,4 +1,4 @@
-import "../../styles/Manager/ManagerNav.css";
+import "../../styles/Supervisor/SupervisorNav.css";
 
 function WorkerNav({ currentPage, onPageChange, userName, onLogout, collapsed, setCollapsed }) {
   const pages = [
@@ -9,7 +9,7 @@ function WorkerNav({ currentPage, onPageChange, userName, onLogout, collapsed, s
   ];
 
   return (
-    <nav className={`manager-nav ${collapsed ? "collapsed" : ""}`}>
+    <nav className={`supervisor-nav ${collapsed ? "collapsed" : ""}`}>
       <div className="nav-container">
 
         <button 
