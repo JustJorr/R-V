@@ -1,17 +1,25 @@
 import { useEffect, useState, useCallback } from "react";
 import { ratingsService } from "../../services/api";
+import { getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
 
-function WorkerFeedback({ worker }) {
-  const [supervisorComments, setSupervisorComments] = useState([]);
-  const [anonymousComments, setAnonymousComments] = useState([]);
-  const [loading, setLoading] = useState(true);
+const ratingFields = [
+  { key: "workAreaCompliance", short: "WA", label: "Work Area Compliance" },
+  { key: "taskCompletion", short: "TC", label: "Task Completion" },
+  { key: "cleanliness", short: "CL", label: "Cleanliness" },
+  { key: "wasteManagement", short: "WM", label: "Waste Management" },
+  { key: "organization", short: "OR", label: "Organization" },
+  { key: "uniformCompliance", short: "UC", label: "Uniform Compliance" },
+  { key: "independence", short: "IN", label: "Independence" },
+  { key: "initiative", short: "IV", label: "Initiative" },
+  { key: "teamworkSupport", short: "TS", label: "Teamwork Support" },
+  { key: "punctuality", short: "PU", label: "Punctuality" },
+  { key: "attendance", short: "AT", label: "Attendance" }
+];
 
-  const getRatingColor = (rating) => {
-    if (rating >= 4) return "#4caf50";
-    if (rating >= 3) return "#2196f3";
-    return "#ff9800";
-  };
+function WorkerFeedback({ worker }) {
+  const [ratings, setRatings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchFeedback = useCallback(async () => {
     try {
@@ -19,21 +27,12 @@ function WorkerFeedback({ worker }) {
 
       const res = await ratingsService.getRatingsForUser(worker._id);
 
-      const supervisor = [];
-      const anonymous = [];
+      // Filter to only include ratings with comments
+      const withComments = (Array.isArray(res.data) ? res.data : []).filter(
+        r => r.comment
+      );
 
-      res.data.forEach((rating) => {
-        if (!rating.comment) return;
-
-        if (rating.ratedBy?.role === "supervisor") {
-          supervisor.push(rating);
-        } else {
-          anonymous.push(rating);
-        }
-      });
-
-      setSupervisorComments(supervisor);
-      setAnonymousComments(anonymous);
+      setRatings(withComments);
 
     } catch (err) {
       console.error("Error fetching feedback:", err);
@@ -46,13 +45,18 @@ function WorkerFeedback({ worker }) {
     fetchFeedback();
   }, [fetchFeedback]);
 
-  const renderCard = (item, label) => {
-    const avg = (
-      (item.technicalSkills +
-        item.communication +
-        item.teamwork) /
-      3
-    ).toFixed(1);
+  const calculateAverage = (rating) => {
+    const values = ratingFields.map(f => Number(rating[f.key]) || 0);
+    return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
+  };
+
+  const supervisorFeedback = ratings.filter(r => r.ratedBy?.role === "supervisor");
+  const peerFeedback = ratings.filter(r => r.ratedBy?.role !== "supervisor");
+
+  const renderCard = (item) => {
+    const avg = calculateAverage(item);
+    const isFromSupervisor = item.ratedBy?.role === "supervisor";
+    const raterName = isFromSupervisor ? item.ratedBy?.name : "Anonymous Colleague";
 
     return (
       <div className="feedback-card">
@@ -60,9 +64,10 @@ function WorkerFeedback({ worker }) {
         {/* HEADER */}
         <div className="feedback-header">
           <div className="feedback-left">
-            <div className={`supervisor-badge ${label === "anonymous" ? "anonymous" : ""}`}>
-              {label === "anonymous" ? "Anonymous" : "Supervisor"}
+            <div className="supervisor-badge">
+              {isFromSupervisor ? "Supervisor" : "Peer"} Feedback
             </div>
+            <span className="rater-name">{raterName}</span>
             <span className="feedback-date">
               {new Date(item.createdAt).toLocaleDateString()}
             </span>
@@ -70,17 +75,19 @@ function WorkerFeedback({ worker }) {
 
           <div
             className="feedback-average"
-            style={{ color: getRatingColor(avg) }}
+            style={{ color: getRatingColor(Number(avg)) }}
           >
             ⭐ {avg}
           </div>
         </div>
 
-        {/* RATINGS */}
+        {/* RATINGS - Show all fields */}
         <div className="feedback-ratings">
-          <span className="field-badge">TS: {item.technicalSkills}★</span>
-          <span className="field-badge">CM: {item.communication}★</span>
-          <span className="field-badge">TW: {item.teamwork}★</span>
+          {ratingFields.map(f => (
+            <span key={f.key} className="field-badge" title={f.label}>
+              {f.short}: {item[f.key] ?? 0}★
+            </span>
+          ))}
         </div>
 
         {/* COMMENT */}
@@ -95,38 +102,38 @@ function WorkerFeedback({ worker }) {
     <div className="page-content worker-dashboard">
       <div className="page-header">
         <h1>Feedback</h1>
-        <p>Supervisor and anonymous feedback</p>
+        <p>Feedback from supervisors and colleagues</p>
       </div>
 
       {loading ? (
         <div className="loading">Loading feedback...</div>
       ) : (
         <>
-          {/* ===== MANAGER SECTION ===== */}
+          {/* ===== SUPERVISOR FEEDBACK SECTION ===== */}
           <div className="recent-section">
             <h2>Supervisor Feedback</h2>
 
-            {supervisorComments.length === 0 ? (
-              <div className="no-data">No supervisor feedback yet.</div>
+            {supervisorFeedback.length === 0 ? (
+              <div className="no-data">No supervisor feedback with comments yet.</div>
             ) : (
               <div className="feedback-list">
-                {supervisorComments.map((item, i) => (
-                  <div key={i}>{renderCard(item, "supervisor")}</div>
+                {supervisorFeedback.map((item, i) => (
+                  <div key={i}>{renderCard(item)}</div>
                 ))}
               </div>
             )}
           </div>
 
-          {/* ===== ANONYMOUS SECTION ===== */}
+          {/* ===== PEER FEEDBACK SECTION ===== */}
           <div className="recent-section">
-            <h2>Anonymous Feedback</h2>
+            <h2>Peer Feedback</h2>
 
-            {anonymousComments.length === 0 ? (
-              <div className="no-data">No anonymous feedback yet.</div>
+            {peerFeedback.length === 0 ? (
+              <div className="no-data">No peer feedback with comments yet.</div>
             ) : (
               <div className="feedback-list">
-                {anonymousComments.map((item, i) => (
-                  <div key={i}>{renderCard(item, "anonymous")}</div>
+                {peerFeedback.map((item, i) => (
+                  <div key={i}>{renderCard(item)}</div>
                 ))}
               </div>
             )}
