@@ -41,16 +41,14 @@ export const supervisorService = {
 
 // Ratings Service
 export const ratingsService = {
-  submitRating: (ratedBy, ratedUser, technicalSkills, communication, teamwork, comment) =>
-    apiClient.post("/api/ratings", { 
-      ratedBy, 
-      ratedUser, 
-      technicalSkills,
-      communication,
-      teamwork,
-      comment 
+  submitRating: (ratedBy, ratedUser, ratings, comment) =>
+    apiClient.post("/api/ratings", {
+      ratedBy,
+      ratedUser,
+      ...ratings,
+      comment
     }),
-  
+
   getRatingsForUser: (userId) =>
     apiClient.get(`/api/ratings/worker/${userId}`)
 };

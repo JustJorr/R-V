@@ -3,6 +3,21 @@ import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
 
+// ✅ KPI CONFIG (move outside component to avoid re-renders)
+const ratingFields = [
+  { key: "workAreaCompliance", label: "Work Area" },
+  { key: "taskCompletion", label: "Task Completion" },
+  { key: "cleanliness", label: "Cleanliness" },
+  { key: "wasteManagement", label: "Waste Mgmt" },
+  { key: "organization", label: "Organization" },
+  { key: "uniformCompliance", label: "Uniform" },
+  { key: "independence", label: "Independence" },
+  { key: "initiative", label: "Initiative" },
+  { key: "teamworkSupport", label: "Teamwork" },
+  { key: "punctuality", label: "Punctuality" },
+  { key: "attendance", label: "Attendance" }
+];
+
 function SupervisorDataVisuals() {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,20 +35,24 @@ function SupervisorDataVisuals() {
     try {
       setLoading(true);
       const response = await supervisorService.getDashboard();
-      setWorkers(response.data);
+      const data = response.data;
 
-      // Calculate statistics
-      if (response.data.length > 0) {
+      setWorkers(data);
+
+      if (data.length > 0) {
+        // ✅ Overall Average
         const avgRating = (
-          response.data.reduce((sum, w) => sum + w.averageRating, 0) / response.data.length
+          data.reduce((sum, w) => sum + w.averageRating, 0) / data.length
         ).toFixed(2);
 
-        const topRated = response.data
+        // ✅ Top Performers
+        const topRated = [...data]
           .sort((a, b) => b.averageRating - a.averageRating)
           .slice(0, 5);
 
+        // ✅ Distribution
         const distribution = { excellent: 0, good: 0, average: 0, poor: 0 };
-        response.data.forEach(w => {
+        data.forEach(w => {
           if (w.averageRating >= 4.5) distribution.excellent++;
           else if (w.averageRating >= 3.5) distribution.good++;
           else if (w.averageRating >= 2.5) distribution.average++;
@@ -54,31 +73,50 @@ function SupervisorDataVisuals() {
   };
 
   const totalWorkers = workers.length;
-  const getBarWidth = (count) => (count / totalWorkers) * 100;
+  const getBarWidth = (count) => (totalWorkers > 0 ? (count / totalWorkers) * 100 : 0);
+
+  // ✅ KPI Average Helper
+  const getKpiAverage = (key) => {
+    if (workers.length === 0) return 0;
+
+    const total = workers.reduce(
+      (sum, w) => sum + (w.latestRating?.[key] || 0),
+      0
+    );
+
+    return total / workers.length;
+  };
 
   if (loading) {
-    return <div className="page-content"><div className="loading">Loading analytics...</div></div>;
+    return (
+      <div className="page-content">
+        <div className="loading">Loading analytics...</div>
+      </div>
+    );
   }
 
   return (
     <div className="page-content supervisor-visuals">
+      
       <div className="page-header">
         <h1>Data Visuals & Analytics</h1>
         <p>Performance metrics and insights</p>
       </div>
 
-      {/* Main Stats Summary */}
+      {/* ✅ Summary */}
       <div className="visuals-summary">
         <div className="summary-card">
           <h3>Overall Average Rating</h3>
           <div className="big-stat">{stats.avgRating}★</div>
           <p className="summary-note">Based on {totalWorkers} workers</p>
         </div>
+
         <div className="summary-card">
           <h3>Total Workers Evaluated</h3>
           <div className="big-stat">{totalWorkers}</div>
           <p className="summary-note">Active in system</p>
         </div>
+
         <div className="summary-card">
           <h3>Excellent Performers</h3>
           <div className="big-stat">{stats.ratingDistribution.excellent}</div>
@@ -86,162 +124,105 @@ function SupervisorDataVisuals() {
         </div>
       </div>
 
-      {/* Rating Distribution */}
+      {/* ✅ Distribution */}
       <div className="chart-section">
         <h2>Rating Distribution</h2>
+
         <div className="distribution-container">
-          <div className="distribution-bar">
-            <div className="bar-label">
-              <span>Excellent (4.5+)</span>
-              <span>{stats.ratingDistribution.excellent}</span>
-            </div>
-            <div className="bar-background">
-              <div 
-                className="bar-fill" 
-                style={{
-                  width: `${getBarWidth(stats.ratingDistribution.excellent)}%`,
-                  backgroundColor: "#4caf50"
-                }}
-              ></div>
-            </div>
-          </div>
-
-          <div className="distribution-bar">
-            <div className="bar-label">
-              <span>Good (3.5-4.4)</span>
-              <span>{stats.ratingDistribution.good}</span>
-            </div>
-            <div className="bar-background">
-              <div 
-                className="bar-fill" 
-                style={{
-                  width: `${getBarWidth(stats.ratingDistribution.good)}%`,
-                  backgroundColor: "#2196f3"
-                }}
-              ></div>
-            </div>
-          </div>
-
-          <div className="distribution-bar">
-            <div className="bar-label">
-              <span>Average (2.5-3.4)</span>
-              <span>{stats.ratingDistribution.average}</span>
-            </div>
-            <div className="bar-background">
-              <div 
-                className="bar-fill" 
-                style={{
-                  width: `${getBarWidth(stats.ratingDistribution.average)}%`,
-                  backgroundColor: "#ff9800"
-                }}
-              ></div>
-            </div>
-          </div>
-
-          <div className="distribution-bar">
-            <div className="bar-label">
-              <span>Poor (Below 2.5)</span>
-              <span>{stats.ratingDistribution.poor}</span>
-            </div>
-            <div className="bar-background">
-              <div 
-                className="bar-fill" 
-                style={{
-                  width: `${getBarWidth(stats.ratingDistribution.poor)}%`,
-                  backgroundColor: "#f44336"
-                }}
-              ></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Top Performers */}
-      <div className="chart-section">
-        <h2>Top 5 Performers</h2>
-        <div className="top-performers">
-          {stats.topRated.map((worker, index) => (
-            <div key={worker._id} className="performer-item">
-              <div className="performer-rank">
-                <span className="rank-medal">
-                  {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : ""}
-                </span>
+          {[
+            { label: "Excellent (4.5+)", key: "excellent", color: "#4caf50" },
+            { label: "Good (3.5-4.4)", key: "good", color: "#2196f3" },
+            { label: "Average (2.5-3.4)", key: "average", color: "#ff9800" },
+            { label: "Poor (<2.5)", key: "poor", color: "#f44336" }
+          ].map(item => (
+            <div key={item.key} className="distribution-bar">
+              <div className="bar-label">
+                <span>{item.label}</span>
+                <span>{stats.ratingDistribution[item.key]}</span>
               </div>
-              <div className="performer-info">
-                <h4>#{index + 1}</h4>
-                <p className="performer-name">{worker.name}</p>
-                <p className="performer-email">{worker.email}</p>
-              </div>
-              <div className="performer-rating">
-                <span 
-                  className="rating-badge-large"
-                  style={{ backgroundColor: getRatingColor(worker.averageRating) }}
-                >
-                  {worker.averageRating.toFixed(1)}★
-                </span>
-              </div>
-              <div className="performer-meta">
-                <p>{worker.totalRatings} ratings</p>
+
+              <div className="bar-background">
+                <div
+                  className="bar-fill"
+                  style={{
+                    width: `${getBarWidth(stats.ratingDistribution[item.key])}%`,
+                    backgroundColor: item.color
+                  }}
+                ></div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Skills Heatmap */}
+      {/* ✅ Top Performers */}
       <div className="chart-section">
-        <h2>Skill Category Averages</h2>
-        <div className="skills-overview">
-          {workers.length > 0 && (
-            <>
-              <div className="skill-item">
-                <span className="skill-name">Technical Skills</span>
-                <div className="skill-bar">
-                  <div 
-                    className="skill-fill"
-                    style={{
-                      width: `${(workers.reduce((sum, w) => sum + (w.latestRating?.technicalSkills || 0), 0) / workers.length / 5) * 100}%`
-                    }}
-                  ></div>
-                </div>
-                <span className="skill-value">
-                  {(workers.reduce((sum, w) => sum + (w.latestRating?.technicalSkills || 0), 0) / workers.length).toFixed(1)}★
+        <h2>Top 5 Performers</h2>
+
+        <div className="top-performers">
+          {stats.topRated.map((worker, index) => (
+            <div key={worker._id} className="performer-item">
+
+              <div className="performer-rank">
+                <span className="rank-medal">
+                  {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : ""}
                 </span>
               </div>
 
-              <div className="skill-item">
-                <span className="skill-name">Communication</span>
-                <div className="skill-bar">
-                  <div 
-                    className="skill-fill"
-                    style={{
-                      width: `${(workers.reduce((sum, w) => sum + (w.latestRating?.communication || 0), 0) / workers.length / 5) * 100}%`
-                    }}
-                  ></div>
-                </div>
-                <span className="skill-value">
-                  {(workers.reduce((sum, w) => sum + (w.latestRating?.communication || 0), 0) / workers.length).toFixed(1)}★
+              <div className="performer-info">
+                <h4>#{index + 1}</h4>
+                <p className="performer-name">{worker.name}</p>
+                <p className="performer-email">{worker.email}</p>
+              </div>
+
+              <div className="performer-rating">
+                <span
+                  className="rating-badge-large"
+                  style={{ backgroundColor: getRatingColor(worker.averageRating) }}
+                >
+                  {worker.averageRating.toFixed(1)}★
                 </span>
               </div>
 
-              <div className="skill-item">
-                <span className="skill-name">Teamwork</span>
-                <div className="skill-bar">
-                  <div 
-                    className="skill-fill"
-                    style={{
-                      width: `${(workers.reduce((sum, w) => sum + (w.latestRating?.teamwork || 0), 0) / workers.length / 5) * 100}%`
-                    }}
-                  ></div>
-                </div>
-                <span className="skill-value">
-                  {(workers.reduce((sum, w) => sum + (w.latestRating?.teamwork || 0), 0) / workers.length).toFixed(1)}★
-                </span>
+              <div className="performer-meta">
+                <p>{worker.totalRatings} ratings</p>
               </div>
-            </>
-          )}
+
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* ✅ KPI Averages */}
+      <div className="chart-section">
+        <h2>Performance KPI Averages</h2>
+
+        <div className="skills-overview">
+          {ratingFields.map(field => {
+            const avg = getKpiAverage(field.key);
+
+            return (
+              <div className="skill-item" key={field.key}>
+                
+                <span className="skill-name">{field.label}</span>
+
+                <div className="skill-bar">
+                  <div
+                    className="skill-fill"
+                    style={{
+                      width: `${(avg / 5) * 100}%`
+                    }}
+                  ></div>
+                </div>
+
+                <span className="skill-value">{avg.toFixed(1)}★</span>
+
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
     </div>
   );
 }

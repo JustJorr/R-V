@@ -2,19 +2,40 @@ import { useState, useEffect } from "react";
 import { ratingsService } from "../services/api";
 import "../styles/Supervisor/RatingForm.css";
 
+const ratingFields = [
+    { key: "workAreaCompliance", label: "Works within assigned area" },
+    { key: "taskCompletion", label: "Completes tasks per standards" },
+    { key: "cleanliness", label: "Area free of dust/stains" },
+    { key: "wasteManagement", label: "Proper waste handling" },
+    { key: "organization", label: "Area neat and organized" },
+    { key: "uniformCompliance", label: "Proper uniform / PPE usage" },
+    { key: "independence", label: "Works independently" },
+    { key: "initiative", label: "Shows initiative" },
+    { key: "teamworkSupport", label: "Helps other areas" },
+    { key: "punctuality", label: "Arrives on time" },
+    { key: "attendance", label: "Attendance consistency" }
+  ];
+
 function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, initialValues = null }) {
-  const [technicalSkills, setTechnicalSkills] = useState(initialValues?.technicalSkills ?? 3);
-  const [communication, setCommunication] = useState(initialValues?.communication ?? 3);
-  const [teamwork, setTeamwork] = useState(initialValues?.teamwork ?? 3);
+
+  const [ratings, setRatings] = useState(
+    ratingFields.reduce((acc, f) => {
+      acc[f.key] = initialValues?.[f.key] ?? 3;
+      return acc;
+    }, {})
+  );
+
   const [comment, setComment] = useState(initialValues?.comment ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (initialValues) {
-      setTechnicalSkills(initialValues.technicalSkills);
-      setCommunication(initialValues.communication);
-      setTeamwork(initialValues.teamwork);
+      const updated = {};
+      ratingFields.forEach(f => {
+        updated[f.key] = initialValues[f.key] ?? 3;
+      });
+      setRatings(updated);
       setComment(initialValues.comment || "");
     }
   }, [initialValues]);
@@ -28,9 +49,7 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
       await ratingsService.submitRating(
         userId,
         worker._id,
-        technicalSkills,
-        communication,
-        teamwork,
+        ratings,
         comment
       );
 
@@ -44,12 +63,13 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
   };
 
   const averageRating = (
-    (parseInt(technicalSkills) + parseInt(communication) + parseInt(teamwork)) / 3
+    Object.values(ratings).reduce((a, b) => a + b, 0) / ratingFields.length
   ).toFixed(1);
 
   return (
     <div className="rating-form-overlay">
       <div className="rating-form-container">
+        
         <div className="form-header">
           <h2>Rate {worker.name}</h2>
           <button className="close-btn" onClick={onCancel}>✕</button>
@@ -58,93 +78,46 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          {/* Technical Skills */}
-          <div className="rating-field">
-            <label>
-              Technical Skills
-              <span className="rating-value">{technicalSkills}★</span>
-            </label>
-            <div className="slider-container">
-              <input
-                type="range"
-                min="0"
-                max="5"
-                step="0.5"
-                value={technicalSkills}
-                onChange={(e) => setTechnicalSkills(e.target.value)}
-                className="slider"
-              />
-              <div className="rating-labels">
-                <span>0</span>
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
+          
+          {ratingFields.map(field => (
+            <div className="rating-field" key={field.key}>
+              <label>
+                {field.label}
+                <span className="rating-value">{ratings[field.key]}★</span>
+              </label>
+
+              <div className="slider-container">
+                <input
+                  type="range"
+                  min="0"
+                  max="5"
+                  step="0.5"
+                  value={ratings[field.key]}
+                  onChange={(e) =>
+                    setRatings({
+                      ...ratings,
+                      [field.key]: parseFloat(e.target.value)
+                    })
+                  }
+                  className="slider"
+                />
+
+                <div className="rating-labels">
+                  <span>0</span>
+                  <span>1</span>
+                  <span>2</span>
+                  <span>3</span>
+                  <span>4</span>
+                  <span>5</span>
+                </div>
               </div>
             </div>
-          </div>
+          ))}
 
-          {/* Communication */}
-          <div className="rating-field">
-            <label>
-              Communication
-              <span className="rating-value">{communication}★</span>
-            </label>
-            <div className="slider-container">
-              <input
-                type="range"
-                min="0"
-                max="5"
-                step="0.5"
-                value={communication}
-                onChange={(e) => setCommunication(e.target.value)}
-                className="slider"
-              />
-              <div className="rating-labels">
-                <span>0</span>
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Teamwork */}
-          <div className="rating-field">
-            <label>
-              Teamwork
-              <span className="rating-value">{teamwork}★</span>
-            </label>
-            <div className="slider-container">
-              <input
-                type="range"
-                min="0"
-                max="5"
-                step="0.5"
-                value={teamwork}
-                onChange={(e) => setTeamwork(e.target.value)}
-                className="slider"
-              />
-              <div className="rating-labels">
-                <span>0</span>
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Average Display */}
           <div className="average-rating">
             <strong>Overall Average: {averageRating}★</strong>
           </div>
 
-          {/* Comment */}
           <div className="form-group">
             <label>Comments (Optional):</label>
             <textarea
@@ -155,7 +128,6 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
             ></textarea>
           </div>
 
-          {/* Buttons */}
           <div className="form-buttons">
             <button
               type="button"
@@ -165,14 +137,18 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
             >
               Cancel
             </button>
+
             <button
               type="submit"
               className="submit-btn"
               disabled={loading}
             >
-              {loading ? (isEditing ? "Updating..." : "Submitting...") : (isEditing ? "Update Rating" : "Submit Rating")}
+              {loading
+                ? (isEditing ? "Updating..." : "Submitting...")
+                : (isEditing ? "Update Rating" : "Submit Rating")}
             </button>
           </div>
+
         </form>
       </div>
     </div>

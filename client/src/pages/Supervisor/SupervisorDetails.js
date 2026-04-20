@@ -14,6 +14,20 @@ function SupervisorDetails({ worker: supervisor }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
+  const ratingFields = [
+  { key: "workAreaCompliance", short: "WA" },
+  { key: "taskCompletion", short: "TC" },
+  { key: "cleanliness", short: "CL" },
+  { key: "wasteManagement", short: "WM" },
+  { key: "organization", short: "OR" },
+  { key: "uniformCompliance", short: "UC" },
+  { key: "independence", short: "IN" },
+  { key: "initiative", short: "IV" },
+  { key: "teamworkSupport", short: "TS" },
+  { key: "punctuality", short: "PU" },
+  { key: "attendance", short: "AT" }
+];
+
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
@@ -177,9 +191,11 @@ function SupervisorDetails({ worker: supervisor }) {
                     {worker.latestRating ? (
                       <div className="rating-info">
                         <div className="rating-fields">
-                          <span className="field-badge">TS: {worker.latestRating.technicalSkills}★</span>
-                          <span className="field-badge">CM: {worker.latestRating.communication}★</span>
-                          <span className="field-badge">TW: {worker.latestRating.teamwork}★</span>
+                          {ratingFields.map(f => (
+                            <span key={f.key} className="field-badge">
+                              {f.short}: {worker.latestRating[f.key] ?? 0}★
+                            </span>
+                          ))}
                         </div>
                         <small className="rating-timestamp">
                           {new Date(worker.latestRating.createdAt).toLocaleDateString()}

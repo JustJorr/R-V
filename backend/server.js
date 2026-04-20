@@ -59,35 +59,26 @@ const ratingSchema = new mongoose.Schema({
     ref: "User",
     required: true
   },
-  technicalSkills: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 5
-  },
-  communication: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 5
-  },
-  teamwork: {
-    type: Number,
-    required: true,
-    min: 0,
-    max: 5
-  },
-  comment: {
-    type: String
-  },
+
+  // ✅ NEW 11 KPI FIELDS
+  workAreaCompliance: { type: Number, min: 0, max: 5, required: true },
+  taskCompletion: { type: Number, min: 0, max: 5, required: true },
+  cleanliness: { type: Number, min: 0, max: 5, required: true },
+  wasteManagement: { type: Number, min: 0, max: 5, required: true },
+  organization: { type: Number, min: 0, max: 5, required: true },
+  uniformCompliance: { type: Number, min: 0, max: 5, required: true },
+  independence: { type: Number, min: 0, max: 5, required: true },
+  initiative: { type: Number, min: 0, max: 5, required: true },
+  teamworkSupport: { type: Number, min: 0, max: 5, required: true },
+  punctuality: { type: Number, min: 0, max: 5, required: true },
+  attendance: { type: Number, min: 0, max: 5, required: true },
+
+  comment: String,
+
   createdAt: {
     type: Date,
     default: Date.now
   }
-}, { 
-  indexes: [
-    { fields: { ratedBy: 1, ratedUser: 1 }, unique: true }
-  ]
 });
 
 // Create unique index on (ratedBy, ratedUser) to prevent duplicates
@@ -162,53 +153,66 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-// POST new rating (or update if already exists)
 app.post("/api/ratings", async (req, res) => {
   try {
-    // Check if supervisor has already rated this worker
+    const fields = [
+      "workAreaCompliance",
+      "taskCompletion",
+      "cleanliness",
+      "wasteManagement",
+      "organization",
+      "uniformCompliance",
+      "independence",
+      "initiative",
+      "teamworkSupport",
+      "punctuality",
+      "attendance"
+    ];
+
     const existingRating = await Rating.findOne({
       ratedBy: req.body.ratedBy,
       ratedUser: req.body.ratedUser
     });
 
     let newRating;
+
     if (existingRating) {
-      // Update existing rating
-      existingRating.technicalSkills = req.body.technicalSkills;
-      existingRating.communication = req.body.communication;
-      existingRating.teamwork = req.body.teamwork;
+      fields.forEach(f => existingRating[f] = req.body[f]);
       existingRating.comment = req.body.comment;
       newRating = await existingRating.save();
     } else {
-      // Create new rating
       const rating = new Rating({
         ratedBy: req.body.ratedBy,
         ratedUser: req.body.ratedUser,
-        technicalSkills: req.body.technicalSkills,
-        communication: req.body.communication,
-        teamwork: req.body.teamwork,
+        ...fields.reduce((acc, f) => {
+          acc[f] = req.body[f];
+          return acc;
+        }, {}),
         comment: req.body.comment
       });
+
       newRating = await rating.save();
     }
-    
-    // Update worker's average rating across all ratings
+
     const allRatings = await Rating.find({ ratedUser: req.body.ratedUser });
-    
-    // Calculate average of all 3 fields
+
     let totalScore = 0;
+
     allRatings.forEach(r => {
-      const ratingAvg = (r.technicalSkills + r.communication + r.teamwork) / 3;
-      totalScore += ratingAvg;
+      let sum = 0;
+      fields.forEach(f => sum += r[f]);
+      totalScore += sum / fields.length;
     });
+
     const avgScore = (totalScore / allRatings.length).toFixed(2);
-    
+
     await User.findByIdAndUpdate(req.body.ratedUser, {
       averageRating: avgScore,
       totalRatings: allRatings.length
     });
 
     res.status(201).json(newRating);
+
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

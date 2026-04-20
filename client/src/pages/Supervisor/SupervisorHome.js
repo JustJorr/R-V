@@ -17,6 +17,20 @@ function SupervisorHome() {
     fetchData();
   }, []);
 
+  const ratingFields = [
+  { key: "workAreaCompliance", short: "WA" },
+  { key: "taskCompletion", short: "TC" },
+  { key: "cleanliness", short: "CL" },
+  { key: "wasteManagement", short: "WM" },
+  { key: "organization", short: "OR" },
+  { key: "uniformCompliance", short: "UC" },
+  { key: "independence", short: "IN" },
+  { key: "initiative", short: "IV" },
+  { key: "teamworkSupport", short: "TS" },
+  { key: "punctuality", short: "PU" },
+  { key: "attendance", short: "AT" }
+  ];
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -127,9 +141,11 @@ function SupervisorHome() {
                 </div>
                 <div className="recent-rating">
                   <div className="rating-fields-small">
-                    <span className="field-badge">TS: {item.rating.technicalSkills}★</span>
-                    <span className="field-badge">CM: {item.rating.communication}★</span>
-                    <span className="field-badge">TW: {item.rating.teamwork}★</span>
+                    {ratingFields.map(f => (
+                      <span key={f.key} className="field-badge">
+                        {f.short}: {item.rating[f.key] ?? 0}★
+                      </span>
+                    ))}
                   </div>
                   <p className="recent-time">
                     {new Date(item.rating.createdAt).toLocaleDateString()}
