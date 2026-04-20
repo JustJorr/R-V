@@ -4,22 +4,23 @@ import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
 
 const ratingFields = [
-  { key: "workAreaCompliance", short: "WA" },
-  { key: "taskCompletion", short: "TC" },
-  { key: "cleanliness", short: "CL" },
-  { key: "wasteManagement", short: "WM" },
-  { key: "organization", short: "OR" },
-  { key: "uniformCompliance", short: "UC" },
-  { key: "independence", short: "IN" },
-  { key: "initiative", short: "IV" },
-  { key: "teamworkSupport", short: "TS" },
-  { key: "punctuality", short: "PU" },
-  { key: "attendance", short: "AT" }
+  { key: "workAreaCompliance", short: "WA", label: "Work Area Compliance" },
+  { key: "taskCompletion", short: "TC", label: "Task Completion" },
+  { key: "cleanliness", short: "CL", label: "Cleanliness" },
+  { key: "wasteManagement", short: "WM", label: "Waste Management" },
+  { key: "organization", short: "OR", label: "Organization" },
+  { key: "uniformCompliance", short: "UC", label: "Uniform Compliance" },
+  { key: "independence", short: "IN", label: "Independence" },
+  { key: "initiative", short: "IV", label: "Initiative" },
+  { key: "teamworkSupport", short: "TS", label: "Teamwork Support" },
+  { key: "punctuality", short: "PU", label: "Punctuality" },
+  { key: "attendance", short: "AT", label: "Attendance" }
 ];
 
 function SupervisorHome() {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showLegend, setShowLegend] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -117,6 +118,24 @@ function SupervisorHome() {
         <button className="btn btn-outline" onClick={fetchData}>
           Refresh Overview
         </button>
+      </div>
+
+      {/* ===== RATING FIELD LEGEND ===== */}
+      <div className="legend-box">
+        <div className="legend-header" onClick={() => setShowLegend(prev => !prev)}>
+          <span className="legend-title">ℹ️ Rating Field Abbreviations</span>
+          <span className="legend-toggle">{showLegend ? "▲ Hide" : "▼ Show"}</span>
+        </div>
+        {showLegend && (
+          <div className="legend-grid">
+            {ratingFields.map(f => (
+              <div key={f.key} className="legend-item">
+                <span className="legend-short">{f.short}</span>
+                <span className="legend-label">{f.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ===== STATS ===== */}

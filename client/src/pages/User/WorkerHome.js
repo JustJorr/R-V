@@ -4,22 +4,23 @@ import { getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
 
 const ratingFields = [
-  { key: "workAreaCompliance", short: "WA" },
-  { key: "taskCompletion", short: "TC" },
-  { key: "cleanliness", short: "CL" },
-  { key: "wasteManagement", short: "WM" },
-  { key: "organization", short: "OR" },
-  { key: "uniformCompliance", short: "UC" },
-  { key: "independence", short: "IN" },
-  { key: "initiative", short: "IV" },
-  { key: "teamworkSupport", short: "TS" },
-  { key: "punctuality", short: "PU" },
-  { key: "attendance", short: "AT" }
+  { key: "workAreaCompliance", short: "WA", label: "Work Area Compliance" },
+  { key: "taskCompletion", short: "TC", label: "Task Completion" },
+  { key: "cleanliness", short: "CL", label: "Cleanliness" },
+  { key: "wasteManagement", short: "WM", label: "Waste Management" },
+  { key: "organization", short: "OR", label: "Organization" },
+  { key: "uniformCompliance", short: "UC", label: "Uniform Compliance" },
+  { key: "independence", short: "IN", label: "Independence" },
+  { key: "initiative", short: "IV", label: "Initiative" },
+  { key: "teamworkSupport", short: "TS", label: "Teamwork Support" },
+  { key: "punctuality", short: "PU", label: "Punctuality" },
+  { key: "attendance", short: "AT", label: "Attendance" }
 ];
 
 function WorkerHome({ worker }) {
   const [loading, setLoading] = useState(true);
   const [ratingData, setRatingData] = useState(null);
+  const [showLegend, setShowLegend] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!worker?._id) return;
@@ -121,6 +122,24 @@ function WorkerHome({ worker }) {
         <button className="btn btn-outline" onClick={fetchData}>
           Refresh Overview
         </button>
+      </div>
+
+      {/* ===== RATING FIELD LEGEND ===== */}
+      <div className="legend-box">
+        <div className="legend-header" onClick={() => setShowLegend(prev => !prev)}>
+          <span className="legend-title">ℹ️ Rating Field Abbreviations</span>
+          <span className="legend-toggle">{showLegend ? "▲ Hide" : "▼ Show"}</span>
+        </div>
+        {showLegend && (
+          <div className="legend-grid">
+            {ratingFields.map(f => (
+              <div key={f.key} className="legend-item">
+                <span className="legend-short">{f.short}</span>
+                <span className="legend-label">{f.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ===== STATS ===== */}
@@ -247,62 +266,6 @@ function WorkerHome({ worker }) {
         )}
       </div>
 
-      {/* ===== MAIN GRID ===== */}
-      <div className="dashboard-grid">
-
-        {/* PROFILE */}
-        <div className="recent-section">
-          <h2>Profile Overview</h2>
-
-          <div className="recent-item">
-            <div className="recent-worker">
-              
-              <div className="worker-avatar">
-                {worker.name.charAt(0).toUpperCase()}
-              </div>
-
-              <div className="worker-details">
-                <h4>{worker.name}</h4>
-                <p className="worker-email">{worker.email}</p>
-              </div>
-
-            </div>
-
-            <span className="field-badge">Worker</span>
-          </div>
-        </div>
-
-        {/* QUICK ACTIONS */}
-        <div className="recent-section">
-          <h2>Quick Actions</h2>
-
-          <div className="actions-vertical">
-
-            <button
-              className="action-btn"
-              onClick={() => window.location.href = "/worker/ratings"}
-            >
-              ⭐ Rate Colleagues
-            </button>
-
-            <button
-              className="action-btn outline"
-              onClick={() => window.location.href = "/worker/ratings"}
-            >
-              📊 View My Ratings
-            </button>
-
-            <button
-              className="action-btn outline"
-              onClick={() => window.location.href = "/worker/feedback"}
-            >
-              💬 Feedback
-            </button>
-
-          </div>
-        </div>
-
-      </div>
     </div>
   );
 }
