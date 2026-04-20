@@ -224,6 +224,12 @@
   color: #1a3a7f;
 }
 
+.home-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
 /* ===== MANAGER DETAILS PAGE ===== */
 .details-toolbar {
   display: flex;
@@ -233,9 +239,65 @@
   align-items: center;
 }
 
+.details-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.quick-stat-pill {
+  background: white;
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #1a3a7f;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quick-stat-pill .label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+}
+
+.quick-stat-pill .value {
+  font-size: 18px;
+  color: #1a3a7f;
+  font-weight: 700;
+}
+
 .search-box {
   flex: 1;
   min-width: 250px;
+}
+
+.sort-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sort-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+}
+
+.sort-select {
+  min-width: 170px;
+  padding: 10px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  font-size: 13px;
+}
+
+.sort-select:focus {
+  border-color: #1a3a7f;
+  outline: none;
 }
 
 .search-input {
@@ -332,22 +394,40 @@
   background: #f0f7f0;
 }
 
-/* ===== 🔥 PERFECT COLUMN ALIGNMENT ===== */
+/* ===== TABLE COLUMN ALIGNMENT ===== */
 /* # column */
 .workers-table th:nth-child(1),
 .workers-table td:nth-child(1) {
   text-align: center;
 }
 
-/* Status column */
+/* Name column */
+.workers-table th:nth-child(2),
+.workers-table td:nth-child(2) {
+  text-align: center;
+}
+
+/* Avg rating column */
 .workers-table th:nth-child(4),
 .workers-table td:nth-child(4) {
   text-align: center;
 }
 
-/* Action column */
+/* Total ratings column */
 .workers-table th:nth-child(5),
 .workers-table td:nth-child(5) {
+  text-align: center;
+}
+
+/* Status column */
+.workers-table th:nth-child(6),
+.workers-table td:nth-child(6) {
+  text-align: center;
+}
+
+/* Action column */
+.workers-table th:nth-child(8),
+.workers-table td:nth-child(8) {
   text-align: center;
 }
 
@@ -357,8 +437,14 @@
   color: #333;
   display: flex;
   align-items: center;
+  justify-content: center; /* ensures horizontal centering */
   gap: 10px;
-  justify-content: flex-start;
+  min-height: 60px;
+}
+
+.workers-table td {
+  text-align: center;
+  vertical-align: middle;
 }
 
 .worker-badge {
@@ -982,6 +1068,18 @@
   .details-toolbar {
     flex-direction: column;
     gap: 15px;
+  }
+
+  .home-actions {
+    justify-content: flex-start;
+  }
+
+  .sort-group {
+    width: 100%;
+  }
+
+  .sort-select {
+    width: 100%;
   }
 
   .search-box {

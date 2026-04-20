@@ -1,20 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor, getRatingStatus } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 
-function SupervisorDetails({ worker: supervisor }) {
-  const [workers, setWorkers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [ratingWorker, setRatingWorker] = useState(null);
-  const [ratedWorkerIds, setRatedWorkerIds] = useState(new Set());
-  const [isEditingRating, setIsEditingRating] = useState(false);
-  const [existingRatingData, setExistingRatingData] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-
-  const ratingFields = [
+const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
   { key: "taskCompletion", short: "TC" },
   { key: "cleanliness", short: "CL" },
@@ -28,11 +18,22 @@ function SupervisorDetails({ worker: supervisor }) {
   { key: "attendance", short: "AT" }
 ];
 
+function SupervisorDetails({ worker: supervisor }) {
+  const [workers, setWorkers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [ratingWorker, setRatingWorker] = useState(null);
+  const [ratedWorkerIds, setRatedWorkerIds] = useState(new Set());
+  const [isEditingRating, setIsEditingRating] = useState(false);
+  const [existingRatingData, setExistingRatingData] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
+
   const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await supervisorService.getDashboard();
-      setWorkers(response.data);
+      setWorkers(response.data || []);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
     } finally {
@@ -41,14 +42,19 @@ function SupervisorDetails({ worker: supervisor }) {
   }, []);
 
   const fetchSupervisorRatings = useCallback(async () => {
+    if (!supervisor?._id) {
+      setRatedWorkerIds(new Set());
+      return;
+    }
+
     try {
       const response = await supervisorService.getSupervisorRatings(supervisor._id);
-      const ratedIds = new Set(response.data.map(rating => rating.ratedUser));
+      const ratedIds = new Set((response.data || []).map(rating => rating.ratedUser));
       setRatedWorkerIds(ratedIds);
     } catch (err) {
       console.error("Error fetching supervisor ratings:", err);
     }
-  }, [supervisor._id]);
+  }, [supervisor?._id]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -61,7 +67,7 @@ function SupervisorDetails({ worker: supervisor }) {
     fetchSupervisorRatings();
   };
 
-  const isAlreadyRated = (workerId) => ratedWorkerIds.has(workerId);
+  const isAlreadyRated = useCallback((workerId) => ratedWorkerIds.has(workerId), [ratedWorkerIds]);
 
   const handleRateWorker = (worker) => {
     setRatingWorker(worker);
@@ -70,6 +76,8 @@ function SupervisorDetails({ worker: supervisor }) {
   };
 
   const handleEditRating = async (worker) => {
+    if (!supervisor?._id) return;
+
     try {
       const response = await supervisorService.getExistingRating(supervisor._id, worker._id);
       setRatingWorker(worker);
@@ -81,22 +89,51 @@ function SupervisorDetails({ worker: supervisor }) {
     }
   };
 
-  // Filter and search workers
-  const filteredWorkers = workers.filter(worker => {
-    const matchesSearch = worker.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          worker.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === "all" || 
-                          (filterStatus === "rated" && isAlreadyRated(worker._id)) ||
-                          (filterStatus === "unrated" && !isAlreadyRated(worker._id));
-    return matchesSearch && matchesFilter;
-  });
+  const { filteredWorkers, ratedCount, unratedCount } = useMemo(() => {
+    const ratedWorkers = workers.filter(w => isAlreadyRated(w._id)).length;
+    const unratedWorkers = workers.length - ratedWorkers;
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    const list = workers
+      .filter(worker => {
+        const matchesSearch =
+          worker.name.toLowerCase().includes(normalizedSearch) ||
+          worker.email.toLowerCase().includes(normalizedSearch);
+
+        const matchesFilter =
+          filterStatus === "all" ||
+          (filterStatus === "rated" && isAlreadyRated(worker._id)) ||
+          (filterStatus === "unrated" && !isAlreadyRated(worker._id));
+
+        return matchesSearch && matchesFilter;
+      })
+      .sort((a, b) => {
+        if (sortBy === "rating") {
+          return (b.averageRating || 0) - (a.averageRating || 0);
+        }
+
+        if (sortBy === "recent") {
+          const aDate = a.latestRating?.createdAt ? new Date(a.latestRating.createdAt).getTime() : 0;
+          const bDate = b.latestRating?.createdAt ? new Date(b.latestRating.createdAt).getTime() : 0;
+          return bDate - aDate;
+        }
+
+        return a.name.localeCompare(b.name);
+      });
+
+    return {
+      filteredWorkers: list,
+      ratedCount: ratedWorkers,
+      unratedCount: unratedWorkers
+    };
+  }, [workers, searchTerm, filterStatus, sortBy, isAlreadyRated]);
 
   return (
     <div className="page-content supervisor-details">
       {ratingWorker && (
         <RatingForm
           worker={ratingWorker}
-          userId={supervisor._id}
+          userId={supervisor?._id}
           onSuccess={handleRatingSuccess}
           onCancel={() => setRatingWorker(null)}
           isEditing={isEditingRating}
@@ -105,11 +142,25 @@ function SupervisorDetails({ worker: supervisor }) {
       )}
 
       <div className="page-header">
-        <h1>Worker Details & Ratings</h1>
+        <h1>Worker Details and Ratings</h1>
         <p>Manage and rate worker performance</p>
       </div>
 
-      {/* Search and Filter Bar */}
+      <div className="details-stats-row">
+        <div className="quick-stat-pill">
+          <span className="label">Visible Workers</span>
+          <span className="value">{filteredWorkers.length}</span>
+        </div>
+        <div className="quick-stat-pill">
+          <span className="label">Rated by You</span>
+          <span className="value">{ratedCount}</span>
+        </div>
+        <div className="quick-stat-pill">
+          <span className="label">Not Yet Rated</span>
+          <span className="value">{unratedCount}</span>
+        </div>
+      </div>
+
       <div className="details-toolbar">
         <div className="search-box">
           <input
@@ -120,29 +171,47 @@ function SupervisorDetails({ worker: supervisor }) {
             className="search-input"
           />
         </div>
+
+        <div className="sort-group">
+          <label htmlFor="details-sort">Sort</label>
+          <select
+            id="details-sort"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="sort-select"
+          >
+            <option value="name">Name (A-Z)</option>
+            <option value="rating">Highest Rating</option>
+            <option value="recent">Latest Activity</option>
+          </select>
+        </div>
+
         <div className="filter-buttons">
-          <button 
+          <button
             className={`filter-btn ${filterStatus === "all" ? "active" : ""}`}
             onClick={() => setFilterStatus("all")}
           >
             All ({workers.length})
           </button>
-          <button 
+          <button
             className={`filter-btn ${filterStatus === "rated" ? "active" : ""}`}
             onClick={() => setFilterStatus("rated")}
           >
-            Rated ({ratedWorkerIds.size})
+            Rated ({ratedCount})
           </button>
-          <button 
+          <button
             className={`filter-btn ${filterStatus === "unrated" ? "active" : ""}`}
             onClick={() => setFilterStatus("unrated")}
           >
-            Unrated ({workers.length - ratedWorkerIds.size})
+            Unrated ({unratedCount})
           </button>
         </div>
+
+        <button className="btn btn-outline" onClick={fetchDashboardData}>
+          Refresh
+        </button>
       </div>
 
-      {/* Workers Table */}
       {loading ? (
         <div className="loading">Loading workers...</div>
       ) : filteredWorkers.length === 0 ? (
@@ -168,9 +237,11 @@ function SupervisorDetails({ worker: supervisor }) {
               {filteredWorkers.map((worker, index) => (
                 <tr key={worker._id} className={isAlreadyRated(worker._id) ? "rated-row" : ""}>
                   <td>{index + 1}</td>
-                  <td className="worker-name-cell">
-                    <div className="worker-badge">{worker.name.charAt(0).toUpperCase()}</div>
-                    {worker.name}
+                  <td> 
+                    <div className="worker-name-cell">
+                      <div className="worker-badge">{worker.name.charAt(0).toUpperCase()}</div>
+                      {worker.name}
+                      </div>
                   </td>
                   <td className="worker-email">{worker.email}</td>
                   <td>
@@ -183,7 +254,11 @@ function SupervisorDetails({ worker: supervisor }) {
                   </td>
                   <td className="center">{worker.totalRatings}</td>
                   <td className="center">
-                    <span className={`status-badge ${getRatingStatus(worker.averageRating).toLowerCase().replace(" ", "-")}`}>
+                    <span
+                      className={`status-badge ${getRatingStatus(worker.averageRating)
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
                       {getRatingStatus(worker.averageRating)}
                     </span>
                   </td>
@@ -215,10 +290,7 @@ function SupervisorDetails({ worker: supervisor }) {
                         ✏️ Edit
                       </button>
                     ) : (
-                      <button
-                        className="btn btn-primary"
-                        onClick={() => handleRateWorker(worker)}
-                      >
+                      <button className="btn btn-primary" onClick={() => handleRateWorker(worker)}>
                         ⭐ Rate
                       </button>
                     )}

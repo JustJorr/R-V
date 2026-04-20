@@ -1,23 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
 
-function SupervisorHome() {
-  const [stats, setStats] = useState({
-    totalWorkers: 0,
-    avgRating: 0,
-    topWorker: null,
-    bottomWorker: null
-  });
-  const [recentRatings, setRecentRatings] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const ratingFields = [
+const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
   { key: "taskCompletion", short: "TC" },
   { key: "cleanliness", short: "CL" },
@@ -29,64 +15,117 @@ function SupervisorHome() {
   { key: "teamworkSupport", short: "TS" },
   { key: "punctuality", short: "PU" },
   { key: "attendance", short: "AT" }
-  ];
+];
 
-  const fetchData = async () => {
+function SupervisorHome() {
+  const [workers, setWorkers] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const response = await supervisorService.getDashboard();
-      const workers = response.data;
-
-      if (workers.length > 0) {
-        const totalRating = workers.reduce((sum, w) => sum + w.averageRating, 0);
-        const avgRating = (totalRating / workers.length).toFixed(2);
-        const topWorker = workers[0];
-        const bottomWorker = workers[workers.length - 1];
-
-        setStats({
-          totalWorkers: workers.length,
-          avgRating,
-          topWorker,
-          bottomWorker
-        });
-
-        // Get recent ratings (latest 5)
-        const allRecentRatings = workers
-          .filter(w => w.latestRating)
-          .sort((a, b) => new Date(b.latestRating.createdAt) - new Date(a.latestRating.createdAt))
-          .slice(0, 5)
-          .map(w => ({
-            worker: w,
-            rating: w.latestRating
-          }));
-
-        setRecentRatings(allRecentRatings);
-      }
+      setWorkers(response.data || []);
     } catch (err) {
       console.error("Error fetching home data:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const dashboard = useMemo(() => {
+    if (!workers.length) {
+      return {
+        totalWorkers: 0,
+        avgRating: "0.00",
+        ratedWorkers: 0,
+        unratedWorkers: 0,
+        topWorker: null,
+        supportWorker: null,
+        recentRatings: [],
+        updatedInLastWeek: 0,
+        supportCount: 0
+      };
+    }
+
+    const ratedWorkersList = workers.filter(w => (w.totalRatings || 0) > 0);
+    const unratedWorkers = workers.length - ratedWorkersList.length;
+
+    const avgRatingRaw =
+      workers.reduce((sum, w) => sum + (Number(w.averageRating) || 0), 0) / workers.length;
+
+    const sortedRated = [...ratedWorkersList].sort(
+      (a, b) => (Number(b.averageRating) || 0) - (Number(a.averageRating) || 0)
+    );
+
+    const topWorker = sortedRated[0] || null;
+    const supportWorker = sortedRated.length ? sortedRated[sortedRated.length - 1] : null;
+
+    const recentRatings = workers
+      .filter(w => w.latestRating)
+      .sort((a, b) => new Date(b.latestRating.createdAt) - new Date(a.latestRating.createdAt))
+      .slice(0, 8)
+      .map(w => ({
+        worker: w,
+        rating: w.latestRating
+      }));
+
+    const now = Date.now();
+    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+
+    const updatedInLastWeek = workers.filter(w => {
+      if (!w.latestRating?.createdAt) return false;
+      const created = new Date(w.latestRating.createdAt).getTime();
+      return now - created <= sevenDaysMs;
+    }).length;
+
+    const supportCount = ratedWorkersList.filter(w => (Number(w.averageRating) || 0) < 3).length;
+
+    return {
+      totalWorkers: workers.length,
+      avgRating: avgRatingRaw.toFixed(2),
+      ratedWorkers: ratedWorkersList.length,
+      unratedWorkers,
+      topWorker,
+      supportWorker,
+      recentRatings,
+      updatedInLastWeek,
+      supportCount
+    };
+  }, [workers]);
 
   if (loading) {
-    return <div className="page-content"><div className="loading">Loading...</div></div>;
+    return (
+      <div className="page-content">
+        <div className="loading">Loading...</div>
+      </div>
+    );
   }
 
   return (
     <div className="page-content supervisor-home">
       <div className="page-header">
         <h1>Welcome Back!</h1>
-        <p>Here's your performance overview</p>
+        <p>Here is your performance overview</p>
       </div>
 
-      {/* Main Stats Grid */}
+      <div className="home-actions">
+        <button className="btn btn-outline" onClick={fetchData}>
+          Refresh Overview
+        </button>
+      </div>
+
+      {/* ===== STATS ===== */}
       <div className="stats-grid">
         <div className="stat-card primary">
           <div className="stat-icon">👥</div>
           <div className="stat-info">
             <h3>Total Workers</h3>
-            <p className="stat-number">{stats.totalWorkers}</p>
+            <p className="stat-number">{dashboard.totalWorkers}</p>
           </div>
         </div>
 
@@ -94,8 +133,11 @@ function SupervisorHome() {
           <div className="stat-icon">⭐</div>
           <div className="stat-info">
             <h3>Average Rating</h3>
-            <p className="stat-number" style={{ color: getRatingColor(stats.avgRating) }}>
-              {stats.avgRating}★
+            <p
+              className="stat-number"
+              style={{ color: getRatingColor(Number(dashboard.avgRating)) }}
+            >
+              {dashboard.avgRating}★
             </p>
           </div>
         </div>
@@ -104,32 +146,40 @@ function SupervisorHome() {
           <div className="stat-icon">🏆</div>
           <div className="stat-info">
             <h3>Top Performer</h3>
-            <p className="stat-text">{stats.topWorker?.name || "N/A"}</p>
-            {stats.topWorker && <p className="stat-meta">{stats.topWorker.averageRating}★</p>}
+            <p className="stat-text">{dashboard.topWorker?.name || "N/A"}</p>
+            {dashboard.topWorker && (
+              <p className="stat-meta">
+                {Number(dashboard.topWorker.averageRating).toFixed(1)}★
+              </p>
+            )}
           </div>
         </div>
 
         <div className="stat-card warning">
-          <div className="stat-icon">📈</div>
+          <div className="stat-icon">📉</div>
           <div className="stat-info">
             <h3>Support Needed</h3>
-            <p className="stat-text">
-              {stats.bottomWorker && stats.bottomWorker.averageRating > 0 ? stats.bottomWorker.name : "N/A"}
-            </p>
-            {stats.bottomWorker && stats.bottomWorker.averageRating > 0 && (
-              <p className="stat-meta">{stats.bottomWorker.averageRating}★</p>
+            <p className="stat-text">{dashboard.supportWorker?.name || "N/A"}</p>
+            {dashboard.supportWorker && (
+              <p className="stat-meta">
+                {Number(dashboard.supportWorker.averageRating).toFixed(1)}★
+              </p>
             )}
           </div>
         </div>
       </div>
 
-      {/* Recent Ratings */}
+      {/* ===== RECENT RATINGS ===== */}
       <div className="recent-section">
         <h2>Recent Ratings</h2>
-        {recentRatings.length > 0 ? (
+
+        {dashboard.recentRatings.length > 0 ? (
           <div className="recent-list">
-            {recentRatings.map((item, index) => (
-              <div key={index} className="recent-item">
+            {dashboard.recentRatings.map((item) => (
+              <div
+                key={`${item.worker._id}-${item.rating.createdAt}`}
+                className="recent-item"
+              >
                 <div className="recent-worker">
                   <div className="worker-avatar">
                     {item.worker.name.charAt(0).toUpperCase()}
@@ -139,14 +189,36 @@ function SupervisorHome() {
                     <p className="worker-email">{item.worker.email}</p>
                   </div>
                 </div>
+
                 <div className="recent-rating">
                   <div className="rating-fields-small">
-                    {ratingFields.map(f => (
-                      <span key={f.key} className="field-badge">
-                        {f.short}: {item.rating[f.key] ?? 0}★
-                      </span>
-                    ))}
+                    {/* ⭐ Overall Average */}
+                    <span className="field-badge main">
+                      AVG:{" "}
+                      {(
+                        ratingFields.reduce(
+                          (sum, f) => sum + (Number(item.rating[f.key]) || 0),
+                          0
+                        ) / ratingFields.length
+                      ).toFixed(1)}
+                      ★
+                    </span>
+
+                    {/* ⚠️ Lowest 3 (problem indicators) */}
+                    {ratingFields
+                      .map((f) => ({
+                        ...f,
+                        value: Number(item.rating[f.key]) || 0
+                      }))
+                      .sort((a, b) => a.value - b.value)
+                      .slice(0, 3)
+                      .map((f) => (
+                        <span key={f.key} className="field-badge warning">
+                          {f.short}: {f.value}★
+                        </span>
+                      ))}
                   </div>
+
                   <p className="recent-time">
                     {new Date(item.rating.createdAt).toLocaleDateString()}
                   </p>
@@ -155,23 +227,32 @@ function SupervisorHome() {
             ))}
           </div>
         ) : (
-          <p className="no-data">No ratings yet. Start rating workers to see recent activity!</p>
+          <p className="no-data">
+            No ratings yet. Start rating workers to see recent activity.
+          </p>
         )}
       </div>
 
-      {/* Quick Stats */}
+      {/* ===== QUICK STATS ===== */}
       <div className="quick-stats">
         <div className="quick-stat">
-          <span className="label">Total Ratings Given</span>
-          <span className="value">{recentRatings.length}</span>
+          <span className="label">Workers Rated</span>
+          <span className="value">{dashboard.ratedWorkers}</span>
         </div>
+
         <div className="quick-stat">
-          <span className="label">Workers Remaining</span>
-          <span className="value">{stats.totalWorkers - recentRatings.length}</span>
+          <span className="label">Workers Not Rated</span>
+          <span className="value">{dashboard.unratedWorkers}</span>
         </div>
+
         <div className="quick-stat">
-          <span className="label">Rating Consistency</span>
-          <span className="value">98%</span>
+          <span className="label">Updated in Last 7 Days</span>
+          <span className="value">{dashboard.updatedInLastWeek}</span>
+        </div>
+
+        <div className="quick-stat">
+          <span className="label">Below 3.0 Average</span>
+          <span className="value">{dashboard.supportCount}</span>
         </div>
       </div>
     </div>
