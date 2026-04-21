@@ -1,11 +1,14 @@
+import { useNavigate } from "react-router-dom";
 import "../../styles/Supervisor/SupervisorNav.css";
 
-function WorkerNav({ currentPage, onPageChange, userName, onLogout, collapsed, setCollapsed }) {
+function WorkerNav({ userName, onLogout, collapsed, setCollapsed }) {
+  const navigate = useNavigate();
+
   const pages = [
-    { id: "home", label: "Home", icon: "🏠" },
-    { id: "ratings", label: "Rate Colleagues", icon: "⭐" },
-    { id: "feedback", label: "Feedback", icon: "💬" },
-    { id: "profile", label: "Profile", icon: "👤" }
+    { id: "home", path: "/", label: "Home", icon: "🏠" },
+    { id: "ratings", path: "/ratings", label: "Rate Colleagues", icon: "⭐" },
+    { id: "feedback", path: "/feedback", label: "Feedback", icon: "💬" },
+    { id: "profile", path: "/profile", label: "Profile", icon: "👤" }
   ];
 
   return (
@@ -29,8 +32,8 @@ function WorkerNav({ currentPage, onPageChange, userName, onLogout, collapsed, s
             {pages.map((page) => (
               <button
                 key={page.id}
-                className={`nav-item ${currentPage === page.id ? "active" : ""}`}
-                onClick={() => onPageChange(page.id)}
+                className="nav-item"
+                onClick={() => navigate(page.path)}
                 title={page.label}
               >
                 <span className="nav-icon">{page.icon}</span>

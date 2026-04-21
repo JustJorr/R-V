@@ -1,19 +1,35 @@
 import "../styles/Supervisor/SupervisorNav.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
-function SupervisorNav({ currentPage, onPageChange, userName, onLogout, collapsed, setCollapsed }) {
+function SupervisorNav({
+  userName,
+  onLogout,
+  collapsed,
+  setCollapsed
+}) {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const pages = [
-    { id: "home", label: "Home", icon: "🏠" },
-    { id: "details", label: "Details", icon: "👥" },
-    { id: "visuals", label: "Data Visuals", icon: "📊" },
-    { id: "profile", label: "Profile", icon: "👤" }
+    { id: "home", label: "Home", icon: "🏠", path: "/" },
+    { id: "details", label: "Details", icon: "👥", path: "/details" },
+    { id: "visuals", label: "Data Visuals", icon: "📊", path: "/visuals" },
+    { id: "profile", label: "Profile", icon: "👤", path: "/profile" }
   ];
+
+  // detect active page from URL instead of state
+  const isActive = (path) => {
+    if (path === "/" && location.pathname === "/") return true;
+    if (path !== "/" && location.pathname.includes(path)) return true;
+    return false;
+  };
 
   return (
     <nav className={`supervisor-nav ${collapsed ? "collapsed" : ""}`}>
       <div className="nav-container">
 
-        {/* 🔥 Toggle button ATTACHED to sidebar */}
-        <button 
+        {/* Toggle */}
+        <button
           className="toggle-btn"
           onClick={() => setCollapsed(!collapsed)}
           title={collapsed ? "Expand" : "Collapse"}
@@ -28,17 +44,17 @@ function SupervisorNav({ currentPage, onPageChange, userName, onLogout, collapse
 
         {/* Menu */}
         <div className="nav-menu">
+
           <div className="nav-pages">
             {pages.map((page) => (
               <button
                 key={page.id}
-                className={`nav-item ${currentPage === page.id ? "active" : ""}`}
-                onClick={() => onPageChange(page.id)}
+                className={`nav-item ${isActive(page.path) ? "active" : ""}`}
+                onClick={() => navigate(page.path)}
                 title={page.label}
               >
                 <span className="nav-icon">{page.icon}</span>
 
-                {/* 👇 Hide text when collapsed */}
                 {!collapsed && (
                   <span className="nav-label">{page.label}</span>
                 )}
@@ -46,11 +62,11 @@ function SupervisorNav({ currentPage, onPageChange, userName, onLogout, collapse
             ))}
           </div>
 
-          {/* User */}
+          {/* User Section */}
           <div className="nav-worker">
             <div className="worker-info">
               <div className="worker-avatar">
-                {userName.charAt(0).toUpperCase()}
+                {userName?.charAt(0)?.toUpperCase()}
               </div>
 
               {!collapsed && (
@@ -64,6 +80,7 @@ function SupervisorNav({ currentPage, onPageChange, userName, onLogout, collapse
               </button>
             )}
           </div>
+
         </div>
       </div>
     </nav>

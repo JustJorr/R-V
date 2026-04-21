@@ -41,6 +41,9 @@ export const supervisorService = {
   getExistingRating: (supervisorId, workerId) =>
     apiClient.get(`/api/rating/${supervisorId}/${workerId}`),
 
+  getWorkerById: (workerId) =>
+    apiClient.get(`/api/users/${workerId}`),
+
   /**
    * Fetch past (non-today) rating history for a worker.
    * Optionally scoped to a specific supervisor.

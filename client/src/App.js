@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+
 import "./styles/App.css";
+
 import LoginPage from "./pages/LoginPage";
 import SupervisorLayout from "./components/SupervisorLayout";
 import WorkerLayout from "./components/WorkerLayout";
@@ -18,6 +21,7 @@ function App() {
   }, []);
 
   const handleLogin = (userData) => {
+    localStorage.setItem("worker", JSON.stringify(userData));
     setUser(userData);
   };
 
@@ -34,13 +38,35 @@ function App() {
     return <LoginPage onLogin={handleLogin} />;
   }
 
-  if (worker.role === "supervisor") {
-    return <SupervisorLayout worker={worker} onLogout={handleLogout} />;
-  } else if (worker.role === "admin") {
-    return <AdminLayout worker={worker} onLogout={handleLogout} />; // ✅ FIXED
-  } else {
-    return <WorkerLayout worker={worker} onLogout={handleLogout} />;
-  }
+  return (
+    <Routes>
+
+      {/* ROLE-BASED LAYOUT */}
+      {worker.role === "supervisor" && (
+        <Route
+          path="/*"
+          element={<SupervisorLayout worker={worker} onLogout={handleLogout} />}
+        />
+      )}
+
+      {worker.role === "admin" && (
+        <Route
+          path="/*"
+          element={<AdminLayout worker={worker} onLogout={handleLogout} />}
+        />
+      )}
+
+      {worker.role === "worker" && (
+        <Route
+          path="/*"
+          element={<WorkerLayout worker={worker} onLogout={handleLogout} />}
+        />
+      )}
+
+      {/* fallback */}
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
 }
 
 export default App;

@@ -1,45 +1,61 @@
 import { useState } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+
 import SupervisorNav from "./SupervisorNav";
 import SupervisorHome from "../pages/Supervisor/SupervisorHome";
 import SupervisorDetails from "../pages/Supervisor/SupervisorDetails";
 import SupervisorDataVisuals from "../pages/Supervisor/SupervisorDataVisuals";
 import SupervisorProfile from "../pages/Supervisor/SupervisorProfile";
+import WorkerInformation from "../components/common/WorkerInformation";
+
 import "../styles/Supervisor/SupervisorLayout.css";
 
 function SupervisorLayout({ worker, onLogout }) {
-  const [currentPage, setCurrentPage] = useState("home");
   const [collapsed, setCollapsed] = useState(false);
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case "home":
-        return <SupervisorHome />;
-      case "details":
-        return <SupervisorDetails worker={worker} />;
-      case "visuals":
-        return <SupervisorDataVisuals />;
-      case "profile":
-        return <SupervisorProfile worker={worker} />;
-      default:
-        return <SupervisorHome />;
-    }
-  };
 
   return (
     <div className="supervisor-layout">
       {/* Sidebar */}
       <SupervisorNav
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
         userName={worker?.name || "Supervisor"}
         onLogout={onLogout}
         collapsed={collapsed}
         setCollapsed={setCollapsed}
       />
 
-      {/* Main Content - shifts when sidebar collapses */}
+      {/* Main Content */}
       <div className={`main-content ${collapsed ? "collapsed" : ""}`}>
-        {renderPage()}
+        <Routes>
+          {/* Home */}
+          <Route path="/" element={<SupervisorHome />} />
+
+          {/* Details Page */}
+          <Route
+            path="details"
+            element={<SupervisorDetails worker={worker} />}
+          />
+
+          {/* Data Visuals */}
+          <Route
+            path="visuals"
+            element={<SupervisorDataVisuals />}
+          />
+
+          {/* Profile */}
+          <Route
+            path="profile"
+            element={<SupervisorProfile worker={worker} />}
+          />
+
+          {/* Worker Detail Page */}
+          <Route
+            path="worker/:id"
+            element={<WorkerInformation />}
+          />
+
+          {/* fallback */}
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </div>
     </div>
   );

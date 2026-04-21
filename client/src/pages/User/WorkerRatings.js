@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor, getRatingStatus } from "../../utils/helpers";
+import { useNavigate } from "react-router-dom";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 
@@ -120,13 +121,10 @@ function WorkerRatings({ worker }) {
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [refreshing, setRefreshing] = useState(false);
-
-  // NEW: history modal state
   const [historyWorker, setHistoryWorker] = useState(null);
+  const navigate = useNavigate();
 
-  const today = getTodayKey(); // NEW
-
-  // ── existing functions — untouched ────────────────────────────────────────
+  const today = getTodayKey();
 
   const fetchWorkers = useCallback(async () => {
     try {
@@ -372,8 +370,13 @@ function WorkerRatings({ worker }) {
                 <tr key={w._id} className={isAlreadyRated(w._id) ? "rated-row" : ""}>
                   <td>{index + 1}</td>
                   <td>
-                    <div className="worker-name-cell">
-                      <div className="worker-badge">{w.name.charAt(0).toUpperCase()}</div>
+                    <div 
+                      className="worker-name-cell clickable"
+                      onClick={() => navigate(`/worker/${w._id}`)}
+                    >
+                      <div className="worker-badge">
+                        {w.name.charAt(0).toUpperCase()}
+                      </div>
                       {w.name}
                     </div>
                   </td>

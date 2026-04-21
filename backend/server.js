@@ -254,8 +254,6 @@ app.get("/api/rating/:supervisorId/:workerId", async (req, res) => {
 
 /**
  * NEW: Get full rating history for a worker, grouped by date.
- * Used by the supervisor to view past ratings (read-only).
- * GET /api/ratings/worker/:workerId/history?supervisorId=xxx
  */
 app.get("/api/ratings/worker/:workerId/history", async (req, res) => {
   try {

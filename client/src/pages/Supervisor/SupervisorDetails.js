@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor, getRatingStatus } from "../../utils/helpers";
+import { useNavigate } from "react-router-dom";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 
@@ -121,6 +122,7 @@ function SupervisorDetails({ worker: supervisor }) {
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [refreshing, setRefreshing] = useState(false);
+  const navigate = useNavigate();
 
   const today = getTodayKey();
 
@@ -342,8 +344,13 @@ function SupervisorDetails({ worker: supervisor }) {
                 <tr key={worker._id} className={isAlreadyRated(worker._id) ? "rated-row" : ""}>
                   <td>{index + 1}</td>
                   <td>
-                    <div className="worker-name-cell">
-                      <div className="worker-badge">{worker.name.charAt(0).toUpperCase()}</div>
+                    <div 
+                      className="worker-name-cell clickable"
+                      onClick={() => navigate(`/worker/${worker._id}`)}
+                    >
+                      <div className="worker-badge">
+                        {worker.name.charAt(0).toUpperCase()}
+                      </div>
                       {worker.name}
                     </div>
                   </td>

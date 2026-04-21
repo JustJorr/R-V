@@ -2098,3 +2098,13 @@
   font-size: 0.8rem;
   color: #6b7280;
 }
+
+.worker-name-cell.clickable {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.worker-name-cell.clickable:hover {
+  opacity: 0.7;
+  transform: translateX(2px);
+}
