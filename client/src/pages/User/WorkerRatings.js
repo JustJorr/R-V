@@ -19,9 +19,8 @@ const ratingFields = [
   { key: "attendance", short: "AT" }
 ];
 
-const KPI_FIELDS = ratingFields; // alias used inside HistoryModal
+const KPI_FIELDS = ratingFields;
 
-// ── NEW: same timezone-safe helper as server.js ──────────────────────────────
 function getTodayKey() {
   const now = new Date();
   const year = now.getFullYear();
@@ -37,7 +36,6 @@ function formatDate(dateStr) {
   });
 }
 
-// ── NEW: read-only history modal (same as SupervisorDetails) ─────────────────
 function HistoryModal({ worker: targetWorker, supervisorId, onClose }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +82,7 @@ function HistoryModal({ worker: targetWorker, supervisorId, onClose }) {
                         className="sd-history-avg"
                         style={{ background: getRatingColor(avg) }}
                       >
-                        {avg.toFixed(1)}★
+                        {avg.toFixed(1)} ★
                       </span>
                     </div>
                     <div className="sd-kpi-grid">
@@ -109,7 +107,6 @@ function HistoryModal({ worker: targetWorker, supervisorId, onClose }) {
   );
 }
 
-// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 function WorkerRatings({ worker }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -130,13 +127,10 @@ function WorkerRatings({ worker }) {
     try {
       setRefreshing(true);
       setLoading(true);
-
       const res = await supervisorService.getDashboard();
-
       const filtered = res.data.filter(
         (u) => u.role === "worker" && u._id !== worker._id
       );
-
       setWorkers(filtered);
     } catch (err) {
       console.error("Error fetching workers:", err);
@@ -151,7 +145,6 @@ function WorkerRatings({ worker }) {
       setRatedWorkerIds(new Set());
       return;
     }
-
     try {
       const response = await supervisorService.getSupervisorRatings(worker._id);
       const ratedIds = new Set((response.data || []).map(rating => rating.ratedUser));
@@ -174,15 +167,14 @@ function WorkerRatings({ worker }) {
 
   const isAlreadyRated = useCallback((workerId) => ratedWorkerIds.has(workerId), [ratedWorkerIds]);
 
-  const handleRateWorker = (worker) => {
-    setRatingWorker(worker);
+  const handleRateWorker = (w) => {
+    setRatingWorker(w);
     setIsEditingRating(false);
     setExistingRatingData(null);
   };
 
   const handleEditRating = async (targetWorker) => {
     if (!worker?._id) return;
-
     try {
       const response = await supervisorService.getExistingRating(worker._id, targetWorker._id);
       setRatingWorker(targetWorker);
@@ -194,10 +186,8 @@ function WorkerRatings({ worker }) {
     }
   };
 
-  // ── NEW: open history modal ───────────────────────────────────────────────
   const handleViewHistory = (targetWorker) => setHistoryWorker(targetWorker);
 
-  // ── NEW: check if latest rating was today ────────────────────────────────
   const ratedToday = useCallback((w) => {
     if (!w.latestRating) return false;
     const ratingDate = w.latestRating.dateKey ||
@@ -211,40 +201,28 @@ function WorkerRatings({ worker }) {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
     const list = workers
-      .filter(worker => {
+      .filter(w => {
         const matchesSearch =
-          worker.name.toLowerCase().includes(normalizedSearch) ||
-          worker.email.toLowerCase().includes(normalizedSearch);
-
+          w.name.toLowerCase().includes(normalizedSearch) ||
+          w.email.toLowerCase().includes(normalizedSearch);
         const matchesFilter =
           filterStatus === "all" ||
-          (filterStatus === "rated" && isAlreadyRated(worker._id)) ||
-          (filterStatus === "unrated" && !isAlreadyRated(worker._id));
-
+          (filterStatus === "rated" && isAlreadyRated(w._id)) ||
+          (filterStatus === "unrated" && !isAlreadyRated(w._id));
         return matchesSearch && matchesFilter;
       })
       .sort((a, b) => {
-        if (sortBy === "rating") {
-          return (b.averageRating || 0) - (a.averageRating || 0);
-        }
-
+        if (sortBy === "rating") return (b.averageRating || 0) - (a.averageRating || 0);
         if (sortBy === "recent") {
           const aDate = a.latestRating?.createdAt ? new Date(a.latestRating.createdAt).getTime() : 0;
           const bDate = b.latestRating?.createdAt ? new Date(b.latestRating.createdAt).getTime() : 0;
           return bDate - aDate;
         }
-
         return a.name.localeCompare(b.name);
       });
 
-    return {
-      filteredWorkers: list,
-      ratedCount: ratedWorkers,
-      unratedCount: unratedWorkers
-    };
+    return { filteredWorkers: list, ratedCount: ratedWorkers, unratedCount: unratedWorkers };
   }, [workers, searchTerm, filterStatus, sortBy, isAlreadyRated]);
-  // NOTE: removed filterDate/filterMonth from useMemo — date filtering now lives
-  // in the history modal, not the main table.
 
   return (
     <div className="page-content supervisor-details">
@@ -259,7 +237,6 @@ function WorkerRatings({ worker }) {
         />
       )}
 
-      {/* NEW: history modal */}
       {historyWorker && (
         <HistoryModal
           worker={historyWorker}
@@ -361,8 +338,8 @@ function WorkerRatings({ worker }) {
                 <th>Total Ratings</th>
                 <th>Status</th>
                 <th>Latest Rating</th>
-                <th>Today</th>       {/* NEW */}
-                <th>History</th>     {/* NEW */}
+                <th>Today</th>
+                <th>History</th>
               </tr>
             </thead>
             <tbody>
@@ -370,7 +347,7 @@ function WorkerRatings({ worker }) {
                 <tr key={w._id} className={isAlreadyRated(w._id) ? "rated-row" : ""}>
                   <td>{index + 1}</td>
                   <td>
-                    <div 
+                    <div
                       className="worker-name-cell clickable"
                       onClick={() => navigate(`/worker/${w._id}`)}
                     >
@@ -382,12 +359,16 @@ function WorkerRatings({ worker }) {
                   </td>
                   <td className="worker-email">{w.email}</td>
                   <td>
-                    <span
-                      className="rating-badge"
-                      style={{ backgroundColor: getRatingColor(w.averageRating) }}
-                    >
-                      {w.totalRatings > 0 ? w.averageRating.toFixed(1) : "—"}★
-                    </span>
+                    {w.totalRatings > 0 ? (
+                      <span
+                        className="rating-badge"
+                        style={{ backgroundColor: getRatingColor(w.averageRating) }}
+                      >
+                        {w.averageRating.toFixed(1)} ★
+                      </span>
+                    ) : (
+                      <span className="rating-badge rating-badge--none">—</span>
+                    )}
                   </td>
                   <td className="center">{w.totalRatings}</td>
                   <td className="center">
@@ -400,29 +381,43 @@ function WorkerRatings({ worker }) {
                     </span>
                   </td>
                   <td className="latest-rating-cell">
-                    {w.latestRating ? (
-                      <div className="rating-info">
-                        <div className="rating-fields">
-                          {ratingFields.map(f => (
-                            <span key={f.key} className="field-badge">
-                              {f.short}: {w.latestRating[f.key] ?? 0}★
-                            </span>
-                          ))}
+                    {worker.latestRating ? (() => {
+                      const scores = KPI_FIELDS.map(f => worker.latestRating[f.key] ?? 0);
+                      const avg = scores.reduce((a, b) => a + b, 0) / KPI_FIELDS.length;
+
+                      const lowest = KPI_FIELDS
+                        .map(f => ({ ...f, value: worker.latestRating[f.key] ?? 0 }))
+                        .sort((a, b) => a.value - b.value)[0];
+
+                      return (
+                        <div className="rating-summary">
+                          {/* ⭐ Average */}
+                          <div
+                            className="summary-avg"
+                            style={{ backgroundColor: getRatingColor(avg) }}
+                          >
+                            {avg.toFixed(1)} ★
+                          </div>
+
+                          {/* ⚠️ Weakest KPI */}
+                          <div className="summary-low">
+                            ↓ {lowest.short}: {lowest.value}
+                          </div>
+
+                          {/* 📅 Date */}
+                          <small className="rating-timestamp">
+                            {formatDate(worker.latestRating.createdAt)}
+                            {ratedToday(worker) && (
+                              <span className="today-tag">today</span>
+                            )}
+                          </small>
                         </div>
-                        <small className="rating-timestamp">
-                          {new Date(w.latestRating.createdAt).toLocaleDateString()}
-                          {/* NEW: "today" pill */}
-                          {ratedToday(w) && (
-                            <span className="today-tag">today</span>
-                          )}
-                        </small>
-                      </div>
-                    ) : (
-                      <span className="text-muted">No ratings</span>
+                      );
+                    })() : (
+                      <span className="text-muted">No ratings yet</span>
                     )}
                   </td>
 
-                  {/* NEW: Today column — Rate or Edit, today only */}
                   <td className="action-cell">
                     {isAlreadyRated(w._id) ? (
                       <button
@@ -443,7 +438,6 @@ function WorkerRatings({ worker }) {
                     )}
                   </td>
 
-                  {/* NEW: History column — always available, read-only */}
                   <td className="action-cell">
                     <button
                       className="btn btn-history"

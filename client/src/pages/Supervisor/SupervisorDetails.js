@@ -19,7 +19,6 @@ const KPI_FIELDS = [
   { key: "attendance", label: "Attendance", short: "AT" }
 ];
 
-// Returns today's date as "YYYY-MM-DD" in local time — same logic as the server
 function getTodayKey() {
   const now = new Date();
   const year = now.getFullYear();
@@ -31,13 +30,12 @@ function getTodayKey() {
 function formatDate(dateStr) {
   if (!dateStr) return "—";
   const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return "—";  // Handle invalid dates
+  if (isNaN(d.getTime())) return "—";
   return d.toLocaleDateString(undefined, {
     year: "numeric", month: "short", day: "numeric"
   });
 }
 
-// HistoryModal: read-only view of past ratings for a worker
 function HistoryModal({ worker, supervisorId, onClose }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,7 +82,7 @@ function HistoryModal({ worker, supervisorId, onClose }) {
                         className="sd-history-avg"
                         style={{ background: getRatingColor(avg) }}
                       >
-                        {avg.toFixed(1)}★
+                        {avg.toFixed(1)} ★
                       </span>
                     </div>
                     <div className="sd-kpi-grid">
@@ -109,7 +107,6 @@ function HistoryModal({ worker, supervisorId, onClose }) {
   );
 }
 
-// ===== MAIN COMPONENT =====
 function SupervisorDetails({ worker: supervisor }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -188,7 +185,6 @@ function SupervisorDetails({ worker: supervisor }) {
 
   const handleViewHistory = worker => setHistoryWorker(worker);
 
-  // Check if a worker's latest rating was today
   const ratedToday = useCallback(worker => {
     if (!worker.latestRating) return false;
     const ratingDate = worker.latestRating.dateKey ||
@@ -227,7 +223,6 @@ function SupervisorDetails({ worker: supervisor }) {
 
   return (
     <div className="page-content supervisor-details">
-      {/* Rating form modal (today only) */}
       {ratingWorker && (
         <RatingForm
           worker={ratingWorker}
@@ -239,7 +234,6 @@ function SupervisorDetails({ worker: supervisor }) {
         />
       )}
 
-      {/* History modal (past, read-only) */}
       {historyWorker && (
         <HistoryModal
           worker={historyWorker}
@@ -344,7 +338,7 @@ function SupervisorDetails({ worker: supervisor }) {
                 <tr key={worker._id} className={isAlreadyRated(worker._id) ? "rated-row" : ""}>
                   <td>{index + 1}</td>
                   <td>
-                    <div 
+                    <div
                       className="worker-name-cell clickable"
                       onClick={() => navigate(`/worker/${worker._id}`)}
                     >
@@ -356,12 +350,16 @@ function SupervisorDetails({ worker: supervisor }) {
                   </td>
                   <td className="worker-email">{worker.email}</td>
                   <td>
-                    <span
-                      className="rating-badge"
-                      style={{ backgroundColor: getRatingColor(worker.averageRating) }}
-                    >
-                      {worker.totalRatings > 0 ? Number(worker.averageRating).toFixed(1) : "—"}★
-                    </span>
+                    {worker.totalRatings > 0 ? (
+                      <span
+                        className="rating-badge"
+                        style={{ backgroundColor: getRatingColor(worker.averageRating) }}
+                      >
+                        {Number(worker.averageRating).toFixed(1)} ★
+                      </span>
+                    ) : (
+                      <span className="rating-badge rating-badge--none">—</span>
+                    )}
                   </td>
                   <td className="center">{worker.totalRatings}</td>
                   <td className="center">
@@ -370,28 +368,43 @@ function SupervisorDetails({ worker: supervisor }) {
                     </span>
                   </td>
                   <td className="latest-rating-cell">
-                    {worker.latestRating ? (
-                      <div className="rating-info">
-                        <div className="rating-fields">
-                          {KPI_FIELDS.map(f => (
-                            <span key={f.key} className="field-badge">
-                              {f.short}: {worker.latestRating[f.key] ?? 0}
-                            </span>
-                          ))}
+                    {worker.latestRating ? (() => {
+                      const scores = KPI_FIELDS.map(f => worker.latestRating[f.key] ?? 0);
+                      const avg = scores.reduce((a, b) => a + b, 0) / KPI_FIELDS.length;
+
+                      const lowest = KPI_FIELDS
+                        .map(f => ({ ...f, value: worker.latestRating[f.key] ?? 0 }))
+                        .sort((a, b) => a.value - b.value)[0];
+
+                      return (
+                        <div className="rating-summary">
+                          {/* ⭐ Average */}
+                          <div
+                            className="summary-avg"
+                            style={{ backgroundColor: getRatingColor(avg) }}
+                          >
+                            {avg.toFixed(1)} ★
+                          </div>
+
+                          {/* ⚠️ Weakest KPI */}
+                          <div className="summary-low">
+                            ↓ {lowest.short}: {lowest.value}
+                          </div>
+
+                          {/* 📅 Date */}
+                          <small className="rating-timestamp">
+                            {formatDate(worker.latestRating.createdAt)}
+                            {ratedToday(worker) && (
+                              <span className="today-tag">today</span>
+                            )}
+                          </small>
                         </div>
-                        <small className="rating-timestamp">
-                          {formatDate(worker.latestRating.createdAt)}
-                          {ratedToday(worker) && (
-                            <span className="today-tag">today</span>
-                          )}
-                        </small>
-                      </div>
-                    ) : (
+                      );
+                    })() : (
                       <span className="text-muted">No ratings yet</span>
                     )}
                   </td>
 
-                  {/* TODAY column: Rate / Edit (today only) */}
                   <td className="action-cell">
                     {isAlreadyRated(worker._id) ? (
                       <button
@@ -412,7 +425,6 @@ function SupervisorDetails({ worker: supervisor }) {
                     )}
                   </td>
 
-                  {/* HISTORY column: always available, read-only */}
                   <td className="action-cell">
                     <button
                       className="btn btn-history"

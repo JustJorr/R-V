@@ -86,7 +86,7 @@ app.get("/api/users/:id", async (req, res) => {
   try {
     const worker = await User.findById(req.params.id).select("-password");
     const ratings = await Rating.find({ ratedUser: req.params.id })
-      .populate("ratedBy", "name")
+      .populate("ratedBy", "name role")
       .sort({ createdAt: -1 });
     res.json({ worker, ratings });
   } catch (err) {
@@ -191,7 +191,7 @@ app.get("/api/supervisor/dashboard", async (req, res) => {
     const workersWithLatestRating = await Promise.all(
       workers.map(async (worker) => {
         const latestRating = await Rating.findOne({ ratedUser: worker._id })
-          .populate("ratedBy", "name")
+          .populate("ratedBy", "name role")
           .lean()
           .sort({ createdAt: -1 });
         return { ...worker, latestRating };
