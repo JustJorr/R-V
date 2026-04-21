@@ -36,77 +36,6 @@ function formatDate(dateStr) {
   });
 }
 
-function HistoryModal({ worker: targetWorker, supervisorId, onClose }) {
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!targetWorker) return;
-    setLoading(true);
-    supervisorService.getWorkerHistory(targetWorker._id, supervisorId)
-      .then(res => setHistory(res.data || []))
-      .catch(() => setError("Could not load history."))
-      .finally(() => setLoading(false));
-  }, [targetWorker, supervisorId]);
-
-  if (!targetWorker) return null;
-
-  return (
-    <div className="sd-modal-backdrop" onClick={onClose}>
-      <div className="sd-modal" onClick={e => e.stopPropagation()}>
-        <div className="sd-modal-header">
-          <div>
-            <h2 className="sd-modal-title">Rating History</h2>
-            <p className="sd-modal-subtitle">{targetWorker.name} · past sessions (read-only)</p>
-          </div>
-          <button className="sd-modal-close" onClick={onClose} aria-label="Close">✕</button>
-        </div>
-
-        <div className="sd-modal-body">
-          {loading && <div className="sd-state-msg">Loading history...</div>}
-          {error && <div className="sd-state-msg sd-state-error">{error}</div>}
-          {!loading && !error && history.length === 0 && (
-            <div className="sd-state-msg">No past ratings found.</div>
-          )}
-          {!loading && !error && history.map(({ date, entries }) => (
-            <div key={date} className="sd-history-group">
-              <div className="sd-history-date">{formatDate(date + "T00:00:00")}</div>
-              {entries.map(entry => {
-                const avg = KPI_FIELDS.reduce((sum, f) => sum + (entry[f.key] || 0), 0) / KPI_FIELDS.length;
-                return (
-                  <div key={entry._id} className="sd-history-card">
-                    <div className="sd-history-card-header">
-                      <span className="sd-history-ratedby">by {entry.ratedBy?.name || "Unknown"}</span>
-                      <span
-                        className="sd-history-avg"
-                        style={{ background: getRatingColor(avg) }}
-                      >
-                        {avg.toFixed(1)} ★
-                      </span>
-                    </div>
-                    <div className="sd-kpi-grid">
-                      {KPI_FIELDS.map(f => (
-                        <div key={f.key} className="sd-kpi-item">
-                          <span className="sd-kpi-short">{f.short}</span>
-                          <span className="sd-kpi-val">{entry[f.key] ?? 0}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {entry.comment && (
-                      <p className="sd-history-comment">"{entry.comment}"</p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function WorkerRatings({ worker }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -118,7 +47,6 @@ function WorkerRatings({ worker }) {
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [refreshing, setRefreshing] = useState(false);
-  const [historyWorker, setHistoryWorker] = useState(null);
   const navigate = useNavigate();
 
   const today = getTodayKey();
@@ -186,8 +114,6 @@ function WorkerRatings({ worker }) {
     }
   };
 
-  const handleViewHistory = (targetWorker) => setHistoryWorker(targetWorker);
-
   const ratedToday = useCallback((w) => {
     if (!w.latestRating) return false;
     const ratingDate = w.latestRating.dateKey ||
@@ -234,14 +160,6 @@ function WorkerRatings({ worker }) {
           onCancel={() => setRatingWorker(null)}
           isEditing={isEditingRating}
           initialValues={existingRatingData}
-        />
-      )}
-
-      {historyWorker && (
-        <HistoryModal
-          worker={historyWorker}
-          supervisorId={worker?._id}
-          onClose={() => setHistoryWorker(null)}
         />
       )}
 
@@ -339,7 +257,7 @@ function WorkerRatings({ worker }) {
                 <th>Status</th>
                 <th>Latest Rating</th>
                 <th>Today</th>
-                <th>History</th>
+                <th>Last Comment</th>
               </tr>
             </thead>
             <tbody>
@@ -438,14 +356,14 @@ function WorkerRatings({ worker }) {
                     )}
                   </td>
 
-                  <td className="action-cell">
-                    <button
-                      className="btn btn-history"
-                      onClick={() => handleViewHistory(w)}
-                      title="View past ratings"
-                    >
-                      📋 History
-                    </button>
+                  <td className="comment-cell">
+                    {w.latestRating?.comment ? (
+                      <div className="comment-preview" title={w.latestRating.comment}>
+                        <span className="comment-text">{w.latestRating.comment.substring(0, 40)}{w.latestRating.comment.length > 40 ? "..." : ""}</span>
+                      </div>
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
                   </td>
                 </tr>
               ))}
