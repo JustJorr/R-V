@@ -2010,3 +2010,91 @@
     max-height: 90vh;
   }
 }
+
+/* ── Filter bar ────────────────────────────────────────────────── */
+.dv-filter-bar {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+ 
+.dv-filter-inputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+ 
+.dv-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+ 
+.dv-filter-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+ 
+.dv-filter-group input {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+}
+ 
+.dv-filter-group input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+ 
+.dv-btn-apply {
+  padding: 0.45rem 1.1rem;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  align-self: flex-end;
+}
+ 
+.dv-btn-apply:hover {
+  background: #4f46e5;
+}
+ 
+/* Active filter pill — acts as a reset button */
+.dv-btn-reset {
+  padding: 0.375rem 0.875rem;
+  background: #ede9fe;
+  color: #5b21b6;
+  border: 1px solid #c4b5fd;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  align-self: flex-end;
+  white-space: nowrap;
+}
+ 
+.dv-btn-reset:hover {
+  background: #ddd6fe;
+  border-color: #a78bfa;
+}
+ 
+.dv-filter-note {
+  margin: 0.625rem 0 0;
+  font-size: 0.8rem;
+  color: #6b7280;
+}

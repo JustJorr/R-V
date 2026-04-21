@@ -22,23 +22,22 @@ function WorkerFeedback({ worker }) {
   const [loading, setLoading] = useState(true);
   const [filterDate, setFilterDate] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
+  const [activeFilter, setActiveFilter] = useState(""); // NEW: label for active pill
 
-  const fetchFeedback = useCallback(async () => {
+  const fetchFeedback = useCallback(async (date = filterDate, month = filterMonth) => {
     try {
       setLoading(true);
 
       const res = await ratingsService.getRatingsForUser(worker._id, {
-        date: filterDate,
-        month: filterMonth
+        ...(date && { date }),
+        ...(month && { month })
       });
 
-      // Filter to only include ratings with comments
       const withComments = (Array.isArray(res.data) ? res.data : []).filter(
         r => r.comment
       );
 
       setRatings(withComments);
-
     } catch (err) {
       console.error("Error fetching feedback:", err);
     } finally {
@@ -50,6 +49,21 @@ function WorkerFeedback({ worker }) {
     fetchFeedback();
   }, [fetchFeedback]);
 
+  // ── NEW: explicit apply/reset so state is set before fetch fires ──────────
+  const handleApplyFilter = () => {
+    fetchFeedback(filterDate, filterMonth);
+    if (filterDate) setActiveFilter(`Day: ${filterDate}`);
+    else if (filterMonth) setActiveFilter(`Month: ${filterMonth}`);
+  };
+
+  const handleResetFilter = () => {
+    setFilterDate("");
+    setFilterMonth("");
+    setActiveFilter("");
+    fetchFeedback("", ""); // pass empty strings directly — don't rely on state
+  };
+
+  // ── existing helpers ──────────────────────────────────────────────────────
   const calculateAverage = (rating) => {
     const values = ratingFields.map(f => Number(rating[f.key]) || 0);
     return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
@@ -65,8 +79,6 @@ function WorkerFeedback({ worker }) {
 
     return (
       <div className="feedback-card">
-
-        {/* HEADER */}
         <div className="feedback-header">
           <div className="feedback-left">
             <div className="supervisor-badge">
@@ -77,7 +89,6 @@ function WorkerFeedback({ worker }) {
               {new Date(item.createdAt).toLocaleDateString()}
             </span>
           </div>
-
           <div
             className="feedback-average"
             style={{ color: getRatingColor(Number(avg)) }}
@@ -86,7 +97,6 @@ function WorkerFeedback({ worker }) {
           </div>
         </div>
 
-        {/* RATINGS - Show all fields */}
         <div className="feedback-ratings">
           {ratingFields.map(f => (
             <span key={f.key} className="field-badge" title={f.label}>
@@ -95,7 +105,6 @@ function WorkerFeedback({ worker }) {
           ))}
         </div>
 
-        {/* COMMENT */}
         <div className="feedback-comment">
           {item.comment}
         </div>
@@ -110,11 +119,11 @@ function WorkerFeedback({ worker }) {
         <p>Feedback from supervisors and colleagues</p>
       </div>
 
-      {loading ? (
-        <div className="loading">Loading feedback...</div>
-      ) : (
-        <>
-          <div className="date-filter-bar">
+      {/* ── NEW: cleaner filter bar ───────────────────────────────────────── */}
+      <div className="wf-filter-bar">
+        <div className="wf-filter-inputs">
+          <div className="wf-filter-group">
+            <label>By date</label>
             <input
               type="date"
               value={filterDate}
@@ -123,7 +132,9 @@ function WorkerFeedback({ worker }) {
                 setFilterMonth("");
               }}
             />
-
+          </div>
+          <div className="wf-filter-group">
+            <label>By month</label>
             <input
               type="month"
               value={filterMonth}
@@ -132,24 +143,24 @@ function WorkerFeedback({ worker }) {
                 setFilterDate("");
               }}
             />
-
-            <button onClick={fetchFeedback}>Apply</button>
-
-            <button
-              onClick={() => {
-                setFilterDate("");
-                setFilterMonth("");
-                fetchFeedback();
-              }}
-            >
-              Reset
-            </button>
           </div>
+          <button className="wf-btn-apply" onClick={handleApplyFilter}>
+            Apply
+          </button>
+          {activeFilter && (
+            <button className="wf-btn-reset" onClick={handleResetFilter}>
+              ✕ {activeFilter}
+            </button>
+          )}
+        </div>
+      </div>
 
-          {/* ===== SUPERVISOR FEEDBACK SECTION ===== */}
+      {loading ? (
+        <div className="loading">Loading feedback...</div>
+      ) : (
+        <>
           <div className="recent-section">
             <h2>Supervisor Feedback</h2>
-
             {supervisorFeedback.length === 0 ? (
               <div className="no-data">No supervisor feedback with comments yet.</div>
             ) : (
@@ -161,10 +172,8 @@ function WorkerFeedback({ worker }) {
             )}
           </div>
 
-          {/* ===== PEER FEEDBACK SECTION ===== */}
           <div className="recent-section">
             <h2>Peer Feedback</h2>
-
             {peerFeedback.length === 0 ? (
               <div className="no-data">No peer feedback with comments yet.</div>
             ) : (
