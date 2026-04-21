@@ -21,9 +21,11 @@ function SupervisorHome() {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
+      setRefreshing(true);
       setLoading(true);
       const response = await supervisorService.getDashboard();
       setWorkers(response.data || []);
@@ -31,6 +33,7 @@ function SupervisorHome() {
       console.error("Error fetching home data:", err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -115,27 +118,13 @@ function SupervisorHome() {
       </div>
 
       <div className="home-actions">
-        <button className="btn btn-outline" onClick={fetchData} title="Refresh data">
-          🔄
+        <button
+          className="btn btn-refresh"
+          onClick={fetchData}
+          disabled={refreshing}
+        >
+          {refreshing ? "⏳ Refreshing..." : "🔄 Refresh"}
         </button>
-      </div>
-
-      {/* ===== RATING FIELD LEGEND ===== */}
-      <div className="legend-box">
-        <div className="legend-header" onClick={() => setShowLegend(prev => !prev)}>
-          <span className="legend-title">ℹ️ Rating Field Abbreviations</span>
-          <span className="legend-toggle">{showLegend ? "▲ Hide" : "▼ Show"}</span>
-        </div>
-        {showLegend && (
-          <div className="legend-grid">
-            {ratingFields.map(f => (
-              <div key={f.key} className="legend-item">
-                <span className="legend-short">{f.short}</span>
-                <span className="legend-label">{f.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ===== STATS ===== */}
@@ -274,6 +263,25 @@ function SupervisorHome() {
           <span className="value">{dashboard.supportCount}</span>
         </div>
       </div>
+
+      {/* ===== RATING FIELD LEGEND (BOTTOM) ===== */}
+      <div className="legend-box bottom">
+        <div className="legend-header" onClick={() => setShowLegend(prev => !prev)}>
+          <span className="legend-title">ℹ️ Rating Field Abbreviations</span>
+          <span className="legend-toggle">{showLegend ? "▲ Hide" : "▼ Show"}</span>
+        </div>
+        {showLegend && (
+          <div className="legend-grid">
+            {ratingFields.map(f => (
+              <div key={f.key} className="legend-item">
+                <span className="legend-short">{f.short}</span>
+                <span className="legend-label">{f.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }

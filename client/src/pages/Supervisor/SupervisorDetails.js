@@ -28,16 +28,20 @@ function SupervisorDetails({ worker: supervisor }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchDashboardData = useCallback(async () => {
     try {
+      setRefreshing(true);
       setLoading(true);
+
       const response = await supervisorService.getDashboard();
       setWorkers(response.data || []);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, []);
 
@@ -207,8 +211,12 @@ function SupervisorDetails({ worker: supervisor }) {
           </button>
         </div>
 
-        <button className="btn btn-outline" onClick={fetchDashboardData} title="Refresh data">
-          🔄
+        <button
+          className="btn btn-refresh"
+          onClick={fetchDashboardData}
+          disabled={refreshing}
+        >
+          {refreshing ? "⏳ Refreshing..." : "🔄 Refresh"}
         </button>
       </div>
 

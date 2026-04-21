@@ -1233,3 +1233,57 @@
   font-size: 13px;
   color: #555;
 }
+
+.btn-refresh {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.btn-refresh:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.legend-box {
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8f9fb;
+  border: 1px solid #e5e7eb;
+}
+
+.legend-box.bottom {
+  margin-top: 40px; /* 👈 gives breathing room from quick stats */
+}
+
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.legend-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-toggle {
+  font-size: 14px;
+  color: #3b5bfd;
+  font-weight: 500;
+}
+

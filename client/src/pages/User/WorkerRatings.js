@@ -28,10 +28,12 @@ function WorkerRatings({ worker }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
+  const [refreshing, setRefreshing] = useState(false);
 
   // 🔥 Fetch workers
   const fetchWorkers = useCallback(async () => {
     try {
+      setRefreshing(true);
       setLoading(true);
 
       const res = await supervisorService.getDashboard();
@@ -45,6 +47,7 @@ function WorkerRatings({ worker }) {
       console.error("Error fetching workers:", err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, [worker._id]);
 
@@ -214,9 +217,13 @@ function WorkerRatings({ worker }) {
           </button>
         </div>
 
-        <button className="btn btn-outline" onClick={fetchWorkers} title="Refresh data">
-          🔄
-        </button>
+          <button
+            className="btn btn-refresh"
+            onClick={fetchWorkers}
+            disabled={refreshing}
+          >
+            {refreshing ? "⏳ Refreshing..." : "🔄 Refresh"}
+          </button>
       </div>
 
       {loading ? (

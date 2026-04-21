@@ -382,3 +382,53 @@
   font-size: 13px;
   color: #555;
 }
+
+.btn-refresh {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-refresh:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Add vertical spacing between main sections */
+.worker-dashboard > * {
+  margin-bottom: 20px;
+}
+
+/* Specifically improve spacing above legend */
+.legend-box {
+  margin-top: 24px;
+  padding: 16px 20px;
+  border-radius: 12px;
+}
+
+/* Optional: make legend header breathe more */
+.legend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+}
+
+/* Improve spacing inside legend grid */
+.legend-grid {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 10px 16px;
+}
+
+/* Each legend item spacing */
+.legend-item {
+  padding: 6px 0;
+}

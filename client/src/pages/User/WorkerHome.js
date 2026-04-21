@@ -21,19 +21,22 @@ function WorkerHome({ worker }) {
   const [loading, setLoading] = useState(true);
   const [ratingData, setRatingData] = useState(null);
   const [showLegend, setShowLegend] = useState(false);
+  const [refreshing, setRefreshing] = useState(false); // ⭐ NEW
 
   const fetchData = useCallback(async () => {
     if (!worker?._id) return;
     
     try {
+      setRefreshing(true); // ⭐ better UX
       setLoading(true);
+
       const response = await supervisorService.getRatingsForUser(worker._id);
-      // API returns array directly, not object with ratings property
       setRatingData(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("Error fetching worker ratings:", err);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, [worker?._id]);
 
@@ -53,6 +56,7 @@ function WorkerHome({ worker }) {
     }
 
     const ratings = ratingData;
+
     const avgRatingRaw = ratings.length > 0 
       ? ratings.reduce((sum, r) => {
           const fieldValues = ratingFields.map(f => Number(r[f.key]) || 0);
@@ -74,7 +78,6 @@ function WorkerHome({ worker }) {
       return now - created <= sevenDaysMs;
     }).length;
 
-    // Calculate average for each field across all ratings
     const fieldAverages = {};
     ratingFields.forEach(f => {
       const values = ratings.map(r => Number(r[f.key]) || 0);
@@ -83,7 +86,6 @@ function WorkerHome({ worker }) {
         : 0;
     });
 
-    // Find lowest 3 areas
     const lowestAreas = ratingFields
       .map(f => ({ ...f, avg: Number(fieldAverages[f.key]) }))
       .sort((a, b) => a.avg - b.avg)
@@ -118,28 +120,15 @@ function WorkerHome({ worker }) {
         </p>
       </div>
 
+      {/* ===== IMPROVED REFRESH BUTTON ===== */}
       <div className="home-actions">
-        <button className="btn btn-outline" onClick={fetchData} title="Refresh data">
-          🔄
+        <button
+          className="btn btn-refresh"
+          onClick={fetchData}
+          disabled={refreshing}
+        >
+          {refreshing ? "⏳ Refreshing..." : "🔄 Refresh"}
         </button>
-      </div>
-
-      {/* ===== RATING FIELD LEGEND ===== */}
-      <div className="legend-box">
-        <div className="legend-header" onClick={() => setShowLegend(prev => !prev)}>
-          <span className="legend-title">ℹ️ Rating Field Abbreviations</span>
-          <span className="legend-toggle">{showLegend ? "▲ Hide" : "▼ Show"}</span>
-        </div>
-        {showLegend && (
-          <div className="legend-grid">
-            {ratingFields.map(f => (
-              <div key={f.key} className="legend-item">
-                <span className="legend-short">{f.short}</span>
-                <span className="legend-label">{f.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ===== STATS ===== */}
@@ -187,10 +176,7 @@ function WorkerHome({ worker }) {
         {dashboard.recentRatings.length > 0 ? (
           <div className="recent-list">
             {dashboard.recentRatings.map((rating, idx) => (
-              <div
-                key={`${rating._id}-${idx}`}
-                className="recent-item"
-              >
+              <div key={`${rating._id}-${idx}`} className="recent-item">
 
                 <div className="recent-worker">
                   {rating.ratedBy?.role === "supervisor" && (
@@ -213,10 +199,8 @@ function WorkerHome({ worker }) {
                   </div>
                 </div>
 
-
                 <div className="recent-rating">
                   <div className="rating-fields-small">
-                    {/* ⭐ Overall Average */}
                     <span className="field-badge main">
                       AVG:{" "}
                       {(
@@ -228,7 +212,6 @@ function WorkerHome({ worker }) {
                       ★
                     </span>
 
-                    {/* ⚠️ Lowest 3 (problem indicators) */}
                     {ratingFields
                       .map((f) => ({
                         ...f,
@@ -275,6 +258,24 @@ function WorkerHome({ worker }) {
             <span className="value">
               {dashboard.lowestAreas.map(f => f.short).join(", ")}
             </span>
+          </div>
+        )}
+      </div>
+
+      {/* ===== MOVED LEGEND TO BOTTOM ===== */}
+      <div className="legend-box">
+        <div className="legend-header" onClick={() => setShowLegend(prev => !prev)}>
+          <span className="legend-title">ℹ️ Rating Field Abbreviations</span>
+          <span className="legend-toggle">{showLegend ? "▲ Hide" : "▼ Show"}</span>
+        </div>
+        {showLegend && (
+          <div className="legend-grid">
+            {ratingFields.map(f => (
+              <div key={f.key} className="legend-item">
+                <span className="legend-short">{f.short}</span>
+                <span className="legend-label">{f.label}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
