@@ -51,13 +51,13 @@
 /* ===== LOGO ===== */
 .nav-brand {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding: 0 24px 30px;
+  padding: 0 20px 30px;
 }
 
 .nav-logo {
-  height: 40px;
+  height: 55px; /* 👈 bigger */
   width: auto;
   object-fit: contain;
 }
