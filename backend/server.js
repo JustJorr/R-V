@@ -222,17 +222,19 @@ app.post("/api/ratings", async (req, res) => {
 app.get("/api/supervisor/dashboard", async (req, res) => {
   try {
     const workers = await User.find({ role: "worker" })
-      .select("_id name email averageRating totalRatings createdAt")
+      .select("_id name email role averageRating totalRatings createdAt")
+      .lean()
       .sort({ averageRating: -1 });
 
     const workersWithLatestRating = await Promise.all(
       workers.map(async (worker) => {
         const latestRating = await Rating.findOne({ ratedUser: worker._id })
           .populate("ratedBy", "name")
+          .lean()
           .sort({ createdAt: -1 });
 
         return {
-          ...worker._doc,
+          ...worker,
           latestRating
         };
       })

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { usersService, supervisorService } from "../../services/api";
+import { supervisorService } from "../../services/api";
 import { getRatingColor, getRatingStatus } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
@@ -34,7 +34,7 @@ function WorkerRatings({ worker }) {
     try {
       setLoading(true);
 
-      const res = await usersService.getAllUsers();
+      const res = await supervisorService.getDashboard();
 
       const filtered = res.data.filter(
         (u) => u.role === "worker" && u._id !== worker._id
@@ -214,8 +214,8 @@ function WorkerRatings({ worker }) {
           </button>
         </div>
 
-        <button className="btn btn-outline" onClick={fetchWorkers}>
-          Refresh
+        <button className="btn btn-outline" onClick={fetchWorkers} title="Refresh data">
+          🔄
         </button>
       </div>
 

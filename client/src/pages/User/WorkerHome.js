@@ -119,8 +119,8 @@ function WorkerHome({ worker }) {
       </div>
 
       <div className="home-actions">
-        <button className="btn btn-outline" onClick={fetchData}>
-          Refresh Overview
+        <button className="btn btn-outline" onClick={fetchData} title="Refresh data">
+          🔄
         </button>
       </div>
 

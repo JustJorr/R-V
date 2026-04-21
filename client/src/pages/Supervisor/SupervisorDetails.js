@@ -207,8 +207,8 @@ function SupervisorDetails({ worker: supervisor }) {
           </button>
         </div>
 
-        <button className="btn btn-outline" onClick={fetchDashboardData}>
-          Refresh
+        <button className="btn btn-outline" onClick={fetchDashboardData} title="Refresh data">
+          🔄
         </button>
       </div>
 
