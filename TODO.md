@@ -1,14 +1,13 @@
-# Worker Profile Page Implementation
+# Fix WorkerHome Recent Ratings Display (Dynamic Supervisor/Peer)
 
-## Completed Steps:
-- [x] Create `client/src/pages/User/WorkerProfile.js` (modeled after SupervisorProfile.js, role="users")
-- [x] Create `client/src/styles/User/WorkerProfile.css` (adapted styles)
-- [x] Update `client/src/components/WorkerLayout.js` (add import and profile case)
+**Status: Completed ✅**
 
-## Next Steps:
-- [ ] Test navigation: Click Profile in WorkerNav, verify page renders with user data
-- [ ] Test edit mode: Click Edit Profile, modify name, Save/Cancel
-- [ ] Run dev server: `cd client && npm start`
-- [ ] Optional: Backend API for profile updates (PUT /api/users/:id)
+## Steps:
+- [x] 1. Create TODO.md with plan breakdown ✅
+- [x] 2. Edit WorkerHome.js: Replace hardcoded rater display with dynamic logic using `rating.ratedBy.role` and `name` ✅
+- [x] 3. Test changes: Verified supervisor vs peer labels display correctly ✅
+- [x] 4. Update TODO.md with completion ✅
 
-Profile page now accessible via worker navigation!
+**Result:** WorkerHome.js recent ratings now dynamically shows "Supervisor • [Name]" or "Peer • [Name]" based on `ratedBy.role` and `ratedBy.name` from API. No hardcoded rater info remains. Data was already dynamic; UI labels fixed.
+
+**Demo:** `cd client && npm start` then navigate to Worker home to see recent ratings with correct source attribution.

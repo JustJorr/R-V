@@ -191,15 +191,28 @@ function WorkerHome({ worker }) {
                 key={`${rating._id}-${idx}`}
                 className="recent-item"
               >
+
                 <div className="recent-worker">
-                  <div className="worker-avatar">
-                    {(rating.ratedBy?.name || "U").charAt(0).toUpperCase()}
-                  </div>
+                  {rating.ratedBy?.role === "supervisor" && (
+                    <div className="worker-avatar">
+                      {(rating.ratedBy?.name || "S").charAt(0).toUpperCase()}
+                    </div>
+                  )}
                   <div className="worker-details">
-                    <h4>Anonymous Supervisor</h4>
-                    <p className="worker-email">Rating from supervisor</p>
+                    {(() => {
+                      const isSupervisor = rating.ratedBy?.role === "supervisor";
+                      const sourceLabel = isSupervisor ? "Supervisor" : "Peer";
+                      const raterName = isSupervisor ? (rating.ratedBy?.name || "Team Lead") : "Anonymous Colleague";
+                      return (
+                        <>
+                          <h4>{sourceLabel} • {raterName}</h4>
+                          <p className="worker-email">{sourceLabel} rating</p>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
+
 
                 <div className="recent-rating">
                   <div className="rating-fields-small">
