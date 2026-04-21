@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
@@ -27,13 +27,8 @@ function SupervisorDataVisuals() {
     ratingDistribution: { excellent: 0, good: 0, average: 0, poor: 0 }
   });
 
-  useEffect(() => {
-    fetchChartData();
-  }, []);
-
-  const fetchChartData = async () => {
+  const fetchChartData = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await supervisorService.getDashboard();
       const data = response.data;
 
@@ -70,7 +65,11 @@ function SupervisorDataVisuals() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchChartData();
+  }, [fetchChartData]);
 
   const totalWorkers = workers.length;
   const getBarWidth = (count) => (totalWorkers > 0 ? (count / totalWorkers) * 100 : 0);

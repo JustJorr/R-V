@@ -18,6 +18,97 @@ const ratingFields = [
   { key: "attendance", short: "AT" }
 ];
 
+const KPI_FIELDS = ratingFields; // alias used inside HistoryModal
+
+// ── NEW: same timezone-safe helper as server.js ──────────────────────────────
+function getTodayKey() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString(undefined, {
+    year: "numeric", month: "short", day: "numeric"
+  });
+}
+
+// ── NEW: read-only history modal (same as SupervisorDetails) ─────────────────
+function HistoryModal({ worker: targetWorker, supervisorId, onClose }) {
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!targetWorker) return;
+    setLoading(true);
+    supervisorService.getWorkerHistory(targetWorker._id, supervisorId)
+      .then(res => setHistory(res.data || []))
+      .catch(() => setError("Could not load history."))
+      .finally(() => setLoading(false));
+  }, [targetWorker, supervisorId]);
+
+  if (!targetWorker) return null;
+
+  return (
+    <div className="sd-modal-backdrop" onClick={onClose}>
+      <div className="sd-modal" onClick={e => e.stopPropagation()}>
+        <div className="sd-modal-header">
+          <div>
+            <h2 className="sd-modal-title">Rating History</h2>
+            <p className="sd-modal-subtitle">{targetWorker.name} · past sessions (read-only)</p>
+          </div>
+          <button className="sd-modal-close" onClick={onClose} aria-label="Close">✕</button>
+        </div>
+
+        <div className="sd-modal-body">
+          {loading && <div className="sd-state-msg">Loading history...</div>}
+          {error && <div className="sd-state-msg sd-state-error">{error}</div>}
+          {!loading && !error && history.length === 0 && (
+            <div className="sd-state-msg">No past ratings found.</div>
+          )}
+          {!loading && !error && history.map(({ date, entries }) => (
+            <div key={date} className="sd-history-group">
+              <div className="sd-history-date">{formatDate(date + "T00:00:00")}</div>
+              {entries.map(entry => {
+                const avg = KPI_FIELDS.reduce((sum, f) => sum + (entry[f.key] || 0), 0) / KPI_FIELDS.length;
+                return (
+                  <div key={entry._id} className="sd-history-card">
+                    <div className="sd-history-card-header">
+                      <span className="sd-history-ratedby">by {entry.ratedBy?.name || "Unknown"}</span>
+                      <span
+                        className="sd-history-avg"
+                        style={{ background: getRatingColor(avg) }}
+                      >
+                        {avg.toFixed(1)}★
+                      </span>
+                    </div>
+                    <div className="sd-kpi-grid">
+                      {KPI_FIELDS.map(f => (
+                        <div key={f.key} className="sd-kpi-item">
+                          <span className="sd-kpi-short">{f.short}</span>
+                          <span className="sd-kpi-val">{entry[f.key] ?? 0}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {entry.comment && (
+                      <p className="sd-history-comment">"{entry.comment}"</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN COMPONENT ────────────────────────────────────────────────────────────
 function WorkerRatings({ worker }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +121,13 @@ function WorkerRatings({ worker }) {
   const [sortBy, setSortBy] = useState("name");
   const [refreshing, setRefreshing] = useState(false);
 
-  // 🔥 Fetch workers
+  // NEW: history modal state
+  const [historyWorker, setHistoryWorker] = useState(null);
+
+  const today = getTodayKey(); // NEW
+
+  // ── existing functions — untouched ────────────────────────────────────────
+
   const fetchWorkers = useCallback(async () => {
     try {
       setRefreshing(true);
@@ -99,6 +196,17 @@ function WorkerRatings({ worker }) {
     }
   };
 
+  // ── NEW: open history modal ───────────────────────────────────────────────
+  const handleViewHistory = (targetWorker) => setHistoryWorker(targetWorker);
+
+  // ── NEW: check if latest rating was today ────────────────────────────────
+  const ratedToday = useCallback((w) => {
+    if (!w.latestRating) return false;
+    const ratingDate = w.latestRating.dateKey ||
+      new Date(w.latestRating.createdAt).toISOString().split("T")[0];
+    return ratingDate === today;
+  }, [today]);
+
   const { filteredWorkers, ratedCount, unratedCount } = useMemo(() => {
     const ratedWorkers = workers.filter(w => isAlreadyRated(w._id)).length;
     const unratedWorkers = workers.length - ratedWorkers;
@@ -137,6 +245,8 @@ function WorkerRatings({ worker }) {
       unratedCount: unratedWorkers
     };
   }, [workers, searchTerm, filterStatus, sortBy, isAlreadyRated]);
+  // NOTE: removed filterDate/filterMonth from useMemo — date filtering now lives
+  // in the history modal, not the main table.
 
   return (
     <div className="page-content supervisor-details">
@@ -151,9 +261,18 @@ function WorkerRatings({ worker }) {
         />
       )}
 
+      {/* NEW: history modal */}
+      {historyWorker && (
+        <HistoryModal
+          worker={historyWorker}
+          supervisorId={worker?._id}
+          onClose={() => setHistoryWorker(null)}
+        />
+      )}
+
       <div className="page-header">
         <h1>Rate Colleagues</h1>
-        <p>Give feedback to your teammates</p>
+        <p>Give feedback to your teammates · view history any time</p>
       </div>
 
       <div className="details-stats-row">
@@ -217,13 +336,13 @@ function WorkerRatings({ worker }) {
           </button>
         </div>
 
-          <button
-            className="btn btn-refresh"
-            onClick={fetchWorkers}
-            disabled={refreshing}
-          >
-            {refreshing ? "⏳ Refreshing..." : "🔄 Refresh"}
-          </button>
+        <button
+          className="btn btn-refresh"
+          onClick={fetchWorkers}
+          disabled={refreshing}
+        >
+          {refreshing ? "⏳ Refreshing..." : "🔄 Refresh"}
+        </button>
       </div>
 
       {loading ? (
@@ -244,70 +363,92 @@ function WorkerRatings({ worker }) {
                 <th>Total Ratings</th>
                 <th>Status</th>
                 <th>Latest Rating</th>
-                <th>Action</th>
+                <th>Today</th>       {/* NEW */}
+                <th>History</th>     {/* NEW */}
               </tr>
             </thead>
             <tbody>
-              {filteredWorkers.map((worker, index) => (
-                <tr key={worker._id} className={isAlreadyRated(worker._id) ? "rated-row" : ""}>
+              {filteredWorkers.map((w, index) => (
+                <tr key={w._id} className={isAlreadyRated(w._id) ? "rated-row" : ""}>
                   <td>{index + 1}</td>
-                  <td> 
+                  <td>
                     <div className="worker-name-cell">
-                      <div className="worker-badge">{worker.name.charAt(0).toUpperCase()}</div>
-                      {worker.name}
+                      <div className="worker-badge">{w.name.charAt(0).toUpperCase()}</div>
+                      {w.name}
                     </div>
                   </td>
-                  <td className="worker-email">{worker.email}</td>
+                  <td className="worker-email">{w.email}</td>
                   <td>
                     <span
                       className="rating-badge"
-                      style={{ backgroundColor: getRatingColor(worker.averageRating) }}
+                      style={{ backgroundColor: getRatingColor(w.averageRating) }}
                     >
-                      {worker.totalRatings > 0 ? worker.averageRating.toFixed(1) : "—"}★
+                      {w.totalRatings > 0 ? w.averageRating.toFixed(1) : "—"}★
                     </span>
                   </td>
-                  <td className="center">{worker.totalRatings}</td>
+                  <td className="center">{w.totalRatings}</td>
                   <td className="center">
                     <span
-                      className={`status-badge ${getRatingStatus(worker.averageRating)
+                      className={`status-badge ${getRatingStatus(w.averageRating)
                         .toLowerCase()
                         .replace(/\s+/g, "-")}`}
                     >
-                      {getRatingStatus(worker.averageRating)}
+                      {getRatingStatus(w.averageRating)}
                     </span>
                   </td>
                   <td className="latest-rating-cell">
-                    {worker.latestRating ? (
+                    {w.latestRating ? (
                       <div className="rating-info">
                         <div className="rating-fields">
                           {ratingFields.map(f => (
                             <span key={f.key} className="field-badge">
-                              {f.short}: {worker.latestRating[f.key] ?? 0}★
+                              {f.short}: {w.latestRating[f.key] ?? 0}★
                             </span>
                           ))}
                         </div>
                         <small className="rating-timestamp">
-                          {new Date(worker.latestRating.createdAt).toLocaleDateString()}
+                          {new Date(w.latestRating.createdAt).toLocaleDateString()}
+                          {/* NEW: "today" pill */}
+                          {ratedToday(w) && (
+                            <span className="today-tag">today</span>
+                          )}
                         </small>
                       </div>
                     ) : (
                       <span className="text-muted">No ratings</span>
                     )}
                   </td>
+
+                  {/* NEW: Today column — Rate or Edit, today only */}
                   <td className="action-cell">
-                    {isAlreadyRated(worker._id) ? (
+                    {isAlreadyRated(w._id) ? (
                       <button
                         className="btn btn-edit"
-                        onClick={() => handleEditRating(worker)}
-                        title="Click to edit your rating"
+                        onClick={() => handleEditRating(w)}
+                        title="Edit today's rating"
                       >
                         ✏️ Edit
                       </button>
                     ) : (
-                      <button className="btn btn-primary" onClick={() => handleRateWorker(worker)}>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => handleRateWorker(w)}
+                        title="Rate this colleague for today"
+                      >
                         ⭐ Rate
                       </button>
                     )}
+                  </td>
+
+                  {/* NEW: History column — always available, read-only */}
+                  <td className="action-cell">
+                    <button
+                      className="btn btn-history"
+                      onClick={() => handleViewHistory(w)}
+                      title="View past ratings"
+                    >
+                      📋 History
+                    </button>
                   </td>
                 </tr>
               ))}

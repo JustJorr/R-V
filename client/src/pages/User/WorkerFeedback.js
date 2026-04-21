@@ -20,12 +20,17 @@ const ratingFields = [
 function WorkerFeedback({ worker }) {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filterDate, setFilterDate] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
 
   const fetchFeedback = useCallback(async () => {
     try {
       setLoading(true);
 
-      const res = await ratingsService.getRatingsForUser(worker._id);
+      const res = await ratingsService.getRatingsForUser(worker._id, {
+        date: filterDate,
+        month: filterMonth
+      });
 
       // Filter to only include ratings with comments
       const withComments = (Array.isArray(res.data) ? res.data : []).filter(
@@ -39,7 +44,7 @@ function WorkerFeedback({ worker }) {
     } finally {
       setLoading(false);
     }
-  }, [worker._id]);
+  }, [worker._id, filterDate, filterMonth]);
 
   useEffect(() => {
     fetchFeedback();
@@ -109,6 +114,38 @@ function WorkerFeedback({ worker }) {
         <div className="loading">Loading feedback...</div>
       ) : (
         <>
+          <div className="date-filter-bar">
+            <input
+              type="date"
+              value={filterDate}
+              onChange={(e) => {
+                setFilterDate(e.target.value);
+                setFilterMonth("");
+              }}
+            />
+
+            <input
+              type="month"
+              value={filterMonth}
+              onChange={(e) => {
+                setFilterMonth(e.target.value);
+                setFilterDate("");
+              }}
+            />
+
+            <button onClick={fetchFeedback}>Apply</button>
+
+            <button
+              onClick={() => {
+                setFilterDate("");
+                setFilterMonth("");
+                fetchFeedback();
+              }}
+            >
+              Reset
+            </button>
+          </div>
+
           {/* ===== SUPERVISOR FEEDBACK SECTION ===== */}
           <div className="recent-section">
             <h2>Supervisor Feedback</h2>

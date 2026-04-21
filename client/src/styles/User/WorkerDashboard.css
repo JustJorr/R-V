@@ -432,3 +432,31 @@
 .legend-item {
   padding: 6px 0;
 }
+
+/* ===== DATE FILTER ===== */
+.date-filter-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.date-filter-bar input {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.date-filter-bar button {
+  padding: 6px 12px;
+  border: none;
+  background: #1a3a7f;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.date-filter-bar button:hover {
+  background: #0d2354;
+}
