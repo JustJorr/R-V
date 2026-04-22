@@ -3,47 +3,51 @@ import { authService } from "../services/api";
 import "../styles/Login.css";
 
 function LoginPage({ onLogin }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showRegister, setShowRegister] = useState(false);
-  const [registerName, setRegisterName] = useState("");
-  const [registerRole, setRegisterRole] = useState("worker");
+  const [isActive, setIsActive] = useState(false);
+
+  // Login state
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
+  // Register state
+  const [regName, setRegName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
+  const [regLoading, setRegLoading] = useState(false);
+  const [regError, setRegError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
+    setLoginError("");
+    setLoginLoading(true);
     try {
-      const response = await authService.login(email, password);
+      const response = await authService.login(loginEmail, loginPassword);
       localStorage.setItem("worker", JSON.stringify(response.data));
       onLogin(response.data);
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      setLoginError(err.response?.data?.message || "Login failed");
     } finally {
-      setLoading(false);
+      setLoginLoading(false);
     }
   };
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-
+    setRegError("");
+    setRegLoading(true);
     try {
-      await authService.register(registerName, email, password, registerRole);
+      await authService.register(regName, regEmail, regPassword, "worker");
       alert("Registration successful! Please login.");
-      setShowRegister(false);
-      setRegisterName("");
-      setEmail("");
-      setPassword("");
-      setRegisterRole("worker");
+      setIsActive(false);
+      setRegName("");
+      setRegEmail("");
+      setRegPassword("");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      setRegError(err.response?.data?.message || "Registration failed");
     } finally {
-      setLoading(false);
+      setRegLoading(false);
     }
   };
 
@@ -53,140 +57,138 @@ function LoginPage({ onLogin }) {
       name: "Demo Supervisor",
       email: "demo@example.com",
       role: "supervisor",
-      averageRating: 4.5
+      averageRating: 4.5,
     };
     localStorage.setItem("worker", JSON.stringify(demoUser));
     onLogin(demoUser);
   };
 
   const handleAdminDemo = () => {
-  const demoAdmin = {
-    _id: "507f1f77bcf86cd799439012",
-    name: "Demo Admin",
-    email: "admin@example.com",
-    role: "admin",
-    averageRating: 0
+    const demoAdmin = {
+      _id: "507f1f77bcf86cd799439012",
+      name: "Demo Admin",
+      email: "admin@example.com",
+      role: "admin",
+      averageRating: 0,
+    };
+    localStorage.setItem("worker", JSON.stringify(demoAdmin));
+    onLogin(demoAdmin);
   };
 
-  localStorage.setItem("worker", JSON.stringify(demoAdmin));
-  onLogin(demoAdmin);
-};
-
   return (
-    <div className="login-container">
-      <div className="login-box">
-        <div className="logo-container">
-          <img src="/PGE_Logo.png" alt="Company Logo" className="logo" />
-        </div>
-        
-        <h1>Worker Rating System</h1>
+    <div className="auth-page">
+      <div className={`auth-container ${isActive ? "right-panel-active" : ""}`}>
 
-        {error && <div className="error-message">{error}</div>}
-
-        {!showRegister ? (
-          <form onSubmit={handleLogin}>
-            <h2>Login</h2>
-            <div className="form-group">
-              <label>Email:</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-              />
+        {/* ── SIGN UP FORM ── */}
+        <div className="form-container sign-up-container">
+          <form onSubmit={handleRegister}>
+            <div className="logo-wrap">
+              <img src="/PGE_Logo.png" alt="PGE Logo" className="form-logo" />
             </div>
-            <div className="form-group">
-              <label>Password:</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-              />
-            </div>
-            <button type="submit" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+            <h1>Create Account</h1>
+            <span>Register as a worker</span>
+            {regError && <p className="form-error">{regError}</p>}
+            <input
+              type="text"
+              placeholder="Full Name"
+              value={regName}
+              onChange={(e) => setRegName(e.target.value)}
+              required
+              tabIndex={isActive ? 0 : -1}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              value={regEmail}
+              onChange={(e) => setRegEmail(e.target.value)}
+              required
+              tabIndex={isActive ? 0 : -1}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={regPassword}
+              onChange={(e) => setRegPassword(e.target.value)}
+              required
+              tabIndex={isActive ? 0 : -1}
+            />
+            <button type="submit" disabled={regLoading} tabIndex={isActive ? 0 : -1}>
+              {regLoading ? "Signing Up..." : "Sign Up"}
             </button>
-            <p className="toggle-text">
-              Don't have an account?{" "}
-              <span onClick={() => setShowRegister(true)}>Register here</span>
-            </p>
+          </form>
+        </div>
+
+        {/* ── SIGN IN FORM ── */}
+        <div className="form-container sign-in-container">
+          <form onSubmit={handleLogin}>
+            <div className="logo-wrap">
+              <img src="/PGE_Logo.png" alt="PGE Logo" className="form-logo" />
+            </div>
+            <h1>Sign In</h1>
+            <span>Worker Rating System</span>
+            {loginError && <p className="form-error">{loginError}</p>}
+            <input
+              type="email"
+              placeholder="Email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+              tabIndex={isActive ? -1 : 0}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required
+              tabIndex={isActive ? -1 : 0}
+            />
+            <button type="submit" disabled={loginLoading} tabIndex={isActive ? -1 : 0}>
+              {loginLoading ? "Signing In..." : "Sign In"}
+            </button>
 
             <div className="demo-section">
-              <hr />
-              <p className="demo-text">Skip to Dashboard:</p>
-              <button 
-                type="button" 
-                className="demo-button"
+              <span className="demo-label">— Quick Access —</span>
+              <button
+                type="button"
+                className="demo-btn"
                 onClick={handleDemoMode}
+                tabIndex={isActive ? -1 : 0}
               >
-                → Go to Supervisor Dashboard (Demo)
+                Supervisor Demo
               </button>
-
-              <button 
-                type="button" 
-                className="demo-button"
+              <button
+                type="button"
+                className="demo-btn"
                 onClick={handleAdminDemo}
+                tabIndex={isActive ? -1 : 0}
               >
-                → Admin Dashboard (Demo)
+                Admin Demo
               </button>
             </div>
           </form>
-        ) : (
-          <form onSubmit={handleRegister}>
-            <h2>Register</h2>
-            <div className="form-group">
-              <label>Full Name:</label>
-              <input
-                type="text"
-                value={registerName}
-                onChange={(e) => setRegisterName(e.target.value)}
-                placeholder="Enter your name"
-                required
-              />
+        </div>
+
+        {/* ── SLIDING OVERLAY ── */}
+        <div className="overlay-container">
+          <div className="overlay">
+            <div className="overlay-panel overlay-left">
+              <h1>Welcome Back!</h1>
+              <p>Already have an account? Sign in with your credentials.</p>
+              <button className="ghost" onClick={() => setIsActive(false)}>
+                Sign In
+              </button>
             </div>
-            <div className="form-group">
-              <label>Email:</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-              />
+            <div className="overlay-panel overlay-right">
+              <h1>Hello, Worker!</h1>
+              <p>Don't have an account yet? Register and join the team.</p>
+              <button className="ghost" onClick={() => setIsActive(true)}>
+                Sign Up
+              </button>
             </div>
-            <div className="form-group">
-              <label>Password:</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Role:</label>
-              <select
-                value={registerRole}
-                onChange={(e) => setRegisterRole(e.target.value)}
-              >
-                <option value="worker">Worker</option>
-                <option value="supervisor">Supervisor</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-            <button type="submit" disabled={loading}>
-              {loading ? "Registering..." : "Register"}
-            </button>
-            <p className="toggle-text">
-              Already have an account?{" "}
-              <span onClick={() => setShowRegister(false)}>Login here</span>
-            </p>
-          </form>
-        )}
+          </div>
+        </div>
+
       </div>
     </div>
   );
