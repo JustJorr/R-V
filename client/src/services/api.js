@@ -115,8 +115,13 @@ export const adminDataService = {
     });
   },
 
-  exportExcel: (lang = "en") =>
-    apiClient.get(`/api/admin/export?lang=${lang}`, {
+  exportExcel: (lang = "en", options = {}) =>
+    apiClient.get("/api/admin/export", {
+      params: {
+        lang,
+        ...(options.scope ? { scope: options.scope } : {}),
+        ...(options.month ? { month: options.month } : {})
+      },
       responseType: "blob"
     })
 };

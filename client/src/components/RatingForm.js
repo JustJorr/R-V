@@ -2,21 +2,30 @@ import { useState, useEffect } from "react";
 import { ratingsService } from "../services/api";
 import "../styles/Supervisor/RatingForm.css";
 
+// 🌐 Dual language labels (EN / ID)
 const ratingFields = [
-  { key: "workAreaCompliance", label: "Works within assigned area" },
-  { key: "taskCompletion", label: "Completes tasks per standards" },
-  { key: "cleanliness", label: "Area free of dust/stains" },
-  { key: "wasteManagement", label: "Proper waste handling" },
-  { key: "organization", label: "Area neat and organized" },
-  { key: "uniformCompliance", label: "Proper uniform / PPE usage" },
-  { key: "independence", label: "Works independently" },
-  { key: "initiative", label: "Shows initiative" },
-  { key: "teamworkSupport", label: "Helps other areas" },
-  { key: "punctuality", label: "Arrives on time" },
-  { key: "attendance", label: "Attendance consistency" }
+  { key: "workAreaCompliance", label: "Works within assigned area / Bekerja sesuai area tugas" },
+  { key: "taskCompletion", label: "Completes tasks per standards / Menyelesaikan tugas sesuai standar" },
+  { key: "cleanliness", label: "Area free of dust/stains / Kebersihan area terjaga" },
+  { key: "wasteManagement", label: "Proper waste handling / Pengelolaan sampah yang benar" },
+  { key: "organization", label: "Area neat and organized / Area rapi dan terorganisir" },
+  { key: "uniformCompliance", label: "Proper uniform / PPE usage / Kepatuhan seragam / APD" },
+  { key: "independence", label: "Works independently / Bekerja mandiri" },
+  { key: "initiative", label: "Shows initiative / Memiliki inisiatif" },
+  { key: "teamworkSupport", label: "Helps other areas / Membantu area lain (kerja tim)" },
+  { key: "punctuality", label: "Arrives on time / Tepat waktu" },
+  { key: "attendance", label: "Attendance consistency / Kehadiran konsisten" }
 ];
 
-function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, initialValues = null, selectedMonth = null }) {
+function RatingForm({
+  worker,
+  userId,
+  onSuccess,
+  onCancel,
+  isEditing = false,
+  initialValues = null,
+  selectedMonth = null
+}) {
 
   const [ratings, setRatings] = useState(
     ratingFields.reduce((acc, f) => {
@@ -29,7 +38,6 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Sync form state when initialValues change (e.g. opening edit for a different worker)
   useEffect(() => {
     if (initialValues) {
       const updated = {};
@@ -47,7 +55,6 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
     setLoading(true);
 
     try {
-      // selectedMonth allows submitting/editing current or previous month.
       await ratingsService.submitRating(
         userId,
         worker._id,
@@ -58,7 +65,9 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
 
       onSuccess();
     } catch (err) {
-      const msg = err.response?.data?.message || "Error submitting rating. Please try again.";
+      const msg =
+        err.response?.data?.message ||
+        "Error submitting rating. Please try again.";
       setError(msg);
     } finally {
       setLoading(false);
@@ -74,13 +83,15 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
       <div className="rating-form-container">
 
         <div className="form-header">
-          <h2>{isEditing ? "Edit Rating" : "Rate"} — {worker.name}</h2>
+          <h2>
+            {isEditing ? "Edit Rating / Edit Penilaian" : "Rate / Nilai"} — {worker.name}
+          </h2>
           <button className="close-btn" onClick={onCancel} type="button">✕</button>
         </div>
 
         {isEditing && (
           <p className="form-edit-notice">
-            Editing rating for {selectedMonth || "this month"}.
+            Editing rating for {selectedMonth || "this month"} / Mengedit penilaian untuk {selectedMonth || "bulan ini"}.
           </p>
         )}
 
@@ -124,15 +135,17 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
           ))}
 
           <div className="average-rating">
-            <strong>Overall Average: {averageRating}★</strong>
+            <strong>
+              Overall Average / Rata-rata: {averageRating}★
+            </strong>
           </div>
 
           <div className="form-group">
-            <label>Comments (Optional):</label>
+            <label>Comments / Komentar (Optional):</label>
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Add feedback or comments..."
+              placeholder="Add feedback or comments... / Tambahkan komentar..."
               rows="4"
             />
           </div>
@@ -144,7 +157,7 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
               onClick={onCancel}
               disabled={loading}
             >
-              Cancel
+              Cancel / Batal
             </button>
 
             <button
@@ -153,8 +166,8 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
               disabled={loading}
             >
               {loading
-                ? (isEditing ? "Updating..." : "Submitting...")
-                : (isEditing ? "Update Rating" : "Submit Rating")}
+                ? (isEditing ? "Updating... / Memperbarui..." : "Submitting... / Mengirim...")
+                : (isEditing ? "Update Rating / Perbarui" : "Submit Rating / Kirim")}
             </button>
           </div>
 

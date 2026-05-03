@@ -3,18 +3,26 @@ import { adminDataService } from "../../services/api";
 
 function AdminDataTools() {
   const [lang, setLang] = useState("en");
+  const [exportScope, setExportScope] = useState("month");
+  const [exportMonth, setExportMonth] = useState(new Date().toISOString().slice(0, 7));
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleExport = async () => {
     try {
       setLoading(true);
-      const res = await adminDataService.exportExcel(lang);
+      const res = await adminDataService.exportExcel(lang, {
+        scope: exportScope,
+        month: exportScope === "month" ? exportMonth : undefined
+      });
 
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `ratings_${lang}.xlsx`);
+      link.setAttribute(
+        "download",
+        `ratings_${exportScope === "overall" ? "overall" : exportMonth}_${lang}.xlsx`
+      );
       document.body.appendChild(link);
       link.click();
     } finally {
@@ -58,6 +66,24 @@ function AdminDataTools() {
 
       <div className="admin-card admin-section">
         <h2>📤 Export Data</h2>
+        <div style={{ display: "grid", gap: "10px", marginBottom: "12px" }}>
+          <select
+            className="sort-select"
+            value={exportScope}
+            onChange={(e) => setExportScope(e.target.value)}
+          >
+            <option value="month">Selected Month</option>
+            <option value="overall">Overall (All Ratings)</option>
+          </select>
+
+          <input
+            type="month"
+            className="sort-select"
+            value={exportMonth}
+            onChange={(e) => setExportMonth(e.target.value)}
+            disabled={exportScope === "overall"}
+          />
+        </div>
         <button
           className="admin-btn primary"
           onClick={handleExport}
