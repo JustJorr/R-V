@@ -18,6 +18,14 @@ function getMonthKey() {
   return `${year}-${month}`;
 }
 
+function getPreviousMonthKey() {
+  const now = new Date();
+  now.setMonth(now.getMonth() - 1);
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
 // ===== SCHEMAS =====
 
 const userSchema = new mongoose.Schema({
@@ -123,16 +131,18 @@ app.post("/api/login", async (req, res) => {
 app.post("/api/ratings", async (req, res) => {
   try {
     const currentMonth = getMonthKey();
+    const previousMonth = getPreviousMonthKey();
+    const allowedMonths = new Set([currentMonth, previousMonth]);
+    const targetMonth = req.body.dateKey || currentMonth;
 
-    // Optional: block manual override
-    if (req.body.dateKey && req.body.dateKey !== currentMonth) {
-      return res.status(403).json({ message: "Ratings can only be submitted or edited for this month." });
+    if (!allowedMonths.has(targetMonth)) {
+      return res.status(403).json({ message: "Ratings can only be submitted or edited for this month or last month." });
     }
 
     const existingRating = await Rating.findOne({
       ratedBy: req.body.ratedBy,
       ratedUser: req.body.ratedUser,
-      dateKey: currentMonth
+      dateKey: targetMonth
     });
 
     let newRating;
@@ -147,7 +157,7 @@ app.post("/api/ratings", async (req, res) => {
         ratedUser: req.body.ratedUser,
         ...KPI_FIELDS.reduce((acc, f) => { acc[f] = req.body[f]; return acc; }, {}),
         comment: req.body.comment,
-        dateKey: currentMonth
+        dateKey: targetMonth
       });
       newRating = await rating.save();
     }
@@ -175,6 +185,7 @@ app.post("/api/ratings", async (req, res) => {
 
 app.get("/api/supervisor/dashboard", async (req, res) => {
   try {
+    const selectedMonth = req.query.month;
     const workers = await User.find({ role: "worker" })
       .select("_id name email role averageRating totalRatings createdAt")
       .lean()
@@ -182,11 +193,37 @@ app.get("/api/supervisor/dashboard", async (req, res) => {
 
     const workersWithLatestRating = await Promise.all(
       workers.map(async (worker) => {
-        const latestRating = await Rating.findOne({ ratedUser: worker._id })
+        const latestRatingFilter = selectedMonth
+          ? { ratedUser: worker._id, dateKey: selectedMonth }
+          : { ratedUser: worker._id };
+
+        const latestRating = await Rating.findOne(latestRatingFilter)
           .populate("ratedBy", "name role")
           .lean()
           .sort({ createdAt: -1 });
-        return { ...worker, latestRating };
+
+        let monthAverageRating = null;
+        if (selectedMonth) {
+          const monthRatings = await Rating.find({
+            ratedUser: worker._id,
+            dateKey: selectedMonth
+          }).lean();
+
+          if (monthRatings.length > 0) {
+            const ratingAverages = monthRatings.map((r) => {
+              const total = KPI_FIELDS.reduce((sum, field) => sum + (Number(r[field]) || 0), 0);
+              return total / KPI_FIELDS.length;
+            });
+            monthAverageRating =
+              ratingAverages.reduce((sum, val) => sum + val, 0) / ratingAverages.length;
+          }
+        }
+
+        return {
+          ...worker,
+          latestRating,
+          monthAverageRating
+        };
       })
     );
 
@@ -221,9 +258,13 @@ app.get("/api/ratings/worker/:userId", async (req, res) => {
 app.get("/api/supervisor/ratings/:supervisorId", async (req, res) => {
   try {
     const currentMonth = getMonthKey();
+    const previousMonth = getPreviousMonthKey();
+    const requestedMonth = req.query.month || currentMonth;
+    const allowedMonths = new Set([currentMonth, previousMonth]);
+    const month = allowedMonths.has(requestedMonth) ? requestedMonth : currentMonth;
     const ratings = await Rating.find({
       ratedBy: req.params.supervisorId,
-      dateKey: currentMonth
+      dateKey: month
     });
     res.json(ratings);
   } catch (err) {
@@ -235,12 +276,16 @@ app.get("/api/supervisor/ratings/:supervisorId", async (req, res) => {
 app.get("/api/rating/:supervisorId/:workerId", async (req, res) => {
   try {
     const currentMonth = getMonthKey();
+    const previousMonth = getPreviousMonthKey();
+    const requestedMonth = req.query.month || currentMonth;
+    const allowedMonths = new Set([currentMonth, previousMonth]);
+    const month = allowedMonths.has(requestedMonth) ? requestedMonth : currentMonth;
     const rating = await Rating.findOne({
       ratedBy: req.params.supervisorId,
       ratedUser: req.params.workerId,
-      dateKey: currentMonth
+      dateKey: month
     });
-    if (!rating) return res.status(404).json({ message: "No rating found for currentMonth" });
+    if (!rating) return res.status(404).json({ message: `No rating found for ${month}` });
     res.json(rating);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -395,80 +440,39 @@ function mapFieldsForExport(data, lang = "en") {
 app.get("/api/admin/export", async (req, res) => {
   try {
     const lang = req.query.lang || "en";
-    const month = req.query.month || getMonthKey(); // 👈 filter by month
 
-    // Get ratings for selected month + populate names
-    const ratings = await Rating.find({ dateKey: month })
-      .populate("ratedBy", "name")
-      .populate("ratedUser", "name")
-      .lean();
+    const ratings = await Rating.find().lean();
 
-    // Format clean export
-    const formatted = ratings.map(r => {
-      const scores = [
-        r.workAreaCompliance,
-        r.taskCompletion,
-        r.cleanliness,
-        r.wasteManagement,
-        r.organization,
-        r.uniformCompliance,
-        r.independence,
-        r.initiative,
-        r.teamworkSupport,
-        r.punctuality,
-        r.attendance
-      ];
-
-      const avg =
-        scores.reduce((a, b) => a + b, 0) / scores.length;
-
-      return {
-        Worker: r.ratedUser?.name || "-",
-        Supervisor: r.ratedBy?.name || "-",
-        Month: r.dateKey,
-        Average: Number(avg.toFixed(2)),
-
-        workAreaCompliance: r.workAreaCompliance,
-        taskCompletion: r.taskCompletion,
-        cleanliness: r.cleanliness,
-        wasteManagement: r.wasteManagement,
-        organization: r.organization,
-        uniformCompliance: r.uniformCompliance,
-        independence: r.independence,
-        initiative: r.initiative,
-        teamworkSupport: r.teamworkSupport,
-        punctuality: r.punctuality,
-        attendance: r.attendance
-      };
-    });
-
-    // Apply language mapping
-    const mapped = mapFieldsForExport(formatted, lang);
+    const mapped = mapFieldsForExport(ratings, lang);
 
     const worksheet = XLSX.utils.json_to_sheet(mapped);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Monthly Ratings");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Ratings");
 
-    const buffer = XLSX.write(workbook, {
-      type: "buffer",
-      bookType: "xlsx"
-    });
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
 
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename=ratings_${month}_${lang}.xlsx`
+      `attachment; filename=ratings_${lang}.xlsx`
     );
-    res.setHeader(
-      "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    );
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
     res.send(buffer);
-
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+
+function mapFieldsForImport(row) {
+  const mapped = {};
+
+  Object.keys(row).forEach(key => {
+    const normalizedKey = REVERSE_MAP[key] || key;
+    mapped[normalizedKey] = row[key];
+  });
+
+  return mapped;
+}
 
 // IMPORT EXCEL
 app.post("/api/admin/import", upload.single("file"), async (req, res) => {

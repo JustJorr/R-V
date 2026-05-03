@@ -32,8 +32,10 @@ export const usersService = {
 // SUPERVISOR SERVICE
 // =======================
 export const supervisorService = {
-  getDashboard: () =>
-    apiClient.get("/api/supervisor/dashboard"),
+  getDashboard: (month) =>
+    apiClient.get("/api/supervisor/dashboard", {
+      params: month ? { month } : {}
+    }),
 
   getDashboardWithFilters: (params = {}) =>
     apiClient.get("/api/supervisor/dashboard", { params }),
@@ -41,11 +43,15 @@ export const supervisorService = {
   getRatingsForUser: (userId, params = {}) =>
     apiClient.get(`/api/ratings/worker/${userId}`, { params }),
 
-  getSupervisorRatings: (supervisorId) =>
-    apiClient.get(`/api/supervisor/ratings/${supervisorId}`),
+  getSupervisorRatings: (supervisorId, month) =>
+    apiClient.get(`/api/supervisor/ratings/${supervisorId}`, {
+      params: month ? { month } : {}
+    }),
 
-  getExistingRating: (supervisorId, workerId) =>
-    apiClient.get(`/api/rating/${supervisorId}/${workerId}`),
+  getExistingRating: (supervisorId, workerId, month) =>
+    apiClient.get(`/api/rating/${supervisorId}/${workerId}`, {
+      params: month ? { month } : {}
+    }),
 
   getWorkerById: (workerId) =>
     apiClient.get(`/api/users/${workerId}`),
@@ -60,12 +66,13 @@ export const supervisorService = {
 // RATINGS SERVICE
 // =======================
 export const ratingsService = {
-  submitRating: (ratedBy, ratedUser, ratings, comment) =>
+  submitRating: (ratedBy, ratedUser, ratings, comment, dateKey) =>
     apiClient.post("/api/ratings", {
       ratedBy,
       ratedUser,
       ...ratings,
-      comment
+      comment,
+      ...(dateKey ? { dateKey } : {})
     }),
 
   getRatingsForUser: (userId, params = {}) =>

@@ -26,12 +26,29 @@ function getCurrentMonthKey() {
   return `${year}-${month}`;
 }
 
+function getPreviousMonthKey() {
+  const now = new Date();
+  now.setMonth(now.getMonth() - 1);
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return "-";
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return "-";
   return d.toLocaleDateString(undefined, {
     year: "numeric", month: "short", day: "numeric"
+  });
+}
+
+function formatMonthLabel(monthKey) {
+  if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) return monthKey;
+  const [year, month] = monthKey.split("-").map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long"
   });
 }
 
@@ -45,24 +62,23 @@ function SupervisorDetails({ worker: supervisor }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [refreshing, setRefreshing] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
   const navigate = useNavigate();
 
   const currentMonth = getCurrentMonthKey();
+  const previousMonth = getPreviousMonthKey();
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      setRefreshing(true);
       setLoading(true);
-      const response = await supervisorService.getDashboard();
+      const response = await supervisorService.getDashboard(selectedMonth);
       setWorkers(response.data || []);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
-  }, []);
+  }, [selectedMonth]);
 
   const fetchSupervisorRatings = useCallback(async () => {
     if (!supervisor?._id) {
@@ -70,13 +86,13 @@ function SupervisorDetails({ worker: supervisor }) {
       return;
     }
     try {
-      const response = await supervisorService.getSupervisorRatings(supervisor._id);
+      const response = await supervisorService.getSupervisorRatings(supervisor._id, selectedMonth);
       const ratedIds = new Set((response.data || []).map((r) => r.ratedUser));
       setRatedWorkerIds(ratedIds);
     } catch (err) {
       console.error("Error fetching supervisor ratings:", err);
     }
-  }, [supervisor?._id]);
+  }, [supervisor?._id, selectedMonth]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -100,13 +116,13 @@ function SupervisorDetails({ worker: supervisor }) {
   const handleEditRating = async (worker) => {
     if (!supervisor?._id) return;
     try {
-      const response = await supervisorService.getExistingRating(supervisor._id, worker._id);
+      const response = await supervisorService.getExistingRating(supervisor._id, worker._id, selectedMonth);
       setRatingWorker(worker);
       setIsEditingRating(true);
       setExistingRatingData(response.data);
     } catch (err) {
       console.error("Error fetching rating for editing:", err);
-      alert("Could not load this month's rating for editing.");
+      alert(`Could not load rating for ${selectedMonth}.`);
     }
   };
 
@@ -114,8 +130,8 @@ function SupervisorDetails({ worker: supervisor }) {
     if (!worker.latestRating) return false;
     const ratingMonth = worker.latestRating.dateKey ||
       new Date(worker.latestRating.createdAt).toISOString().slice(0, 7);
-    return ratingMonth === currentMonth;
-  }, [currentMonth]);
+    return ratingMonth === selectedMonth;
+  }, [selectedMonth]);
 
   const { filteredWorkers, ratedCount, unratedCount } = useMemo(() => {
     const ratedWorkers = workers.filter((w) => isAlreadyRated(w._id)).length;
@@ -156,12 +172,13 @@ function SupervisorDetails({ worker: supervisor }) {
           onCancel={() => setRatingWorker(null)}
           isEditing={isEditingRating}
           initialValues={existingRatingData}
+          selectedMonth={selectedMonth}
         />
       )}
 
       <div className="page-header">
         <h1>Worker Details and Ratings</h1>
-        <p>Rate workers this month and update before month-end</p>
+        <p>Rate workers for this month or last month and update as needed</p>
       </div>
 
       <div className="details-stats-row">
@@ -170,7 +187,7 @@ function SupervisorDetails({ worker: supervisor }) {
           <span className="value">{filteredWorkers.length}</span>
         </div>
         <div className="quick-stat-pill">
-          <span className="label">Rated This Month</span>
+          <span className="label">Rated in Month</span>
           <span className="value">{ratedCount}</span>
         </div>
         <div className="quick-stat-pill">
@@ -219,13 +236,25 @@ function SupervisorDetails({ worker: supervisor }) {
           >Unrated ({unratedCount})</button>
         </div>
 
-        <button
-          className="btn btn-refresh"
-          onClick={fetchDashboardData}
-          disabled={refreshing}
-        >
-          {refreshing ? "Refreshing..." : "Refresh"}
-        </button>
+        <div className="filter-buttons">
+          <button
+            className={`filter-btn ${selectedMonth === currentMonth ? "active" : ""}`}
+            onClick={() => setSelectedMonth(currentMonth)}
+          >
+            This Month
+          </button>
+          <button
+            className={`filter-btn ${selectedMonth === previousMonth ? "active" : ""}`}
+            onClick={() => setSelectedMonth(previousMonth)}
+          >
+            Last Month
+          </button>
+        </div>
+
+        <div className="quick-stat-pill">
+          <span className="label">Viewing Month</span>
+          <span className="value">{formatMonthLabel(selectedMonth)}</span>
+        </div>
       </div>
 
       {loading ? (
@@ -246,7 +275,7 @@ function SupervisorDetails({ worker: supervisor }) {
                 <th>Sessions</th>
                 <th>Status</th>
                 <th>Latest Rating</th>
-                <th>This Month</th>
+                <th>Selected Month</th>
                 <th>Last Comment</th>
               </tr>
             </thead>
@@ -267,12 +296,12 @@ function SupervisorDetails({ worker: supervisor }) {
                   </td>
                   <td className="worker-email">{worker.email}</td>
                   <td>
-                    {worker.totalRatings > 0 ? (
+                    {typeof worker.monthAverageRating === "number" ? (
                       <span
                         className="rating-badge"
-                        style={{ backgroundColor: getRatingColor(worker.averageRating) }}
+                        style={{ backgroundColor: getRatingColor(worker.monthAverageRating) }}
                       >
-                        {Number(worker.averageRating).toFixed(1)} *
+                        {Number(worker.monthAverageRating).toFixed(1)} *
                       </span>
                     ) : (
                       <span className="rating-badge rating-badge--none">-</span>
@@ -309,7 +338,7 @@ function SupervisorDetails({ worker: supervisor }) {
                           <small className="rating-timestamp">
                             {formatDate(worker.latestRating.createdAt)}
                             {ratedThisMonth(worker) && (
-                              <span className="today-tag">this month</span>
+                              <span className="today-tag">selected month</span>
                             )}
                           </small>
                         </div>
@@ -324,7 +353,7 @@ function SupervisorDetails({ worker: supervisor }) {
                       <button
                         className="btn btn-edit"
                         onClick={() => handleEditRating(worker)}
-                        title="Edit this month's rating"
+                        title={`Edit rating for ${selectedMonth}`}
                       >
                         Edit
                       </button>
@@ -332,7 +361,7 @@ function SupervisorDetails({ worker: supervisor }) {
                       <button
                         className="btn btn-primary"
                         onClick={() => handleRateWorker(worker)}
-                        title="Rate this worker for this month"
+                        title={`Rate this worker for ${selectedMonth}`}
                       >
                         Rate
                       </button>

@@ -28,10 +28,27 @@ function getCurrentMonthKey() {
   return `${year}-${month}`;
 }
 
+function getPreviousMonthKey() {
+  const now = new Date();
+  now.setMonth(now.getMonth() - 1);
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
 function formatDate(dateStr) {
   if (!dateStr) return "—";
   return new Date(dateStr).toLocaleDateString(undefined, {
     year: "numeric", month: "short", day: "numeric"
+  });
+}
+
+function formatMonthLabel(monthKey) {
+  if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) return monthKey;
+  const [year, month] = monthKey.split("-").map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long"
   });
 }
 
@@ -45,16 +62,16 @@ function WorkerRatings({ worker }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [refreshing, setRefreshing] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
   const navigate = useNavigate();
 
   const currentMonth = getCurrentMonthKey();
+  const previousMonth = getPreviousMonthKey();
 
   const fetchWorkers = useCallback(async () => {
     try {
-      setRefreshing(true);
       setLoading(true);
-      const res = await supervisorService.getDashboard();
+      const res = await supervisorService.getDashboard(selectedMonth);
       const filtered = res.data.filter(
         (u) => u.role === "worker" && u._id !== worker._id
       );
@@ -63,9 +80,8 @@ function WorkerRatings({ worker }) {
       console.error("Error fetching workers:", err);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
-  }, [worker._id]);
+  }, [worker._id, selectedMonth]);
 
   const fetchWorkerRatings = useCallback(async () => {
     if (!worker?._id) {
@@ -73,13 +89,13 @@ function WorkerRatings({ worker }) {
       return;
     }
     try {
-      const response = await supervisorService.getSupervisorRatings(worker._id);
+      const response = await supervisorService.getSupervisorRatings(worker._id, selectedMonth);
       const ratedIds = new Set((response.data || []).map(rating => rating.ratedUser));
       setRatedWorkerIds(ratedIds);
     } catch (err) {
       console.error("Error fetching worker ratings:", err);
     }
-  }, [worker?._id]);
+  }, [worker?._id, selectedMonth]);
 
   useEffect(() => {
     fetchWorkers();
@@ -103,13 +119,13 @@ function WorkerRatings({ worker }) {
   const handleEditRating = async (targetWorker) => {
     if (!worker?._id) return;
     try {
-      const response = await supervisorService.getExistingRating(worker._id, targetWorker._id);
+      const response = await supervisorService.getExistingRating(worker._id, targetWorker._id, selectedMonth);
       setRatingWorker(targetWorker);
       setIsEditingRating(true);
       setExistingRatingData(response.data);
     } catch (err) {
       console.error("Error fetching rating for editing:", err);
-      alert("Could not load rating for editing");
+      alert(`Could not load rating for ${selectedMonth}`);
     }
   };
 
@@ -117,8 +133,8 @@ function WorkerRatings({ worker }) {
     if (!w.latestRating) return false;
     const ratingMonth = w.latestRating.dateKey ||
       new Date(w.latestRating.createdAt).toISOString().slice(0, 7);
-    return ratingMonth === currentMonth;
-  }, [currentMonth]);
+    return ratingMonth === selectedMonth;
+  }, [selectedMonth]);
 
   const { filteredWorkers, ratedCount, unratedCount } = useMemo(() => {
     const ratedWorkers = workers.filter(w => isAlreadyRated(w._id)).length;
@@ -159,6 +175,7 @@ function WorkerRatings({ worker }) {
           onCancel={() => setRatingWorker(null)}
           isEditing={isEditingRating}
           initialValues={existingRatingData}
+          selectedMonth={selectedMonth}
         />
       )}
 
@@ -228,13 +245,25 @@ function WorkerRatings({ worker }) {
           </button>
         </div>
 
-        <button
-          className="btn btn-refresh"
-          onClick={fetchWorkers}
-          disabled={refreshing}
-        >
-          {refreshing ? "⏳ Refreshing..." : "🔄 Refresh"}
-        </button>
+        <div className="filter-buttons">
+          <button
+            className={`filter-btn ${selectedMonth === currentMonth ? "active" : ""}`}
+            onClick={() => setSelectedMonth(currentMonth)}
+          >
+            This Month
+          </button>
+          <button
+            className={`filter-btn ${selectedMonth === previousMonth ? "active" : ""}`}
+            onClick={() => setSelectedMonth(previousMonth)}
+          >
+            Last Month
+          </button>
+        </div>
+
+        <div className="quick-stat-pill">
+          <span className="label">Viewing Month</span>
+          <span className="value">{formatMonthLabel(selectedMonth)}</span>
+        </div>
       </div>
 
       {loading ? (
@@ -255,7 +284,7 @@ function WorkerRatings({ worker }) {
                 <th>Total Ratings</th>
                 <th>Status</th>
                 <th>Latest Rating</th>
-                <th>This Month</th>
+                <th>Selected Month</th>
                 <th>Last Comment</th>
               </tr>
             </thead>
@@ -276,12 +305,12 @@ function WorkerRatings({ worker }) {
                   </td>
                   <td className="worker-email">{w.email}</td>
                   <td>
-                    {w.totalRatings > 0 ? (
+                    {typeof w.monthAverageRating === "number" ? (
                       <span
                         className="rating-badge"
-                        style={{ backgroundColor: getRatingColor(w.averageRating) }}
+                        style={{ backgroundColor: getRatingColor(w.monthAverageRating) }}
                       >
-                        {w.averageRating.toFixed(1)} ★
+                        {w.monthAverageRating.toFixed(1)} ★
                       </span>
                     ) : (
                       <span className="rating-badge rating-badge--none">—</span>
@@ -325,7 +354,7 @@ function WorkerRatings({ worker }) {
                           <small className="rating-timestamp">
                             {formatDate(w.latestRating.createdAt)}
                             {ratedThisMonth(w) && (
-                              <span className="today-tag">this month</span>
+                              <span className="today-tag">selected month</span>
                             )}
                           </small>
                         </div>
@@ -340,7 +369,7 @@ function WorkerRatings({ worker }) {
                       <button
                         className="btn btn-edit"
                         onClick={() => handleEditRating(w)}
-                        title="Edit this month's rating"
+                        title={`Edit rating for ${selectedMonth}`}
                       >
                         ✏️ Edit
                       </button>
@@ -348,7 +377,7 @@ function WorkerRatings({ worker }) {
                       <button
                         className="btn btn-primary"
                         onClick={() => handleRateWorker(w)}
-                        title="Rate this colleague for this month"
+                        title={`Rate this colleague for ${selectedMonth}`}
                       >
                         ⭐ Rate
                       </button>

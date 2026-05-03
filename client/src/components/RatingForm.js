@@ -16,7 +16,7 @@ const ratingFields = [
   { key: "attendance", label: "Attendance consistency" }
 ];
 
-function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, initialValues = null }) {
+function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, initialValues = null, selectedMonth = null }) {
 
   const [ratings, setRatings] = useState(
     ratingFields.reduce((acc, f) => {
@@ -47,13 +47,13 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
     setLoading(true);
 
     try {
-      // ratingsService.submitRating never sends a dateKey —
-      // the server always uses this month's date server-side.
+      // selectedMonth allows submitting/editing current or previous month.
       await ratingsService.submitRating(
         userId,
         worker._id,
         ratings,
-        comment
+        comment,
+        selectedMonth
       );
 
       onSuccess();
@@ -80,7 +80,7 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
 
         {isEditing && (
           <p className="form-edit-notice">
-            Editing this month's rating. Past ratings are view-only.
+            Editing rating for {selectedMonth || "this month"}.
           </p>
         )}
 
