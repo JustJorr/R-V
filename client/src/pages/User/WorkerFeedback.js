@@ -20,21 +20,19 @@ const ratingFields = [
 function WorkerFeedback({ worker }) {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterDate, setFilterDate] = useState("");
   const [filterMonth, setFilterMonth] = useState("");
-  const [activeFilter, setActiveFilter] = useState(""); // NEW: label for active pill
+  const [activeFilter, setActiveFilter] = useState("");
 
-  const fetchFeedback = useCallback(async (date = filterDate, month = filterMonth) => {
+  const fetchFeedback = useCallback(async (month = filterMonth) => {
     try {
       setLoading(true);
 
       const res = await ratingsService.getRatingsForUser(worker._id, {
-        ...(date && { date }),
         ...(month && { month })
       });
 
       const withComments = (Array.isArray(res.data) ? res.data : []).filter(
-        r => r.comment
+        (r) => r.comment
       );
 
       setRatings(withComments);
@@ -43,34 +41,30 @@ function WorkerFeedback({ worker }) {
     } finally {
       setLoading(false);
     }
-  }, [worker._id, filterDate, filterMonth]);
+  }, [worker._id, filterMonth]);
 
   useEffect(() => {
     fetchFeedback();
   }, [fetchFeedback]);
 
-  // ── NEW: explicit apply/reset so state is set before fetch fires ──────────
   const handleApplyFilter = () => {
-    fetchFeedback(filterDate, filterMonth);
-    if (filterDate) setActiveFilter(`Day: ${filterDate}`);
-    else if (filterMonth) setActiveFilter(`Month: ${filterMonth}`);
+    fetchFeedback(filterMonth);
+    if (filterMonth) setActiveFilter(`Month: ${filterMonth}`);
   };
 
   const handleResetFilter = () => {
-    setFilterDate("");
     setFilterMonth("");
     setActiveFilter("");
-    fetchFeedback("", ""); // pass empty strings directly — don't rely on state
+    fetchFeedback("");
   };
 
-  // ── existing helpers ──────────────────────────────────────────────────────
   const calculateAverage = (rating) => {
-    const values = ratingFields.map(f => Number(rating[f.key]) || 0);
+    const values = ratingFields.map((f) => Number(rating[f.key]) || 0);
     return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1);
   };
 
-  const supervisorFeedback = ratings.filter(r => r.ratedBy?.role === "supervisor");
-  const peerFeedback = ratings.filter(r => r.ratedBy?.role !== "supervisor");
+  const supervisorFeedback = ratings.filter((r) => r.ratedBy?.role === "supervisor");
+  const peerFeedback = ratings.filter((r) => r.ratedBy?.role !== "supervisor");
 
   const renderCard = (item) => {
     const avg = calculateAverage(item);
@@ -93,14 +87,14 @@ function WorkerFeedback({ worker }) {
             className="feedback-average"
             style={{ color: getRatingColor(Number(avg)) }}
           >
-            ⭐ {avg}
+            * {avg}
           </div>
         </div>
 
         <div className="feedback-ratings">
-          {ratingFields.map(f => (
+          {ratingFields.map((f) => (
             <span key={f.key} className="field-badge" title={f.label}>
-              {f.short}: {item[f.key] ?? 0}★
+              {f.short}: {item[f.key] ?? 0}*
             </span>
           ))}
         </div>
@@ -119,29 +113,14 @@ function WorkerFeedback({ worker }) {
         <p>Feedback from supervisors and colleagues</p>
       </div>
 
-      {/* ── NEW: cleaner filter bar ───────────────────────────────────────── */}
       <div className="wf-filter-bar">
         <div className="wf-filter-inputs">
-          <div className="wf-filter-group">
-            <label>By date</label>
-            <input
-              type="date"
-              value={filterDate}
-              onChange={(e) => {
-                setFilterDate(e.target.value);
-                setFilterMonth("");
-              }}
-            />
-          </div>
           <div className="wf-filter-group">
             <label>By month</label>
             <input
               type="month"
               value={filterMonth}
-              onChange={(e) => {
-                setFilterMonth(e.target.value);
-                setFilterDate("");
-              }}
+              onChange={(e) => setFilterMonth(e.target.value)}
             />
           </div>
           <button className="wf-btn-apply" onClick={handleApplyFilter}>
@@ -149,7 +128,7 @@ function WorkerFeedback({ worker }) {
           </button>
           {activeFilter && (
             <button className="wf-btn-reset" onClick={handleResetFilter}>
-              ✕ {activeFilter}
+              x {activeFilter}
             </button>
           )}
         </div>

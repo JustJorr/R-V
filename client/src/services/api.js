@@ -72,4 +72,21 @@ export const ratingsService = {
     apiClient.get(`/api/ratings/worker/${userId}`)
 };
 
+export const adminService = {
+  getAllUsers: () =>
+    apiClient.get("/api/admin/users"),
+
+  updateUserRole: (id, role) =>
+    apiClient.put(`/api/admin/users/${id}/role`, { role }),
+
+  deleteUser: (id) =>
+    apiClient.delete(`/api/admin/users/${id}`),
+
+  changePassword: (id, password) =>
+    apiClient.put(`/api/admin/users/${id}/password`, { password }),
+
+  getDashboard: () =>
+    apiClient.get("/api/admin/dashboard")
+};
+
 export default apiClient;

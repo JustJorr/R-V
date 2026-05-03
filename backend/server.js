@@ -284,6 +284,92 @@ app.get("/api/ratings/worker/:workerId/history", async (req, res) => {
   }
 });
 
+app.get("/api/admin/users", async (req, res) => {
+  try {
+    const users = await User.find().select("-password").sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put("/api/admin/users/:id/role", async (req, res) => {
+  try {
+    const { role } = req.body;
+
+    if (!["worker", "supervisor", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { role },
+      { new: true }
+    ).select("-password");
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.delete("/api/admin/users/:id", async (req, res) => {
+  try {
+    await Rating.deleteMany({
+      $or: [
+        { ratedUser: req.params.id },
+        { ratedBy: req.params.id }
+      ]
+    });
+
+    await User.findByIdAndDelete(req.params.id);
+
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.put("/api/admin/users/:id/password", async (req, res) => {
+  try {
+    const { password } = req.body;
+
+    const updated = await User.findByIdAndUpdate(
+      req.params.id,
+      { password },
+      { new: true }
+    ).select("-password");
+
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+app.get("/api/admin/dashboard", async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const workers = await User.countDocuments({ role: "worker" });
+    const supervisors = await User.countDocuments({ role: "supervisor" });
+    const admins = await User.countDocuments({ role: "admin" });
+
+    const avgRating = await User.aggregate([
+      { $match: { role: "worker" } },
+      { $group: { _id: null, avg: { $avg: "$averageRating" } } }
+    ]);
+
+    res.json({
+      totalUsers,
+      workers,
+      supervisors,
+      admins,
+      avgRating: avgRating[0]?.avg || 0
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // ===== START =====
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
