@@ -44,10 +44,6 @@ export const supervisorService = {
   getWorkerById: (workerId) =>
     apiClient.get(`/api/users/${workerId}`),
 
-  /**
-   * Fetch past (non-current-month) rating history for a worker.
-   * Optionally scoped to a specific supervisor.
-   */
   getWorkerHistory: (workerId, supervisorId = null) => {
     const params = supervisorId ? { supervisorId } : {};
     return apiClient.get(`/api/ratings/worker/${workerId}/history`, { params });
@@ -56,10 +52,6 @@ export const supervisorService = {
 
 // Ratings Service
 export const ratingsService = {
-  /**
-   * Submit or update a rating for current month.
-   * The server always uses current month's dateKey — never pass a dateKey from the client.
-   */
   submitRating: (ratedBy, ratedUser, ratings, comment) =>
     apiClient.post("/api/ratings", {
       ratedBy,
@@ -68,10 +60,11 @@ export const ratingsService = {
       comment
     }),
 
-  getRatingsForUser: (userId) =>
-    apiClient.get(`/api/ratings/worker/${userId}`)
+  getRatingsForUser: (userId, params = {}) =>
+    apiClient.get(`/api/ratings/worker/${userId}`, { params })
 };
 
+// Admin Service
 export const adminService = {
   getAllUsers: () =>
     apiClient.get("/api/admin/users"),
@@ -86,7 +79,10 @@ export const adminService = {
     apiClient.put(`/api/admin/users/${id}/password`, { password }),
 
   getDashboard: () =>
-    apiClient.get("/api/admin/dashboard")
+    apiClient.get("/api/admin/dashboard"),
+
+  createUser: (payload) =>
+    apiClient.post("/api/users", payload)
 };
 
 export default apiClient;

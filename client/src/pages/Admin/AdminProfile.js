@@ -1,11 +1,11 @@
 function AdminProfile({ worker }) {
   return (
-    <div className="page-content">
+    <div className="page-content admin-page">
       <div className="page-header">
         <h1>Profile</h1>
       </div>
 
-      <div className="recent-item">
+      <div className="admin-card">
         <h3>{worker.name}</h3>
         <p>{worker.email}</p>
         <span className="field-badge">Admin</span>

@@ -1,0 +1,141 @@
+.admin-page {
+  padding: 40px;
+}
+
+.admin-page .page-header {
+  margin-bottom: 28px;
+}
+
+.admin-page .page-header h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.admin-page .page-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.admin-stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #1a3a7f;
+}
+
+.admin-stat-card h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.admin-stat-card .stat-number {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.admin-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.admin-section {
+  margin-top: 20px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-btn {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #fff;
+  color: #111827;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.admin-btn:hover {
+  border-color: #1a3a7f;
+  color: #1a3a7f;
+}
+
+.admin-btn.primary {
+  background: #1a3a7f;
+  color: #fff;
+  border-color: #1a3a7f;
+}
+
+.admin-btn.primary:hover {
+  background: #12295a;
+  border-color: #12295a;
+}
+
+.admin-table select {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+
+.admin-table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-form-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr 1fr 170px 150px;
+  gap: 10px;
+  align-items: center;
+}
+
+.admin-role {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.admin-role-worker {
+  background: #e0f2fe;
+  color: #075985;
+}
+
+.admin-role-supervisor {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
+.admin-role-admin {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+@media (max-width: 1100px) {
+  .admin-form-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
