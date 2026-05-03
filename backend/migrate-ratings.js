@@ -1,16 +1,3 @@
-/**
- * migrate-ratings.js
- * 
- * Run ONCE with:  node migrate-ratings.js
- * 
- * What it does:
- *  1. Drops the old (ratedBy, ratedUser) unique index that has no dateKey.
- *  2. Backfills a dateKey on every rating document that is missing one,
- *     derived from the document's createdAt timestamp.
- *  3. The correct (ratedBy, ratedUser, dateKey) index is already defined in
- *     your schema — Mongoose will recreate it on next app start.
- */
-
 const mongoose = require("mongoose");
 require("dotenv").config();
 
@@ -34,27 +21,43 @@ async function migrate() {
   }
 
   // ── Step 2: Backfill dateKey on documents that are missing it ────────────
-  const missing = await collection.find({ dateKey: { $exists: false } }).toArray();
-  console.log(`Found ${missing.length} document(s) missing a dateKey`);
+  const allDocs = await collection.find().toArray();
+  console.log(`Found ${allDocs.length} total documents`);
 
-  if (missing.length > 0) {
-    const ops = missing.map(doc => {
+  if (allDocs.length > 0) {
+    const seen = new Set();
+
+    const ops = [];
+
+    allDocs.forEach(doc => {
       const d = new Date(doc.createdAt);
       const year  = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, "0");
-      const day   = String(d.getDate()).padStart(2, "0");
-      const dateKey = `${year}-${month}-${day}`;
+      const dateKey = `${year}-${month}`;
 
-      return {
-        updateOne: {
-          filter: { _id: doc._id },
-          update: { $set: { dateKey } }
-        }
-      };
+      const key = `${doc.ratedBy}_${doc.ratedUser}_${dateKey}`;
+
+      if (!seen.has(key)) {
+        seen.add(key);
+
+        ops.push({
+          updateOne: {
+            filter: { _id: doc._id },
+            update: { $set: { dateKey } }
+          }
+        });
+      } else {
+        // duplicate → delete it
+        ops.push({
+          deleteOne: {
+            filter: { _id: doc._id }
+          }
+        });
+      }
     });
 
     const result = await collection.bulkWrite(ops);
-    console.log(`Backfilled dateKey on ${result.modifiedCount} document(s)`);
+    console.log(`Updated ${result.modifiedCount} document(s) to monthly format`);
   }
 
   // ── Step 3: Report current indexes so you can confirm ────────────────────

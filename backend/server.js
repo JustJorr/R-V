@@ -11,19 +11,11 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error(err));
 
-// ===== HELPERS =====
-
-/**
- * Returns today's date as "YYYY-MM-DD" in the server's local timezone.
- * Using toISOString() was causing off-by-one date bugs for timezones
- * that are behind UTC (e.g. UTC-7 at 11 PM shows tomorrow's date in UTC).
- */
-function getTodayKey() {
+function getMonthKey() {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return `${year}-${month}`;
 }
 
 // ===== SCHEMAS =====
@@ -130,17 +122,17 @@ app.post("/api/login", async (req, res) => {
 
 app.post("/api/ratings", async (req, res) => {
   try {
-    const today = getTodayKey();
+    const currentMonth = getMonthKey();
 
-    // Prevent rating for any date other than today
-    if (req.body.dateKey && req.body.dateKey !== today) {
-      return res.status(403).json({ message: "Ratings can only be submitted or edited for today." });
+    // Optional: block manual override
+    if (req.body.dateKey && req.body.dateKey !== currentMonth) {
+      return res.status(403).json({ message: "Ratings can only be submitted or edited for this month." });
     }
 
     const existingRating = await Rating.findOne({
       ratedBy: req.body.ratedBy,
       ratedUser: req.body.ratedUser,
-      dateKey: today
+      dateKey: currentMonth
     });
 
     let newRating;
@@ -155,7 +147,7 @@ app.post("/api/ratings", async (req, res) => {
         ratedUser: req.body.ratedUser,
         ...KPI_FIELDS.reduce((acc, f) => { acc[f] = req.body[f]; return acc; }, {}),
         comment: req.body.comment,
-        dateKey: today
+        dateKey: currentMonth
       });
       newRating = await rating.save();
     }
@@ -209,8 +201,11 @@ app.get("/api/ratings/worker/:userId", async (req, res) => {
     const { date, month } = req.query;
     let filter = { ratedUser: req.params.userId };
 
-    if (date) filter.dateKey = date;
-    if (month) filter.dateKey = { $regex: `^${month}` };
+    if (date) {
+      filter.dateKey = date;
+    } else if (month) {
+      filter.dateKey = month;
+    }
 
     const ratings = await Rating.find(filter)
       .populate("ratedBy", "name role")
@@ -222,13 +217,13 @@ app.get("/api/ratings/worker/:userId", async (req, res) => {
   }
 });
 
-// Returns all of a supervisor's ratings for TODAY only (used to mark rated workers)
+// Returns all of a supervisor's ratings for currentMonth only (used to mark rated workers)
 app.get("/api/supervisor/ratings/:supervisorId", async (req, res) => {
   try {
-    const today = getTodayKey();
+    const currentMonth = getMonthKey();
     const ratings = await Rating.find({
       ratedBy: req.params.supervisorId,
-      dateKey: today
+      dateKey: currentMonth
     });
     res.json(ratings);
   } catch (err) {
@@ -236,16 +231,16 @@ app.get("/api/supervisor/ratings/:supervisorId", async (req, res) => {
   }
 });
 
-// Get today's rating by supervisor for a specific worker (for editing)
+// Get currentMonth's rating by supervisor for a specific worker (for editing)
 app.get("/api/rating/:supervisorId/:workerId", async (req, res) => {
   try {
-    const today = getTodayKey();
+    const currentMonth = getMonthKey();
     const rating = await Rating.findOne({
       ratedBy: req.params.supervisorId,
       ratedUser: req.params.workerId,
-      dateKey: today
+      dateKey: currentMonth
     });
-    if (!rating) return res.status(404).json({ message: "No rating found for today" });
+    if (!rating) return res.status(404).json({ message: "No rating found for currentMonth" });
     res.json(rating);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -258,11 +253,11 @@ app.get("/api/rating/:supervisorId/:workerId", async (req, res) => {
 app.get("/api/ratings/worker/:workerId/history", async (req, res) => {
   try {
     const { supervisorId } = req.query;
-    const today = getTodayKey();
+    const currentMonth = getMonthKey();
 
     let filter = {
       ratedUser: req.params.workerId,
-      dateKey: { $ne: today } // exclude today — history is past only
+      dateKey: { $ne: currentMonth } // exclude currentMonth — history is past only
     };
 
     if (supervisorId) filter.ratedBy = supervisorId;

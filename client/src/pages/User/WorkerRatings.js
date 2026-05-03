@@ -299,12 +299,12 @@ function WorkerRatings({ worker }) {
                     </span>
                   </td>
                   <td className="latest-rating-cell">
-                    {worker.latestRating ? (() => {
-                      const scores = KPI_FIELDS.map(f => worker.latestRating[f.key] ?? 0);
+                    {w.latestRating ? (() => {
+                      const scores = KPI_FIELDS.map(f => w.latestRating[f.key] ?? 0);
                       const avg = scores.reduce((a, b) => a + b, 0) / KPI_FIELDS.length;
 
                       const lowest = KPI_FIELDS
-                        .map(f => ({ ...f, value: worker.latestRating[f.key] ?? 0 }))
+                        .map(f => ({ ...f, value: w.latestRating[f.key] ?? 0 }))
                         .sort((a, b) => a.value - b.value)[0];
 
                       return (
@@ -324,8 +324,8 @@ function WorkerRatings({ worker }) {
 
                           {/* 📅 Date */}
                           <small className="rating-timestamp">
-                            {formatDate(worker.latestRating.createdAt)}
-                            {ratedToday(worker) && (
+                            {formatDate(w.latestRating.createdAt)}
+                            {ratedToday(w) && (
                               <span className="today-tag">today</span>
                             )}
                           </small>

@@ -180,8 +180,8 @@ function LoginPage({ onLogin }) {
               </button>
             </div>
             <div className="overlay-panel overlay-right">
-              <h1>Hello, Worker!</h1>
-              <p>Don't have an account yet? Register and join the team.</p>
+              <h1>Hello, Pekerja!</h1>
+              <p>Belum punya akun? Daftar dan join rekan anda!</p>
               <button className="ghost" onClick={() => setIsActive(true)}>
                 Sign Up
               </button>

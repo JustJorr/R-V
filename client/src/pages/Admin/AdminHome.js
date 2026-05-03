@@ -1,3 +1,17 @@
+import { useState } from "react";
+import { toFormData } from "axios";
+
+const catergory = [
+  {key: "pekerjaanArea ",short:"PA", label:"Pekerjaan area yang dilakukan"},
+  {key: "tugasDiselesaikan ",short:"TD", label:"Tugas yang diselesaikan"},
+  {key: "pekerjaanArea ",short:"PA", label:"Pekerjaan area yang dilakukan"},
+  {key: "pekerjaanArea ",short:"PA", label:"Pekerjaan area yang dilakukan"},
+  {key: "pekerjaanArea ",short:"PA", label:"Pekerjaan area yang dilakukan"},
+  {key: "pekerjaanArea ",short:"PA", label:"Pekerjaan area yang dilakukan"},
+  {key: "pekerjaanArea ",short:"PA", label:"Pekerjaan area yang dilakukan"},
+]
+
+
 function AdminHome() {
   return (
     <div className="page-content">
