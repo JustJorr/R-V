@@ -6,7 +6,9 @@ const apiClient = axios.create({
   timeout: config.timeout
 });
 
-// Auth Service
+// =======================
+// AUTH SERVICE
+// =======================
 export const authService = {
   login: (email, password) =>
     apiClient.post("/api/login", { email, password }),
@@ -15,7 +17,9 @@ export const authService = {
     apiClient.post("/api/users", { name, email, password, role })
 };
 
-// Users Service
+// =======================
+// USERS SERVICE (basic)
+// =======================
 export const usersService = {
   getAllUsers: () =>
     apiClient.get("/api/users"),
@@ -24,7 +28,9 @@ export const usersService = {
     apiClient.get(`/api/users/${id}`)
 };
 
-// Supervisor Service
+// =======================
+// SUPERVISOR SERVICE
+// =======================
 export const supervisorService = {
   getDashboard: () =>
     apiClient.get("/api/supervisor/dashboard"),
@@ -50,7 +56,9 @@ export const supervisorService = {
   }
 };
 
-// Ratings Service
+// =======================
+// RATINGS SERVICE
+// =======================
 export const ratingsService = {
   submitRating: (ratedBy, ratedUser, ratings, comment) =>
     apiClient.post("/api/ratings", {
@@ -64,7 +72,9 @@ export const ratingsService = {
     apiClient.get(`/api/ratings/worker/${userId}`, { params })
 };
 
-// Admin Service
+// =======================
+// ADMIN SERVICE (USERS + DASHBOARD)
+// =======================
 export const adminService = {
   getAllUsers: () =>
     apiClient.get("/api/admin/users"),
@@ -83,6 +93,25 @@ export const adminService = {
 
   createUser: (payload) =>
     apiClient.post("/api/users", payload)
+};
+
+export const adminDataService = {
+
+  importExcel: (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return apiClient.post("/api/admin/import", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+  },
+
+  exportExcel: (lang = "en") =>
+    apiClient.get(`/api/admin/export?lang=${lang}`, {
+      responseType: "blob"
+    })
 };
 
 export default apiClient;
