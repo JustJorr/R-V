@@ -1,3 +1,7 @@
-import AdminDataTools from "./AdminDataTools";
+import SupervisorDataVisuals from "../Supervisor/SupervisorDataVisuals";
 
-export default AdminDataTools;
+function AdminData() {
+  return <SupervisorDataVisuals />;
+}
+
+export default AdminData;

@@ -1,23 +1,31 @@
 import { useEffect, useMemo, useState } from "react";
 import { adminService } from "../../services/api";
+import "../../styles/Admin/AdminPages.css";
+
+const ROLES = [
+  { value: "worker",     label: "Worker",     emoji: "👷" },
+  { value: "supervisor", label: "Supervisor", emoji: "🧑‍💼" },
+  { value: "admin",      label: "Admin",      emoji: "🛡️" },
+];
+
+const FILTER_TABS = [
+  { key: "all",        label: "All",         emoji: "📊" },
+  { key: "worker",     label: "Workers",     emoji: "👷" },
+  { key: "supervisor", label: "Supervisors", emoji: "🧑‍💼" },
+  { key: "admin",      label: "Admins",      emoji: "🛡️" },
+];
+
+const EMPTY_FORM = { name: "", email: "", password: "", role: "worker" };
 
 function AdminUsers() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterRole, setFilterRole] = useState("all");
+  const [users, setUsers]         = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [searchTerm, setSearch]   = useState("");
+  const [filterRole, setFilter]   = useState("all");
   const [submitting, setSubmitting] = useState(false);
+  const [form, setForm]           = useState(EMPTY_FORM);
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "worker"
-  });
-
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  useEffect(() => { fetchUsers(); }, []);
 
   const fetchUsers = async () => {
     try {
@@ -35,16 +43,16 @@ function AdminUsers() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Delete this user?")) return;
+    if (!window.confirm("⚠️ Are you sure you want to delete this user?")) return;
     await adminService.deleteUser(id);
     fetchUsers();
   };
 
   const handlePasswordReset = async (id) => {
-    const newPass = prompt("Enter new password:");
+    const newPass = prompt("🔑 Enter new password for this user:");
     if (!newPass) return;
     await adminService.changePassword(id, newPass);
-    alert("Password updated");
+    alert("✅ Password updated successfully.");
   };
 
   const handleCreateUser = async (e) => {
@@ -52,114 +60,109 @@ function AdminUsers() {
     try {
       setSubmitting(true);
       await adminService.createUser(form);
-      setForm({ name: "", email: "", password: "", role: "worker" });
+      setForm(EMPTY_FORM);
       fetchUsers();
     } finally {
       setSubmitting(false);
     }
   };
 
+  const setField = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+
   const filteredUsers = useMemo(() => {
-    const q = searchTerm.trim().toLowerCase();
+    const q = searchTerm.toLowerCase();
     return users.filter((u) => {
-      const roleMatch = filterRole === "all" || u.role === filterRole;
-      const searchMatch =
-        !q ||
-        u.name.toLowerCase().includes(q) ||
-        u.email.toLowerCase().includes(q);
+      const roleMatch   = filterRole === "all" || u.role === filterRole;
+      const searchMatch = u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
       return roleMatch && searchMatch;
     });
   }, [users, searchTerm, filterRole]);
 
   const roleCounts = useMemo(() => ({
-    all: users.length,
-    worker: users.filter((u) => u.role === "worker").length,
+    all:        users.length,
+    worker:     users.filter((u) => u.role === "worker").length,
     supervisor: users.filter((u) => u.role === "supervisor").length,
-    admin: users.filter((u) => u.role === "admin").length
+    admin:      users.filter((u) => u.role === "admin").length,
   }), [users]);
 
   return (
     <div className="page-content admin-page">
       <div className="page-header">
-        <h1>Manage Users</h1>
-        <p>Add users, update roles, reset passwords, and remove accounts</p>
+        <h1>👥 Manage Users</h1>
+        <p>Full control over accounts, roles, and access</p>
       </div>
 
-      <div className="recent-section admin-section">
-        <h2>Add New User</h2>
+      {/* CREATE USER */}
+      <div className="admin-section admin-card">
+        <h2 className="section-title">➕ Add New User</h2>
         <form className="admin-form-row" onSubmit={handleCreateUser}>
           <input
-            className="search-input"
+            className="admin-input"
             placeholder="Full name"
             value={form.name}
-            onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
+            onChange={setField("name")}
             required
           />
           <input
-            className="search-input"
+            className="admin-input"
             type="email"
-            placeholder="Email"
+            placeholder="Email address"
             value={form.email}
-            onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+            onChange={setField("email")}
             required
           />
           <input
-            className="search-input"
+            className="admin-input"
             type="password"
             placeholder="Password"
             value={form.password}
-            onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+            onChange={setField("password")}
             required
           />
-          <select
-            className="sort-select"
-            value={form.role}
-            onChange={(e) => setForm((prev) => ({ ...prev, role: e.target.value }))}
-          >
-            <option value="worker">Worker</option>
-            <option value="supervisor">Supervisor</option>
-            <option value="admin">Admin</option>
+          <select className="admin-select" value={form.role} onChange={setField("role")}>
+            {ROLES.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.emoji} {r.label}
+              </option>
+            ))}
           </select>
           <button className="admin-btn primary" type="submit" disabled={submitting}>
-            {submitting ? "Creating..." : "Create User"}
+            {submitting ? "⏳ Creating…" : "➕ Create User"}
           </button>
         </form>
       </div>
 
-      <div className="recent-section admin-section">
-        <h2>User Directory</h2>
+      {/* USER TABLE */}
+      <div className="admin-section admin-card">
+        <h2 className="section-title">📋 User Directory</h2>
 
-        <div className="details-toolbar">
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search by name or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="search-input"
-            />
-          </div>
-
-          <div className="filter-buttons">
-            {[
-              ["all", `All (${roleCounts.all})`],
-              ["worker", `Workers (${roleCounts.worker})`],
-              ["supervisor", `Supervisors (${roleCounts.supervisor})`],
-              ["admin", `Admins (${roleCounts.admin})`]
-            ].map(([key, label]) => (
+        <div className="admin-toolbar">
+          <input
+            type="text"
+            placeholder="🔍 Search by name or email…"
+            value={searchTerm}
+            onChange={(e) => setSearch(e.target.value)}
+            className="admin-input admin-search"
+          />
+          <div className="filter-tabs">
+            {FILTER_TABS.map((tab) => (
               <button
-                key={key}
-                className={`filter-btn ${filterRole === key ? "active" : ""}`}
-                onClick={() => setFilterRole(key)}
+                key={tab.key}
+                className={`filter-tab ${filterRole === tab.key ? "active" : ""}`}
+                onClick={() => setFilter(tab.key)}
               >
-                {label}
+                {tab.emoji} {tab.label}
+                <span className="tab-count">{roleCounts[tab.key]}</span>
               </button>
             ))}
           </div>
         </div>
 
         {loading ? (
-          <div className="loading">Loading users...</div>
+          <div className="admin-loading"><span>⏳</span> Loading users…</div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="admin-empty">No users match your current filters.</div>
         ) : (
           <div className="table-responsive admin-table">
             <table className="workers-table">
@@ -172,34 +175,40 @@ function AdminUsers() {
                   <th>Actions</th>
                 </tr>
               </thead>
-
               <tbody>
                 {filteredUsers.map((u) => (
                   <tr key={u._id}>
-                    <td>{u.name}</td>
-                    <td>{u.email}</td>
-
+                    <td className="td-name">{u.name}</td>
+                    <td className="td-email">{u.email}</td>
                     <td>
                       <select
-                        className="sort-select"
+                        className="admin-select admin-select-inline"
                         value={u.role}
                         onChange={(e) => handleRoleChange(u._id, e.target.value)}
                       >
-                        <option value="worker">Worker</option>
-                        <option value="supervisor">Supervisor</option>
-                        <option value="admin">Admin</option>
+                        {ROLES.map((r) => (
+                          <option key={r.value} value={r.value}>
+                            {r.emoji} {r.label}
+                          </option>
+                        ))}
                       </select>
                     </td>
-                    <td>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "-"}</td>
-
+                    <td>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}</td>
                     <td>
                       <div className="admin-table-actions">
-                        <button className="admin-btn" onClick={() => handlePasswordReset(u._id)}>
-                          Password
+                        <button
+                          className="admin-btn warning"
+                          onClick={() => handlePasswordReset(u._id)}
+                          title="Reset password"
+                        >
+                          🔑
                         </button>
-
-                        <button className="admin-btn" onClick={() => handleDelete(u._id)}>
-                          Delete
+                        <button
+                          className="admin-btn danger"
+                          onClick={() => handleDelete(u._id)}
+                          title="Delete user"
+                        >
+                          🗑️
                         </button>
                       </div>
                     </td>
