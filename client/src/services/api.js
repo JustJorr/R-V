@@ -45,7 +45,7 @@ export const supervisorService = {
     apiClient.get(`/api/users/${workerId}`),
 
   /**
-   * Fetch past (non-today) rating history for a worker.
+   * Fetch past (non-current-month) rating history for a worker.
    * Optionally scoped to a specific supervisor.
    */
   getWorkerHistory: (workerId, supervisorId = null) => {
@@ -57,8 +57,8 @@ export const supervisorService = {
 // Ratings Service
 export const ratingsService = {
   /**
-   * Submit or update a rating for today.
-   * The server always uses today's dateKey — never pass a dateKey from the client.
+   * Submit or update a rating for current month.
+   * The server always uses current month's dateKey — never pass a dateKey from the client.
    */
   submitRating: (ratedBy, ratedUser, ratings, comment) =>
     apiClient.post("/api/ratings", {

@@ -18,6 +18,15 @@ const KPI_FIELDS = [
   { key: "attendance", label: "Attendance", short: "AT" }
 ];
 
+function formatMonthKey(monthKey) {
+  if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) return null;
+  const [year, month] = monthKey.split("-").map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long"
+  });
+}
+
 function WorkerInformation() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -148,7 +157,7 @@ function WorkerInformation() {
         <div className="wi-history-header">
           <h2>Rating History</h2>
           {ratings.length > 0 && (
-            <span className="wi-history-count">{ratings.length} session{ratings.length !== 1 ? "s" : ""}</span>
+            <span className="wi-history-count">{ratings.length} month{ratings.length !== 1 ? "s" : ""}</span>
           )}
         </div>
 
@@ -162,6 +171,7 @@ function WorkerInformation() {
             {ratings.map((r, i) => {
               const avg = KPI_FIELDS.reduce((sum, f) => sum + (r[f.key] || 0), 0) / KPI_FIELDS.length;
               const isExpanded = expandedCards.has(r._id);
+              const monthLabel = formatMonthKey(r.dateKey);
 
               return (
                 <div key={r._id} className="wi-card">
@@ -175,7 +185,7 @@ function WorkerInformation() {
                       <span className="wi-card-index">#{ratings.length - i}</span>
                       <div className="wi-card-meta">
                         <span className="wi-card-date">
-                          {new Date(r.createdAt).toLocaleDateString(undefined, {
+                          {monthLabel || new Date(r.createdAt).toLocaleDateString(undefined, {
                             year: "numeric", month: "short", day: "numeric"
                           })}
                         </span>

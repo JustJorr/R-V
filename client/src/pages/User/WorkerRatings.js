@@ -21,12 +21,11 @@ const ratingFields = [
 
 const KPI_FIELDS = ratingFields;
 
-function getTodayKey() {
+function getCurrentMonthKey() {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return `${year}-${month}`;
 }
 
 function formatDate(dateStr) {
@@ -49,7 +48,7 @@ function WorkerRatings({ worker }) {
   const [refreshing, setRefreshing] = useState(false);
   const navigate = useNavigate();
 
-  const today = getTodayKey();
+  const currentMonth = getCurrentMonthKey();
 
   const fetchWorkers = useCallback(async () => {
     try {
@@ -114,12 +113,12 @@ function WorkerRatings({ worker }) {
     }
   };
 
-  const ratedToday = useCallback((w) => {
+  const ratedThisMonth = useCallback((w) => {
     if (!w.latestRating) return false;
-    const ratingDate = w.latestRating.dateKey ||
-      new Date(w.latestRating.createdAt).toISOString().split("T")[0];
-    return ratingDate === today;
-  }, [today]);
+    const ratingMonth = w.latestRating.dateKey ||
+      new Date(w.latestRating.createdAt).toISOString().slice(0, 7);
+    return ratingMonth === currentMonth;
+  }, [currentMonth]);
 
   const { filteredWorkers, ratedCount, unratedCount } = useMemo(() => {
     const ratedWorkers = workers.filter(w => isAlreadyRated(w._id)).length;
@@ -256,7 +255,7 @@ function WorkerRatings({ worker }) {
                 <th>Total Ratings</th>
                 <th>Status</th>
                 <th>Latest Rating</th>
-                <th>Today</th>
+                <th>This Month</th>
                 <th>Last Comment</th>
               </tr>
             </thead>
@@ -325,8 +324,8 @@ function WorkerRatings({ worker }) {
                           {/* 📅 Date */}
                           <small className="rating-timestamp">
                             {formatDate(w.latestRating.createdAt)}
-                            {ratedToday(w) && (
-                              <span className="today-tag">today</span>
+                            {ratedThisMonth(w) && (
+                              <span className="today-tag">this month</span>
                             )}
                           </small>
                         </div>
@@ -341,7 +340,7 @@ function WorkerRatings({ worker }) {
                       <button
                         className="btn btn-edit"
                         onClick={() => handleEditRating(w)}
-                        title="Edit today's rating"
+                        title="Edit this month's rating"
                       >
                         ✏️ Edit
                       </button>
@@ -349,7 +348,7 @@ function WorkerRatings({ worker }) {
                       <button
                         className="btn btn-primary"
                         onClick={() => handleRateWorker(w)}
-                        title="Rate this colleague for today"
+                        title="Rate this colleague for this month"
                       >
                         ⭐ Rate
                       </button>

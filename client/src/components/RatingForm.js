@@ -48,7 +48,7 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
 
     try {
       // ratingsService.submitRating never sends a dateKey —
-      // the server always uses today's date server-side.
+      // the server always uses this month's date server-side.
       await ratingsService.submitRating(
         userId,
         worker._id,
@@ -80,7 +80,7 @@ function RatingForm({ worker, userId, onSuccess, onCancel, isEditing = false, in
 
         {isEditing && (
           <p className="form-edit-notice">
-            Editing today's rating. Past ratings are view-only.
+            Editing this month's rating. Past ratings are view-only.
           </p>
         )}
 

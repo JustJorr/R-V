@@ -19,18 +19,17 @@ const KPI_FIELDS = [
   { key: "attendance", label: "Attendance", short: "AT" }
 ];
 
-function getTodayKey() {
+function getCurrentMonthKey() {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return `${year}-${month}`;
 }
 
 function formatDate(dateStr) {
-  if (!dateStr) return "—";
+  if (!dateStr) return "-";
   const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return "—";
+  if (isNaN(d.getTime())) return "-";
   return d.toLocaleDateString(undefined, {
     year: "numeric", month: "short", day: "numeric"
   });
@@ -49,7 +48,7 @@ function SupervisorDetails({ worker: supervisor }) {
   const [refreshing, setRefreshing] = useState(false);
   const navigate = useNavigate();
 
-  const today = getTodayKey();
+  const currentMonth = getCurrentMonthKey();
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -72,7 +71,7 @@ function SupervisorDetails({ worker: supervisor }) {
     }
     try {
       const response = await supervisorService.getSupervisorRatings(supervisor._id);
-      const ratedIds = new Set((response.data || []).map(r => r.ratedUser));
+      const ratedIds = new Set((response.data || []).map((r) => r.ratedUser));
       setRatedWorkerIds(ratedIds);
     } catch (err) {
       console.error("Error fetching supervisor ratings:", err);
@@ -90,15 +89,15 @@ function SupervisorDetails({ worker: supervisor }) {
     fetchSupervisorRatings();
   };
 
-  const isAlreadyRated = useCallback(workerId => ratedWorkerIds.has(workerId), [ratedWorkerIds]);
+  const isAlreadyRated = useCallback((workerId) => ratedWorkerIds.has(workerId), [ratedWorkerIds]);
 
-  const handleRateWorker = worker => {
+  const handleRateWorker = (worker) => {
     setRatingWorker(worker);
     setIsEditingRating(false);
     setExistingRatingData(null);
   };
 
-  const handleEditRating = async worker => {
+  const handleEditRating = async (worker) => {
     if (!supervisor?._id) return;
     try {
       const response = await supervisorService.getExistingRating(supervisor._id, worker._id);
@@ -107,24 +106,24 @@ function SupervisorDetails({ worker: supervisor }) {
       setExistingRatingData(response.data);
     } catch (err) {
       console.error("Error fetching rating for editing:", err);
-      alert("Could not load today's rating for editing.");
+      alert("Could not load this month's rating for editing.");
     }
   };
 
-  const ratedToday = useCallback(worker => {
+  const ratedThisMonth = useCallback((worker) => {
     if (!worker.latestRating) return false;
-    const ratingDate = worker.latestRating.dateKey ||
-      new Date(worker.latestRating.createdAt).toISOString().split("T")[0];
-    return ratingDate === today;
-  }, [today]);
+    const ratingMonth = worker.latestRating.dateKey ||
+      new Date(worker.latestRating.createdAt).toISOString().slice(0, 7);
+    return ratingMonth === currentMonth;
+  }, [currentMonth]);
 
   const { filteredWorkers, ratedCount, unratedCount } = useMemo(() => {
-    const ratedWorkers = workers.filter(w => isAlreadyRated(w._id)).length;
+    const ratedWorkers = workers.filter((w) => isAlreadyRated(w._id)).length;
     const unratedWorkers = workers.length - ratedWorkers;
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
     const list = workers
-      .filter(worker => {
+      .filter((worker) => {
         const matchesSearch =
           worker.name.toLowerCase().includes(normalizedSearch) ||
           worker.email.toLowerCase().includes(normalizedSearch);
@@ -162,7 +161,7 @@ function SupervisorDetails({ worker: supervisor }) {
 
       <div className="page-header">
         <h1>Worker Details and Ratings</h1>
-        <p>Rate workers today · view history any time</p>
+        <p>Rate workers this month and update before month-end</p>
       </div>
 
       <div className="details-stats-row">
@@ -171,7 +170,7 @@ function SupervisorDetails({ worker: supervisor }) {
           <span className="value">{filteredWorkers.length}</span>
         </div>
         <div className="quick-stat-pill">
-          <span className="label">Rated Today</span>
+          <span className="label">Rated This Month</span>
           <span className="value">{ratedCount}</span>
         </div>
         <div className="quick-stat-pill">
@@ -186,7 +185,7 @@ function SupervisorDetails({ worker: supervisor }) {
             type="text"
             placeholder="Search by name or email..."
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
           />
         </div>
@@ -196,10 +195,10 @@ function SupervisorDetails({ worker: supervisor }) {
           <select
             id="details-sort"
             value={sortBy}
-            onChange={e => setSortBy(e.target.value)}
+            onChange={(e) => setSortBy(e.target.value)}
             className="sort-select"
           >
-            <option value="name">Name (A–Z)</option>
+            <option value="name">Name (A-Z)</option>
             <option value="rating">Highest Rating</option>
             <option value="recent">Latest Activity</option>
           </select>
@@ -247,7 +246,7 @@ function SupervisorDetails({ worker: supervisor }) {
                 <th>Sessions</th>
                 <th>Status</th>
                 <th>Latest Rating</th>
-                <th>Today</th>
+                <th>This Month</th>
                 <th>Last Comment</th>
               </tr>
             </thead>
@@ -273,10 +272,10 @@ function SupervisorDetails({ worker: supervisor }) {
                         className="rating-badge"
                         style={{ backgroundColor: getRatingColor(worker.averageRating) }}
                       >
-                        {Number(worker.averageRating).toFixed(1)} ★
+                        {Number(worker.averageRating).toFixed(1)} *
                       </span>
                     ) : (
-                      <span className="rating-badge rating-badge--none">—</span>
+                      <span className="rating-badge rating-badge--none">-</span>
                     )}
                   </td>
                   <td className="center">{worker.totalRatings}</td>
@@ -287,33 +286,30 @@ function SupervisorDetails({ worker: supervisor }) {
                   </td>
                   <td className="latest-rating-cell">
                     {worker.latestRating ? (() => {
-                      const scores = KPI_FIELDS.map(f => worker.latestRating[f.key] ?? 0);
+                      const scores = KPI_FIELDS.map((f) => worker.latestRating[f.key] ?? 0);
                       const avg = scores.reduce((a, b) => a + b, 0) / KPI_FIELDS.length;
 
                       const lowest = KPI_FIELDS
-                        .map(f => ({ ...f, value: worker.latestRating[f.key] ?? 0 }))
+                        .map((f) => ({ ...f, value: worker.latestRating[f.key] ?? 0 }))
                         .sort((a, b) => a.value - b.value)[0];
 
                       return (
                         <div className="rating-summary">
-                          {/* ⭐ Average */}
                           <div
                             className="summary-avg"
                             style={{ backgroundColor: getRatingColor(avg) }}
                           >
-                            {avg.toFixed(1)} ★
+                            {avg.toFixed(1)} *
                           </div>
 
-                          {/* ⚠️ Weakest KPI */}
                           <div className="summary-low">
-                            ↓ {lowest.short}: {lowest.value}
+                            v {lowest.short}: {lowest.value}
                           </div>
 
-                          {/* 📅 Date */}
                           <small className="rating-timestamp">
                             {formatDate(worker.latestRating.createdAt)}
-                            {ratedToday(worker) && (
-                              <span className="today-tag">today</span>
+                            {ratedThisMonth(worker) && (
+                              <span className="today-tag">this month</span>
                             )}
                           </small>
                         </div>
@@ -328,7 +324,7 @@ function SupervisorDetails({ worker: supervisor }) {
                       <button
                         className="btn btn-edit"
                         onClick={() => handleEditRating(worker)}
-                        title="Edit today's rating"
+                        title="Edit this month's rating"
                       >
                         Edit
                       </button>
@@ -336,7 +332,7 @@ function SupervisorDetails({ worker: supervisor }) {
                       <button
                         className="btn btn-primary"
                         onClick={() => handleRateWorker(worker)}
-                        title="Rate this worker for today"
+                        title="Rate this worker for this month"
                       >
                         Rate
                       </button>
@@ -349,7 +345,7 @@ function SupervisorDetails({ worker: supervisor }) {
                         <span className="comment-text">{worker.latestRating.comment.substring(0, 40)}{worker.latestRating.comment.length > 40 ? "..." : ""}</span>
                       </div>
                     ) : (
-                      <span className="text-muted">—</span>
+                      <span className="text-muted">-</span>
                     )}
                   </td>
                 </tr>
