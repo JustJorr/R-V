@@ -7,9 +7,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error(err));
+mongoose.connect(process.env.MONGO_URI, {
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+})
+  .then(() => console.log("✅ MongoDB connected at", process.env.MONGO_URI))
+  .catch(err => console.error("❌ MongoDB Connection Error:", err.message));
 
 function getMonthKey() {
   const now = new Date();

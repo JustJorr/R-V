@@ -1808,6 +1808,40 @@
     flex-direction: column;
     align-items: stretch;
   }
+  .details-toolbar .filter-buttons {
+    width: 100%;
+  }
+  .details-toolbar .filter-btn {
+    flex: 1;
+    text-align: center;
+  }
+  .quick-stat-pill {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .profile-actions {
+    flex-direction: column;
+  }
+  .profile-actions .btn {
+    width: 100%;
+  }
+  .info-row,
+  .stat-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .top-performers {
+    grid-template-columns: 1fr;
+  }
+  .visuals-summary {
+    grid-template-columns: 1fr;
+  }
+  .chart-section,
+  .recent-section,
+  .summary-card {
+    padding: 18px;
+  }
   .filter-buttons {
     flex-wrap: wrap;
   }

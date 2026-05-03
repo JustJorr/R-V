@@ -322,10 +322,15 @@ form > button[type="submit"]:active {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 620px) {
+  .auth-page {
+    align-items: stretch;
+  }
+
   .auth-container {
     width: 100vw;
     min-height: 100vh;
     border-radius: 0;
+    max-width: 100vw;
   }
 
   .sign-in-container,
@@ -347,5 +352,40 @@ form > button[type="submit"]:active {
     transform: translateX(0);
     opacity: 1;
     z-index: 5;
+  }
+
+  form {
+    justify-content: flex-start;
+    padding: 28px 20px 20px;
+    overflow-y: auto;
+  }
+
+  .logo-wrap {
+    margin-bottom: 16px;
+  }
+
+  .form-logo {
+    height: 46px;
+    margin-right: 0;
+  }
+
+  form h1 {
+    font-size: 20px;
+  }
+
+  form > button[type="submit"],
+  form > button:not(.demo-btn):not(.ghost) {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  form {
+    padding: 20px 14px 14px;
+  }
+
+  form input {
+    padding: 10px 12px;
+    font-size: 12px;
   }
 }
