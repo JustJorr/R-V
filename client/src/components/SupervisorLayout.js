@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import SupervisorNav from "./SupervisorNav";
 import SupervisorHome from "../pages/Supervisor/SupervisorHome";
-import SupervisorDetails from "../pages/Supervisor/SupervisorDetails";
+import SupervisorRatings from "../pages/Supervisor/SupervisorRatings";
 import SupervisorDataVisuals from "../pages/Supervisor/SupervisorDataVisuals";
 import SupervisorProfile from "../pages/Supervisor/SupervisorProfile";
 import WorkerInformation from "../components/common/WorkerInformation";
@@ -32,7 +32,7 @@ function SupervisorLayout({ worker, onLogout }) {
           {/* Details Page */}
           <Route
             path="details"
-            element={<SupervisorDetails worker={worker} />}
+            element={<SupervisorRatings worker={worker} />}
           />
 
           {/* Data Visuals */}

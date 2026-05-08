@@ -52,7 +52,7 @@ function formatMonthLabel(monthKey) {
   });
 }
 
-function SupervisorDetails({ worker: supervisor }) {
+function SupervisorRatings({ worker: supervisor }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
@@ -387,4 +387,4 @@ function SupervisorDetails({ worker: supervisor }) {
   );
 }
 
-export default SupervisorDetails;
+export default SupervisorRatings;
