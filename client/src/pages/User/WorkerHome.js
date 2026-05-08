@@ -51,7 +51,8 @@ function WorkerHome({ worker }) {
         totalRatings: 0,
         recentRatings: [],
         updatedInLastWeek: 0,
-        lowestAreas: []
+        lowestAreas: [],
+        monthlyHistory: []
       };
     }
 
@@ -91,13 +92,43 @@ function WorkerHome({ worker }) {
       .sort((a, b) => a.avg - b.avg)
       .slice(0, 3);
 
+    const monthlyMap = ratings.reduce((acc, rating) => {
+      const monthKey =
+        rating.dateKey ||
+        (rating.createdAt ? new Date(rating.createdAt).toISOString().slice(0, 7) : "Unknown");
+      if (!acc[monthKey]) acc[monthKey] = [];
+      acc[monthKey].push(rating);
+      return acc;
+    }, {});
+
+    const monthlyHistory = Object.entries(monthlyMap)
+      .map(([monthKey, entries]) => {
+        const monthAverage =
+          entries.reduce((sum, r) => {
+            const values = ratingFields.map((f) => Number(r[f.key]) || 0);
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+            return sum + avg;
+          }, 0) / entries.length;
+
+        return {
+          monthKey,
+          monthLabel: /^\d{4}-\d{2}$/.test(monthKey)
+            ? new Date(`${monthKey}-01`).toLocaleDateString(undefined, { year: "numeric", month: "long" })
+            : monthKey,
+          count: entries.length,
+          average: monthAverage
+        };
+      })
+      .sort((a, b) => b.monthKey.localeCompare(a.monthKey));
+
     return {
       avgRating: avgRatingRaw.toFixed(2),
       totalRatings: ratings.length,
       recentRatings,
       updatedInLastWeek,
       lowestAreas,
-      fieldAverages
+      fieldAverages,
+      monthlyHistory
     };
   }, [ratingData]);
 
@@ -277,6 +308,50 @@ function WorkerHome({ worker }) {
               </div>
             ))}
           </div>
+        )}
+      </div>
+
+      <div className="recent-section">
+        <h2>Monthly Rating History</h2>
+
+        {dashboard.monthlyHistory.length > 0 ? (
+          <>
+            <div className="recent-list">
+              {dashboard.monthlyHistory.map((month) => (
+                <div key={month.monthKey} className="recent-item">
+                  <div className="recent-worker">
+                    <div className="worker-details">
+                      <h4>{month.monthLabel}</h4>
+                      <p className="worker-email">{month.count} rating{month.count !== 1 ? "s" : ""}</p>
+                    </div>
+                  </div>
+
+                  <div className="recent-rating">
+                    <div
+                      className="stat-number"
+                      style={{ color: getRatingColor(Number(month.average.toFixed(2))) }}
+                    >
+                      {month.average.toFixed(2)} avg
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="quick-stats" style={{ marginTop: "12px" }}>
+              <div className="quick-stat">
+                <span className="label">Overall Rating</span>
+                <span
+                  className="value"
+                  style={{ color: getRatingColor(Number(dashboard.avgRating)) }}
+                >
+                  {dashboard.avgRating}
+                </span>
+              </div>
+            </div>
+          </>
+        ) : (
+          <p className="no-data">No monthly history available yet.</p>
         )}
       </div>
 

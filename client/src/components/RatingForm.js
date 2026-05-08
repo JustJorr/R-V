@@ -91,7 +91,7 @@ function RatingForm({
 
         {isEditing && (
           <p className="form-edit-notice">
-            Editing rating for {selectedMonth || "this month"} / Mengedit penilaian untuk {selectedMonth || "bulan ini"}.
+            Editing rating for {selectedMonth || "selected month"} / Mengedit penilaian untuk {selectedMonth || "bulan terpilih"}.
           </p>
         )}
 

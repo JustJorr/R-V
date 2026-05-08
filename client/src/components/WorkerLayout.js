@@ -5,7 +5,6 @@ import WorkerRatings from "../pages/User/WorkerRatings";
 import WorkerNav from "../pages/User/WorkerNavigation";
 import WorkerFeedback from "../pages/User/WorkerFeedback";
 import WorkerProfile from "../pages/User/WorkerProfile";
-import WorkerInformation from "../components/common/WorkerInformation";
 
 function WorkerLayout({ worker, onLogout }) {
   const [collapsed, setCollapsed] = useState(false);
@@ -27,7 +26,7 @@ function WorkerLayout({ worker, onLogout }) {
           <Route path="/ratings" element={<WorkerRatings worker={worker} />} />
           <Route path="/feedback" element={<WorkerFeedback worker={worker} />} />
           <Route path="/profile" element={<WorkerProfile worker={worker} />} />
-          <Route path="/worker/:id" element={<WorkerInformation />} />
+          <Route path="/worker/:id" element={<Navigate to="/worker/ratings" />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>
