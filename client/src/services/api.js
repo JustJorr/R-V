@@ -123,7 +123,13 @@ export const adminDataService = {
         ...(options.month ? { month: options.month } : {})
       },
       responseType: "blob"
-    })
+    }),
+
+  downloadTemplate: (lang) =>
+    apiClient.get(`/api/admin/template?lang=${lang}`, {
+      responseType: "blob"
+    }
+  ),
 };
 
 export default apiClient;

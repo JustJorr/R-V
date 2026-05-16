@@ -147,6 +147,15 @@
   max-width: 280px;
 }
 
+/* Compact export scope filter on Admin Data Tools */
+.export-filter-select {
+  justify-self: start;
+  width: auto;
+  min-width: 150px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
 /* ── Filter Tabs ────────────────────────────── */
 .filter-tabs {
   display: flex;
@@ -269,6 +278,29 @@
   border-color: #fca5a5;
   opacity: 1;
 }
+
+.compact-btn {
+width: fit-content;
+padding: 10px 16px;
+}
+
+.export-btn {
+  width: auto !important;
+  min-width: unset !important;
+  padding: 0 16px !important;
+  display: inline-flex !important;
+  flex: none !important;
+}
+
+.admin-btn.secondary {
+background: #e5e7eb;
+color: #111827;
+}
+
+.admin-btn.secondary:hover {
+background: #d1d5db;
+}
+
 
 /* ── Table ──────────────────────────────────── */
 .table-responsive {
