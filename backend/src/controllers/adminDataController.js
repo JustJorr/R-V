@@ -199,7 +199,100 @@ message: err.message
 }
 }
 
-module.exports = {
-exportExcel,
-importExcel
+async function downloadTemplate(req, res) {
+try {
+const lang = req.query.lang || "en";
+
+const templateRow = {
+  worker: "",
+  supervisor: "",
+  ratedByType: "",
+  month: "",
+
+  ...KPI_FIELDS.reduce((acc, f) => {
+    acc[f] = "";
+    return acc;
+  }, {}),
+
+  average: ""
 };
+
+const mapped = mapFieldsForExport(
+  [templateRow],
+  lang
+);
+
+const worksheet =
+  XLSX.utils.json_to_sheet(mapped);
+
+const range =
+  XLSX.utils.decode_range(worksheet["!ref"]);
+
+for (
+  let col = range.s.c;
+  col <= range.e.c;
+  col++
+) {
+  const cellAddress =
+    XLSX.utils.encode_cell({
+      r: 0,
+      c: col
+    });
+
+  if (!worksheet[cellAddress]) continue;
+
+  worksheet[cellAddress].s = {
+    fill: {
+      patternType: "solid",
+      fgColor: { rgb: "2563EB" }
+    },
+
+    font: {
+      bold: true,
+      color: { rgb: "FFFFFF" }
+    },
+
+    alignment: {
+      horizontal: "center",
+      vertical: "center"
+    }
+  };
+}
+
+const workbook = XLSX.utils.book_new();
+
+XLSX.utils.book_append_sheet(
+  workbook,
+  worksheet,
+  "Template"
+);
+
+const buffer = XLSX.write(workbook, {
+  type: "buffer",
+  bookType: "xlsx"
+});
+
+res.setHeader(
+  "Content-Disposition",
+  `attachment; filename=ratings_template_${lang}.xlsx`
+);
+
+res.setHeader(
+  "Content-Type",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+);
+
+res.send(buffer);
+
+} catch (err) {
+  res.status(500).json({
+    message: err.message
+    });
+  }
+}
+
+module.exports = {
+  exportExcel,
+  importExcel,
+  downloadTemplate
+  };
