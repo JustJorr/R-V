@@ -4,6 +4,7 @@ import { getRatingColor, getRatingStatus } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
+import "../../styles/User/WorkerDashboard.css";
 
 const KPI_FIELDS = [
   { key: "workAreaCompliance", label: "Work Area Compliance", short: "WA" },
@@ -18,13 +19,6 @@ const KPI_FIELDS = [
   { key: "punctuality", label: "Punctuality", short: "PU" },
   { key: "attendance", label: "Attendance", short: "AT" }
 ];
-
-function getCurrentMonthKey() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  return `${year}-${month}`;
-}
 
 function getPreviousMonthKey() {
   const now = new Date();
@@ -62,11 +56,13 @@ function SupervisorRatings({ worker: supervisor }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
+  const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
+  const [filterMonth, setFilterMonth] = useState("");
+  const [activeFilter, setActiveFilter] = useState("");
   const navigate = useNavigate();
 
-  const currentMonth = getCurrentMonthKey();
   const previousMonth = getPreviousMonthKey();
+  const isRatingMonthAvailable = selectedMonth === previousMonth;
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -98,6 +94,18 @@ function SupervisorRatings({ worker: supervisor }) {
     fetchDashboardData();
     fetchSupervisorRatings();
   }, [fetchDashboardData, fetchSupervisorRatings]);
+
+  const handleApplyFilter = () => {
+    const month = filterMonth || previousMonth;
+    setSelectedMonth(month);
+    setActiveFilter(filterMonth ? `Month: ${filterMonth}` : "");
+  };
+
+  const handleResetFilter = () => {
+    setFilterMonth("");
+    setActiveFilter("");
+    setSelectedMonth(previousMonth);
+  };
 
   const handleRatingSuccess = () => {
     setRatingWorker(null);
@@ -178,7 +186,28 @@ function SupervisorRatings({ worker: supervisor }) {
 
       <div className="page-header">
         <h1>Worker Details and Ratings</h1>
-        <p>Rate workers for this month or last month and update as needed</p>
+        <p>Rate workers for completed month only</p>
+      </div>
+
+      <div className="wf-filter-bar">
+        <div className="wf-filter-inputs">
+          <div className="wf-filter-group">
+            <label>By month</label>
+            <input
+              type="month"
+              value={filterMonth}
+              onChange={(e) => setFilterMonth(e.target.value)}
+            />
+          </div>
+          <button className="wf-btn-apply" onClick={handleApplyFilter}>
+            Apply
+          </button>
+          {activeFilter && (
+            <button className="wf-btn-reset" onClick={handleResetFilter}>
+              x {activeFilter}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="details-stats-row">
@@ -236,26 +265,17 @@ function SupervisorRatings({ worker: supervisor }) {
           >Unrated ({unratedCount})</button>
         </div>
 
-        <div className="filter-buttons">
-          <button
-            className={`filter-btn ${selectedMonth === currentMonth ? "active" : ""}`}
-            onClick={() => setSelectedMonth(currentMonth)}
-          >
-            This Month
-          </button>
-          <button
-            className={`filter-btn ${selectedMonth === previousMonth ? "active" : ""}`}
-            onClick={() => setSelectedMonth(previousMonth)}
-          >
-            Last Month
-          </button>
-        </div>
-
         <div className="quick-stat-pill">
           <span className="label">Viewing Month</span>
           <span className="value">{formatMonthLabel(selectedMonth)}</span>
         </div>
       </div>
+
+      {!isRatingMonthAvailable && (
+        <div className="no-data" style={{ marginBottom: "12px" }}>
+          Rating unavailable for {formatMonthLabel(selectedMonth)}. Rating is only available in {formatMonthLabel(previousMonth)}.
+        </div>
+      )}
 
       {loading ? (
         <div className="loading">Loading workers...</div>
@@ -354,6 +374,7 @@ function SupervisorRatings({ worker: supervisor }) {
                         className="btn btn-edit"
                         onClick={() => handleEditRating(worker)}
                         title={`Edit rating for ${selectedMonth}`}
+                        disabled={!isRatingMonthAvailable}
                       >
                         Edit
                       </button>
@@ -362,6 +383,7 @@ function SupervisorRatings({ worker: supervisor }) {
                         className="btn btn-primary"
                         onClick={() => handleRateWorker(worker)}
                         title={`Rate this worker for ${selectedMonth}`}
+                        disabled={!isRatingMonthAvailable}
                       >
                         Rate
                       </button>

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { adminService } from "../../services/api";
 import "../../styles/Admin/AdminPages.css";
 
@@ -17,6 +18,7 @@ const StatCard = ({ color, emoji, label, value }) => (
 );
 
 function AdminHome() {
+  const navigate = useNavigate();
   const [stats, setStats]   = useState(null);
   const [users, setUsers]   = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,18 +54,6 @@ function AdminHome() {
     [users]
   );
 
-  const thisMonthUsers = useMemo(() => {
-    const now = new Date();
-    return users.filter((u) => {
-      if (!u.createdAt) return false;
-      const d = new Date(u.createdAt);
-      return (
-        d.getFullYear() === now.getFullYear() &&
-        d.getMonth() === now.getMonth()
-      );
-    }).length;
-  }, [users]);
-
   if (loading) return <div className="admin-loading"><span>⏳</span> Loading dashboard…</div>;
   if (error)   return <div className="admin-error">{error}</div>;
 
@@ -80,7 +70,6 @@ function AdminHome() {
         <StatCard color="green"  emoji="👷" label="Workers"            value={stats.workers} />
         <StatCard color="red"    emoji="🛡️" label="Admins"             value={stats.admins} />
         <StatCard color="gold"   emoji="⭐" label="Avg Worker Rating"  value={Number(stats.avgRating || 0).toFixed(2)} />
-        <StatCard color="cyan"   emoji="🆕" label="New This Month"     value={thisMonthUsers} />
       </div>
 
       <div className="admin-section">
@@ -104,7 +93,14 @@ function AdminHome() {
                   const meta = ROLE_META[u.role] ?? { label: u.role, emoji: "❓" };
                   return (
                     <tr key={u._id}>
-                      <td className="td-name">{u.name}</td>
+                      <td
+                        className="td-name clickable"
+                        onClick={() => navigate(`/worker/${u._id}`)}
+                        title="View profile details"
+                        style={{ cursor: "pointer" }}
+                      >
+                        {u.name}
+                      </td>
                       <td className="td-email">{u.email}</td>
                       <td>
                         <span className={`admin-role admin-role-${u.role}`}>

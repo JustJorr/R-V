@@ -318,6 +318,11 @@
   color: #111827 !important;
 }
 
+.td-name.clickable:hover {
+  color: #2563eb !important;
+  text-decoration: underline;
+}
+
 .td-email {
   color: #6b7280 !important;
 }

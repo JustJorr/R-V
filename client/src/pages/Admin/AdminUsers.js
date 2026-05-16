@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { adminService } from "../../services/api";
+import { useNavigate } from "react-router-dom";
 import "../../styles/Admin/AdminPages.css";
 
 const ROLES = [
@@ -18,6 +19,7 @@ const FILTER_TABS = [
 const EMPTY_FORM = { name: "", email: "", password: "", role: "worker" };
 
 function AdminUsers() {
+  const navigate = useNavigate();
   const [users, setUsers]         = useState([]);
   const [loading, setLoading]     = useState(true);
   const [searchTerm, setSearch]   = useState("");
@@ -178,7 +180,14 @@ function AdminUsers() {
               <tbody>
                 {filteredUsers.map((u) => (
                   <tr key={u._id}>
-                    <td className="td-name">{u.name}</td>
+                    <td
+                      className="td-name clickable"
+                      onClick={() => navigate(`/worker/${u._id}`)}
+                      title="View profile details"
+                      style={{ cursor: "pointer" }}
+                    >
+                      {u.name}
+                    </td>
                     <td className="td-email">{u.email}</td>
                     <td>
                       <select

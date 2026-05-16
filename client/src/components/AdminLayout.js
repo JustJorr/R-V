@@ -6,6 +6,7 @@ import AdminUsers from "../pages/Admin/AdminUsers";
 import AdminData from "../pages/Admin/AdminData";
 import AdminDataTools from "../pages/Admin/AdminDataTools";
 import AdminProfile from "../pages/Admin/AdminProfile";
+import WorkerInformation from "../components/common/WorkerInformation";
 import "../styles/Supervisor/SupervisorLayout.css";
 import "../styles/Admin/AdminPages.css";
 
@@ -30,6 +31,7 @@ function AdminLayout({ worker, onLogout }) {
 
           {/* Users */}
           <Route path="/users" element={<AdminUsers />} />
+          <Route path="/worker/:id" element={<WorkerInformation />} />
 
           {/* Data */}
           <Route path="/data" element={<AdminData />} />
