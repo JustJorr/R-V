@@ -3,7 +3,10 @@ const Rating = require("../models/Rating");
 
 async function getAdminUsers(req, res) {
   try {
-    const users = await User.find().select("-password").sort({ createdAt: -1 });
+    const users = await User.find()
+      .select("-password")
+      .sort({ name: 1 })
+      .collation({ locale: "en", strength: 2 });
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: err.message });
