@@ -26,18 +26,21 @@
 /* ===== MANAGER HOME PAGE ===== */
 .supervisor-home .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
   margin-bottom: 40px;
+  align-items: stretch;
 }
 
 .stat-card {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 20px 22px;
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border-left: 4px solid #1a3a7f;
   transition: all 0.3s ease;
@@ -65,8 +68,8 @@
 }
 
 .stat-icon {
-  font-size: 28px;
-  min-width: 45px;
+  font-size: 20px;
+  line-height: 1;
 }
 
 .stat-info h3 {
@@ -79,9 +82,10 @@
 }
 
 .stat-info .stat-number {
-  margin: 0;
-  font-size: 24px;
-  font-weight: 700;
+  margin: 2px 0 0;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
   color: #333;
 }
 
@@ -2273,5 +2277,119 @@
   .pie-center {
     width: 96px;
     height: 96px;
+  }
+}
+
+/* Supervisor mobile polish */
+@media (max-width: 640px) {
+  .supervisor-home {
+    padding: 14px;
+  }
+
+  .supervisor-home .page-header h1 {
+    font-size: 22px;
+  }
+
+  .supervisor-home .page-header p {
+    font-size: 13px;
+  }
+
+  .supervisor-home .home-actions {
+    justify-content: stretch;
+  }
+
+  .supervisor-home .home-actions .btn {
+    width: 100%;
+  }
+
+  .supervisor-home .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .supervisor-home .stat-card {
+    padding: 14px;
+  }
+
+  .supervisor-home .recent-section {
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .supervisor-home .recent-item {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .supervisor-home .recent-worker,
+  .supervisor-home .recent-rating {
+    width: 100%;
+    text-align: left;
+  }
+
+  .supervisor-home .rating-fields-small {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .supervisor-home .quick-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .supervisor-home .quick-stat {
+    padding: 14px;
+  }
+}
+
+/* Supervisor ratings: mobile card table */
+@media (max-width: 768px) {
+  .supervisor-ratings-table {
+    min-width: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+  }
+
+  .supervisor-ratings-table thead {
+    display: none;
+  }
+
+  .supervisor-ratings-table tbody,
+  .supervisor-ratings-table tr,
+  .supervisor-ratings-table td {
+    display: block;
+    width: 100%;
+    text-align: left !important;
+  }
+
+  .supervisor-ratings-table tr {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .supervisor-ratings-table td {
+    border: 0;
+    padding: 6px 0 !important;
+  }
+
+  .supervisor-ratings-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .supervisor-ratings-table .worker-name-cell {
+    justify-content: flex-start;
+  }
+
+  .supervisor-ratings-table .comment-cell .comment-preview {
+    white-space: normal;
   }
 }
