@@ -4,9 +4,9 @@ import { adminService } from "../../services/api";
 import "../../styles/Admin/AdminPages.css";
 
 const ROLE_META = {
-  admin:      { label: "Admin",      emoji: "🛡️" },
+  admin: { label: "Admin", emoji: "🛡️" },
   supervisor: { label: "Supervisor", emoji: "🧑‍💼" },
-  worker:     { label: "Worker",     emoji: "👷" },
+  worker: { label: "Worker", emoji: "👷" }
 };
 
 const StatCard = ({ color, emoji, label, value }) => (
@@ -19,10 +19,10 @@ const StatCard = ({ color, emoji, label, value }) => (
 
 function AdminHome() {
   const navigate = useNavigate();
-  const [stats, setStats]   = useState(null);
-  const [users, setUsers]   = useState([]);
+  const [stats, setStats] = useState(null);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,7 +31,7 @@ function AdminHome() {
         setError(null);
         const [statsRes, usersRes] = await Promise.all([
           adminService.getDashboard(),
-          adminService.getAllUsers(),
+          adminService.getAllUsers()
         ]);
         setStats(statsRes.data);
         setUsers(usersRes.data || []);
@@ -54,8 +54,8 @@ function AdminHome() {
     [users]
   );
 
-  if (loading) return <div className="admin-loading"><span>⏳</span> Loading dashboard…</div>;
-  if (error)   return <div className="admin-error">{error}</div>;
+  if (loading) return <div className="admin-loading"><span>⏳</span> Loading dashboard...</div>;
+  if (error) return <div className="admin-error">{error}</div>;
 
   return (
     <div className="page-content admin-page">
@@ -65,11 +65,11 @@ function AdminHome() {
       </div>
 
       <div className="admin-stats-grid">
-        <StatCard color="blue"   emoji="👥" label="Total Users"       value={stats.totalUsers} />
-        <StatCard color="purple" emoji="🧑‍💼" label="Supervisors"       value={stats.supervisors} />
-        <StatCard color="green"  emoji="👷" label="Workers"            value={stats.workers} />
-        <StatCard color="red"    emoji="🛡️" label="Admins"             value={stats.admins} />
-        <StatCard color="gold"   emoji="⭐" label="Avg Worker Rating"  value={Number(stats.avgRating || 0).toFixed(2)} />
+        <StatCard color="blue" emoji="👥" label="Total Users" value={stats.totalUsers} />
+        <StatCard color="purple" emoji="🧑‍💼" label="Supervisors" value={stats.supervisors} />
+        <StatCard color="green" emoji="👷" label="Workers" value={stats.workers} />
+        <StatCard color="red" emoji="🛡️" label="Admins" value={stats.admins} />
+        <StatCard color="gold" emoji="⭐" label="Avg Worker Rating" value={Number(stats.avgRating || 0).toFixed(2)} />
       </div>
 
       <div className="admin-section">
@@ -90,16 +90,10 @@ function AdminHome() {
               </thead>
               <tbody>
                 {recentUsers.map((u) => {
-                  const meta = ROLE_META[u.role] ?? { label: u.role, emoji: "❓" };
+                  const meta = ROLE_META[u.role] ?? { label: u.role, emoji: "?" };
                   return (
                     <tr key={u._id}>
-                      <td
-                        data-label="Name"
-                        className="td-name clickable"
-                        onClick={() => navigate(`/worker/${u._id}`)}
-                        title="View profile details"
-                        style={{ cursor: "pointer" }}
-                      >
+                      <td data-label="Name" className="td-name clickable" onClick={() => navigate(`/worker/${u._id}`)} title="View profile details" style={{ cursor: "pointer" }}>
                         {u.name}
                       </td>
                       <td className="td-email" data-label="Email">{u.email}</td>
@@ -108,7 +102,7 @@ function AdminHome() {
                           {meta.emoji} {meta.label}
                         </span>
                       </td>
-                      <td data-label="Created">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "�"}</td>
+                      <td data-label="Created">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "-"}</td>
                     </tr>
                   );
                 })}
@@ -122,4 +116,3 @@ function AdminHome() {
 }
 
 export default AdminHome;
-
