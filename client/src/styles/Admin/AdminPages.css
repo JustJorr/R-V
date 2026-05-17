@@ -461,6 +461,73 @@ background: #d1d5db;
   .admin-search {
     max-width: 100%;
   }
+
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-table-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .admin-users-table,
+  .admin-home-table {
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+  }
+
+  .admin-users-table thead,
+  .admin-home-table thead {
+    display: none;
+  }
+
+  .admin-users-table tbody,
+  .admin-users-table tr,
+  .admin-users-table td,
+  .admin-home-table tbody,
+  .admin-home-table tr,
+  .admin-home-table td {
+    display: block;
+    width: 100%;
+    text-align: left;
+  }
+
+  .admin-users-table tr,
+  .admin-home-table tr {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .admin-users-table td,
+  .admin-home-table td {
+    border: 0;
+    padding: 6px 0;
+  }
+
+  .admin-users-table td::before,
+  .admin-home-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .admin-users-table .admin-select-inline {
+    width: 100%;
+  }
+
+  .admin-users-table .admin-btn.warning,
+  .admin-users-table .admin-btn.danger {
+    height: 32px;
+    min-width: 40px;
+  }
 }
 
 .admin-profile-page {

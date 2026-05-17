@@ -4,16 +4,16 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/Admin/AdminPages.css";
 
 const ROLES = [
-  { value: "worker",     label: "Worker",     emoji: "👷" },
-  { value: "supervisor", label: "Supervisor", emoji: "🧑‍💼" },
-  { value: "admin",      label: "Admin",      emoji: "🛡️" },
+  { value: "worker",     label: "Worker",     emoji: "ðŸ‘·" },
+  { value: "supervisor", label: "Supervisor", emoji: "ðŸ§‘â€ðŸ’¼" },
+  { value: "admin",      label: "Admin",      emoji: "ðŸ›¡ï¸" },
 ];
 
 const FILTER_TABS = [
-  { key: "all",        label: "All",         emoji: "📊" },
-  { key: "worker",     label: "Workers",     emoji: "👷" },
-  { key: "supervisor", label: "Supervisors", emoji: "🧑‍💼" },
-  { key: "admin",      label: "Admins",      emoji: "🛡️" },
+  { key: "all",        label: "All",         emoji: "ðŸ“Š" },
+  { key: "worker",     label: "Workers",     emoji: "ðŸ‘·" },
+  { key: "supervisor", label: "Supervisors", emoji: "ðŸ§‘â€ðŸ’¼" },
+  { key: "admin",      label: "Admins",      emoji: "ðŸ›¡ï¸" },
 ];
 
 const EMPTY_FORM = { name: "", email: "", password: "", role: "worker" };
@@ -45,16 +45,16 @@ function AdminUsers() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("⚠️ Are you sure you want to delete this user?")) return;
+    if (!window.confirm("âš ï¸ Are you sure you want to delete this user?")) return;
     await adminService.deleteUser(id);
     fetchUsers();
   };
 
   const handlePasswordReset = async (id) => {
-    const newPass = prompt("🔑 Enter new password for this user:");
+    const newPass = prompt("ðŸ”‘ Enter new password for this user:");
     if (!newPass) return;
     await adminService.changePassword(id, newPass);
-    alert("✅ Password updated successfully.");
+    alert("âœ… Password updated successfully.");
   };
 
   const handleCreateUser = async (e) => {
@@ -91,13 +91,13 @@ function AdminUsers() {
   return (
     <div className="page-content admin-page">
       <div className="page-header">
-        <h1>👥 Manage Users</h1>
+        <h1>ðŸ‘¥ Manage Users</h1>
         <p>Full control over accounts, roles, and access</p>
       </div>
 
       {/* CREATE USER */}
       <div className="admin-section admin-card">
-        <h2 className="section-title">➕ Add New User</h2>
+        <h2 className="section-title">âž• Add New User</h2>
         <form className="admin-form-row" onSubmit={handleCreateUser}>
           <input
             className="admin-input"
@@ -130,19 +130,19 @@ function AdminUsers() {
             ))}
           </select>
           <button className="admin-btn primary" type="submit" disabled={submitting}>
-            {submitting ? "⏳ Creating…" : "➕ Create User"}
+            {submitting ? "â³ Creatingâ€¦" : "âž• Create User"}
           </button>
         </form>
       </div>
 
       {/* USER TABLE */}
       <div className="admin-section admin-card">
-        <h2 className="section-title">📋 User Directory</h2>
+        <h2 className="section-title">ðŸ“‹ User Directory</h2>
 
         <div className="admin-toolbar">
           <input
             type="text"
-            placeholder="🔍 Search by name or email…"
+            placeholder="ðŸ” Search by name or emailâ€¦"
             value={searchTerm}
             onChange={(e) => setSearch(e.target.value)}
             className="admin-input admin-search"
@@ -162,12 +162,12 @@ function AdminUsers() {
         </div>
 
         {loading ? (
-          <div className="admin-loading"><span>⏳</span> Loading users…</div>
+          <div className="admin-loading"><span>â³</span> Loading usersâ€¦</div>
         ) : filteredUsers.length === 0 ? (
           <div className="admin-empty">No users match your current filters.</div>
         ) : (
           <div className="table-responsive admin-table">
-            <table className="workers-table">
+            <table className="workers-table admin-users-table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -181,6 +181,7 @@ function AdminUsers() {
                 {filteredUsers.map((u) => (
                   <tr key={u._id}>
                     <td
+                      data-label="Name"
                       className="td-name clickable"
                       onClick={() => navigate(`/worker/${u._id}`)}
                       title="View profile details"
@@ -188,8 +189,8 @@ function AdminUsers() {
                     >
                       {u.name}
                     </td>
-                    <td className="td-email">{u.email}</td>
-                    <td>
+                    <td className="td-email" data-label="Email">{u.email}</td>
+                    <td data-label="Role">
                       <select
                         className="admin-select admin-select-inline"
                         value={u.role}
@@ -202,22 +203,21 @@ function AdminUsers() {
                         ))}
                       </select>
                     </td>
-                    <td>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}</td>
-                    <td>
-                      <div className="admin-table-actions">
+                    <td data-label="Created">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}</td>
+                    <td data-label="Actions">`r`n                      <div className="admin-table-actions">
                         <button
                           className="admin-btn warning"
                           onClick={() => handlePasswordReset(u._id)}
                           title="Reset password"
                         >
-                          🔑
+                          ðŸ”‘
                         </button>
                         <button
                           className="admin-btn danger"
                           onClick={() => handleDelete(u._id)}
                           title="Delete user"
                         >
-                          🗑️
+                          ðŸ—‘ï¸
                         </button>
                       </div>
                     </td>
@@ -233,3 +233,5 @@ function AdminUsers() {
 }
 
 export default AdminUsers;
+
+

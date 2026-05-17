@@ -79,7 +79,7 @@ function AdminHome() {
           <div className="admin-empty">No users found.</div>
         ) : (
           <div className="table-responsive admin-table">
-            <table className="workers-table">
+            <table className="workers-table admin-home-table">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -94,6 +94,7 @@ function AdminHome() {
                   return (
                     <tr key={u._id}>
                       <td
+                        data-label="Name"
                         className="td-name clickable"
                         onClick={() => navigate(`/worker/${u._id}`)}
                         title="View profile details"
@@ -101,13 +102,13 @@ function AdminHome() {
                       >
                         {u.name}
                       </td>
-                      <td className="td-email">{u.email}</td>
-                      <td>
+                      <td className="td-email" data-label="Email">{u.email}</td>
+                      <td data-label="Role">
                         <span className={`admin-role admin-role-${u.role}`}>
                           {meta.emoji} {meta.label}
                         </span>
                       </td>
-                      <td>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "â€”"}</td>
+                      <td data-label="Created">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "—"}</td>
                     </tr>
                   );
                 })}
@@ -121,3 +122,4 @@ function AdminHome() {
 }
 
 export default AdminHome;
+
