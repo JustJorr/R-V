@@ -10,7 +10,7 @@ import WorkerInformation from "../components/common/WorkerInformation";
 import "../styles/Supervisor/SupervisorLayout.css";
 import "../styles/Admin/AdminPages.css";
 
-function AdminLayout({ worker, onLogout }) {
+function AdminLayout({ worker, onLogout, onProfileUpdated }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -40,7 +40,7 @@ function AdminLayout({ worker, onLogout }) {
           <Route path="/tools" element={<AdminDataTools />} />
 
           {/* Profile */}
-          <Route path="/profile" element={<AdminProfile worker={worker} />} />
+          <Route path="/profile" element={<AdminProfile worker={worker} onLogout={onLogout} onProfileUpdated={onProfileUpdated} />} />
 
           {/* Default */}
           <Route path="*" element={<Navigate to="/" />} />

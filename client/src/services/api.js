@@ -25,7 +25,10 @@ export const usersService = {
     apiClient.get("/api/users"),
 
   getUserById: (id) =>
-    apiClient.get(`/api/users/${id}`)
+    apiClient.get(`/api/users/${id}`),
+
+  updateProfile: (id, payload) =>
+    apiClient.put(`/api/users/${id}/profile`, payload)
 };
 
 // =======================

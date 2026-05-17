@@ -30,6 +30,12 @@ function App() {
     setUser(null);
   };
 
+  const handleProfileUpdated = (updatedUser) => {
+    const mergedUser = { ...worker, ...updatedUser };
+    localStorage.setItem("worker", JSON.stringify(mergedUser));
+    setUser(mergedUser);
+  };
+
   if (loading) {
     return <div className="loading-screen">Loading...</div>;
   }
@@ -45,21 +51,21 @@ function App() {
       {worker.role === "supervisor" && (
         <Route
           path="/*"
-          element={<SupervisorLayout worker={worker} onLogout={handleLogout} />}
+          element={<SupervisorLayout worker={worker} onLogout={handleLogout} onProfileUpdated={handleProfileUpdated} />}
         />
       )}
 
       {worker.role === "admin" && (
         <Route
           path="/*"
-          element={<AdminLayout worker={worker} onLogout={handleLogout} />}
+          element={<AdminLayout worker={worker} onLogout={handleLogout} onProfileUpdated={handleProfileUpdated} />}
         />
       )}
 
       {worker.role === "worker" && (
         <Route
           path="/*"
-          element={<WorkerLayout worker={worker} onLogout={handleLogout} />}
+          element={<WorkerLayout worker={worker} onLogout={handleLogout} onProfileUpdated={handleProfileUpdated} />}
         />
       )}
 

@@ -215,12 +215,30 @@
 
 .profile-actions {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
   padding: 1.5rem;
   background: #f8fafc;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
+}
+
+.profile-actions .btn {
+  width: auto;
+}
+
+.profile-success {
+  color: #166534;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.profile-error {
+  color: #b91c1c;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
 }
 
 .danger-zone {
@@ -287,10 +305,6 @@
   
   .profile-grid {
     grid-template-columns: 1fr;
-  }
-  
-  .profile-actions {
-    flex-direction: column;
   }
   
   .profile-header {

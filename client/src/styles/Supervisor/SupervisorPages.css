@@ -1005,14 +1005,29 @@
 /* Action Buttons */
 .profile-actions {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   gap: 15px;
   margin-bottom: 30px;
 }
 
 .profile-actions .btn {
-  flex: 1;
+  flex: 0 0 auto;
+  width: auto;
   padding: 12px 20px;
   font-size: 13px;
+}
+
+.profile-success {
+  color: #166534;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
+}
+
+.profile-error {
+  color: #b91c1c;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
 }
 
 /* Danger Zone */
@@ -1820,10 +1835,10 @@
     justify-content: space-between;
   }
   .profile-actions {
-    flex-direction: column;
+    flex-direction: row;
   }
   .profile-actions .btn {
-    width: 100%;
+    width: auto;
   }
   .info-row,
   .stat-row {

@@ -10,7 +10,7 @@ import WorkerInformation from "../components/common/WorkerInformation";
 
 import "../styles/Supervisor/SupervisorLayout.css";
 
-function SupervisorLayout({ worker, onLogout }) {
+function SupervisorLayout({ worker, onLogout, onProfileUpdated }) {
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -44,7 +44,7 @@ function SupervisorLayout({ worker, onLogout }) {
           {/* Profile */}
           <Route
             path="profile"
-            element={<SupervisorProfile worker={worker} />}
+            element={<SupervisorProfile worker={worker} onLogout={onLogout} onProfileUpdated={onProfileUpdated} />}
           />
 
           {/* Worker Detail Page */}

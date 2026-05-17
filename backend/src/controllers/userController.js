@@ -58,9 +58,34 @@ async function login(req, res) {
   }
 }
 
+async function updateProfile(req, res) {
+  try {
+    const { name } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      { name: name.trim() },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(updatedUser);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
 module.exports = {
   getWorkers,
   getUserById,
   createUser,
-  login
+  login,
+  updateProfile
 };

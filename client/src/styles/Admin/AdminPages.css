@@ -301,6 +301,27 @@ color: #111827;
 background: #d1d5db;
 }
 
+.admin-profile-actions {
+  flex-direction: row;
+  align-items: center;
+}
+
+.admin-profile-actions .admin-btn {
+  width: auto;
+}
+
+.profile-success {
+  color: #166534;
+  margin: 0.75rem 0 0 0;
+  font-weight: 600;
+}
+
+.profile-error {
+  color: #b91c1c;
+  margin: 0.75rem 0 0 0;
+  font-weight: 600;
+}
+
 
 /* ── Table ──────────────────────────────────── */
 .table-responsive {
@@ -439,5 +460,140 @@ background: #d1d5db;
   }
   .admin-search {
     max-width: 100%;
+  }
+}
+
+.admin-profile-page {
+  max-width: 1200px;
+}
+
+.admin-profile-container {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.admin-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.admin-profile-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  color: #fff;
+  font-size: 30px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-profile-headline h2 {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  color: #111827;
+}
+
+.admin-profile-headline p {
+  margin: 0 0 8px 0;
+  color: #6b7280;
+}
+
+.admin-profile-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: #fff;
+  background: #2563eb;
+  border-radius: 9999px;
+  padding: 4px 10px;
+}
+
+.admin-profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.admin-profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+  gap: 12px;
+}
+
+.admin-profile-row span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.admin-profile-row strong {
+  color: #111827;
+  font-size: 14px;
+  text-align: right;
+}
+
+.admin-profile-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.admin-profile-stat {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.admin-profile-stat span {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.admin-profile-stat strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.admin-profile-full {
+  margin-top: 16px;
+}
+
+.admin-profile-pref {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+  .admin-profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .admin-profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-profile-stats {
+    grid-template-columns: 1fr;
   }
 }
