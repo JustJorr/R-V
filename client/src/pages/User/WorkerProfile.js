@@ -131,7 +131,6 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
             </>
           ) : (
             <>
-              <button className="btn btn-primary" onClick={() => setEditMode(true)}>Edit Profile</button>
               <button className="btn btn-primary" onClick={() => { if (window.confirm("Are you sure you want to logout?")) onLogout(); }}>Logout</button>
             </>
           )}

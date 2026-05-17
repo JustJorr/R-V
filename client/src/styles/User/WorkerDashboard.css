@@ -556,4 +556,163 @@
     width: 100%;
     text-align: center;
   }
+
+  .worker-dashboard {
+    padding: 14px;
+  }
+
+  .worker-dashboard .page-header h1 {
+    font-size: 22px;
+  }
+
+  .worker-dashboard .page-header p {
+    font-size: 13px;
+  }
+
+  .home-actions {
+    justify-content: stretch;
+  }
+
+  .home-actions .btn {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    padding: 14px;
+  }
+
+  .recent-section {
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .recent-section h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .recent-item {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .recent-worker {
+    width: 100%;
+  }
+
+  .recent-rating {
+    width: 100%;
+    text-align: left;
+  }
+
+  .rating-fields-small {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rating-fields-small .field-badge {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .quick-stats {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .quick-stat {
+    padding: 14px;
+  }
+
+  .legend-box {
+    padding: 10px 12px;
+  }
+
+  .legend-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+}
+
+/* Worker Ratings: mobile card layout */
+@media (max-width: 768px) {
+  .worker-ratings-table {
+    min-width: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+  }
+
+  .worker-ratings-table thead {
+    display: none;
+  }
+
+  .worker-ratings-table tbody,
+  .worker-ratings-table tr,
+  .worker-ratings-table td {
+    display: block;
+    width: 100%;
+    text-align: left !important;
+  }
+
+  .worker-ratings-table tr {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .worker-ratings-table td {
+    border: 0;
+    padding: 6px 0 !important;
+  }
+
+  .worker-ratings-table td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+
+  .worker-ratings-table .worker-name-cell {
+    justify-content: flex-start;
+  }
+
+  .worker-ratings-table .action-cell .btn {
+    width: auto;
+  }
+
+  .worker-ratings-table .comment-cell .comment-preview {
+    white-space: normal;
+  }
+
+  /* Feedback cards mobile improvements */
+  .feedback-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .feedback-left {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .feedback-ratings {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .feedback-ratings .field-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
 }

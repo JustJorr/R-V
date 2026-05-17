@@ -50,8 +50,6 @@ function WorkerRatings({ worker }) {
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
   const [ratedWorkerIds, setRatedWorkerIds] = useState(new Set());
-  const [isEditingRating, setIsEditingRating] = useState(false);
-  const [existingRatingData, setExistingRatingData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
@@ -118,21 +116,6 @@ function WorkerRatings({ worker }) {
 
   const handleRateWorker = (w) => {
     setRatingWorker(w);
-    setIsEditingRating(false);
-    setExistingRatingData(null);
-  };
-
-  const handleEditRating = async (targetWorker) => {
-    if (!worker?._id) return;
-    try {
-      const response = await supervisorService.getExistingRating(worker._id, targetWorker._id, selectedMonth);
-      setRatingWorker(targetWorker);
-      setIsEditingRating(true);
-      setExistingRatingData(response.data);
-    } catch (err) {
-      console.error("Error fetching rating for editing:", err);
-      alert(`Could not load rating for ${selectedMonth}`);
-    }
   };
 
   const ratedThisMonth = useCallback((w) => {
@@ -169,8 +152,8 @@ function WorkerRatings({ worker }) {
           userId={worker?._id}
           onSuccess={handleRatingSuccess}
           onCancel={() => setRatingWorker(null)}
-          isEditing={isEditingRating}
-          initialValues={existingRatingData}
+          isEditing={false}
+          initialValues={null}
           selectedMonth={selectedMonth}
         />
       )}
@@ -268,7 +251,7 @@ function WorkerRatings({ worker }) {
         </div>
       ) : (
         <div className="table-responsive">
-          <table className="workers-table">
+          <table className="workers-table worker-ratings-table">
             <thead>
               <tr>
                 <th>#</th>
@@ -282,8 +265,8 @@ function WorkerRatings({ worker }) {
             <tbody>
               {filteredWorkers.map((w, index) => (
                 <tr key={w._id} className={isAlreadyRated(w._id) ? "rated-row" : ""}>
-                  <td>{index + 1}</td>
-                  <td>
+                  <td data-label="#"> {index + 1}</td>
+                  <td data-label="Name">
                     <div className="worker-name-cell">
                       <div className="worker-badge">
                         {w.name.charAt(0).toUpperCase()}
@@ -291,7 +274,7 @@ function WorkerRatings({ worker }) {
                       {w.name}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Avg Rating">
                     {typeof w.monthAverageRating === "number" ? (
                       <span
                         className="rating-badge"
@@ -304,7 +287,7 @@ function WorkerRatings({ worker }) {
                     )}
                   </td>
 
-                  <td className="latest-rating-cell">
+                  <td className="latest-rating-cell" data-label="Latest Rating">
                     {w.latestRating ? (() => {
                       const scores = KPI_FIELDS.map((f) => w.latestRating[f.key] ?? 0);
                       const avg = scores.reduce((a, b) => a + b, 0) / KPI_FIELDS.length;
@@ -339,16 +322,9 @@ function WorkerRatings({ worker }) {
                     )}
                   </td>
 
-                  <td className="action-cell">
+                  <td className="action-cell" data-label="Action">
                     {isAlreadyRated(w._id) ? (
-                      <button
-                        className="btn btn-edit"
-                        onClick={() => handleEditRating(w)}
-                        title={`Edit rating for ${selectedMonth}`}
-                        disabled={!isRatingMonthAvailable}
-                      >
-                        Edit
-                      </button>
+                      <span className="status-badge excellent">Rated</span>
                     ) : (
                       <button
                         className="btn btn-primary"
@@ -361,7 +337,7 @@ function WorkerRatings({ worker }) {
                     )}
                   </td>
 
-                  <td className="comment-cell">
+                  <td className="comment-cell" data-label="Last Comment">
                     {w.latestRating?.comment ? (
                       <div className="comment-preview" title={w.latestRating.comment}>
                         <span className="comment-text">{w.latestRating.comment.substring(0, 40)}{w.latestRating.comment.length > 40 ? "..." : ""}</span>
