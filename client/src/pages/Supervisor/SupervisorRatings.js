@@ -51,8 +51,6 @@ function SupervisorRatings({ worker: supervisor }) {
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
   const [ratedWorkerIds, setRatedWorkerIds] = useState(new Set());
-  const [isEditingRating, setIsEditingRating] = useState(false);
-  const [existingRatingData, setExistingRatingData] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
@@ -117,21 +115,6 @@ function SupervisorRatings({ worker: supervisor }) {
 
   const handleRateWorker = (worker) => {
     setRatingWorker(worker);
-    setIsEditingRating(false);
-    setExistingRatingData(null);
-  };
-
-  const handleEditRating = async (worker) => {
-    if (!supervisor?._id) return;
-    try {
-      const response = await supervisorService.getExistingRating(supervisor._id, worker._id, selectedMonth);
-      setRatingWorker(worker);
-      setIsEditingRating(true);
-      setExistingRatingData(response.data);
-    } catch (err) {
-      console.error("Error fetching rating for editing:", err);
-      alert(`Could not load rating for ${selectedMonth}.`);
-    }
   };
 
   const ratedThisMonth = useCallback((worker) => {
@@ -178,8 +161,8 @@ function SupervisorRatings({ worker: supervisor }) {
           userId={supervisor?._id}
           onSuccess={handleRatingSuccess}
           onCancel={() => setRatingWorker(null)}
-          isEditing={isEditingRating}
-          initialValues={existingRatingData}
+          isEditing={false}
+          initialValues={null}
           selectedMonth={selectedMonth}
         />
       )}
@@ -285,7 +268,7 @@ function SupervisorRatings({ worker: supervisor }) {
         </div>
       ) : (
         <div className="table-responsive">
-          <table className="workers-table">
+          <table className="workers-table supervisor-ratings-table">
             <thead>
               <tr>
                 <th>#</th>
@@ -302,8 +285,8 @@ function SupervisorRatings({ worker: supervisor }) {
             <tbody>
               {filteredWorkers.map((worker, index) => (
                 <tr key={worker._id} className={isAlreadyRated(worker._id) ? "rated-row" : ""}>
-                  <td>{index + 1}</td>
-                  <td>
+                  <td data-label="#">{index + 1}</td>
+                  <td data-label="Name">
                     <div
                       className="worker-name-cell clickable"
                       onClick={() => navigate(`/worker/${worker._id}`)}
@@ -314,8 +297,8 @@ function SupervisorRatings({ worker: supervisor }) {
                       {worker.name}
                     </div>
                   </td>
-                  <td className="worker-email">{worker.email}</td>
-                  <td>
+                  <td className="worker-email" data-label="Email">{worker.email}</td>
+                  <td data-label="Avg Rating">
                     {typeof worker.monthAverageRating === "number" ? (
                       <span
                         className="rating-badge"
@@ -327,13 +310,13 @@ function SupervisorRatings({ worker: supervisor }) {
                       <span className="rating-badge rating-badge--none">-</span>
                     )}
                   </td>
-                  <td className="center">{worker.totalRatings}</td>
-                  <td className="center">
+                  <td className="center" data-label="Sessions">{worker.totalRatings}</td>
+                  <td className="center" data-label="Status">
                     <span className={`status-badge ${getRatingStatus(worker.averageRating).toLowerCase().replace(/\s+/g, "-")}`}>
                       {getRatingStatus(worker.averageRating)}
                     </span>
                   </td>
-                  <td className="latest-rating-cell">
+                  <td className="latest-rating-cell" data-label="Latest Rating">
                     {worker.latestRating ? (() => {
                       const scores = KPI_FIELDS.map((f) => worker.latestRating[f.key] ?? 0);
                       const avg = scores.reduce((a, b) => a + b, 0) / KPI_FIELDS.length;
@@ -368,16 +351,9 @@ function SupervisorRatings({ worker: supervisor }) {
                     )}
                   </td>
 
-                  <td className="action-cell">
+                  <td className="action-cell" data-label="Action">
                     {isAlreadyRated(worker._id) ? (
-                      <button
-                        className="btn btn-edit"
-                        onClick={() => handleEditRating(worker)}
-                        title={`Edit rating for ${selectedMonth}`}
-                        disabled={!isRatingMonthAvailable}
-                      >
-                        Edit
-                      </button>
+                      <span className="status-badge excellent">Rated</span>
                     ) : (
                       <button
                         className="btn btn-primary"
@@ -390,7 +366,7 @@ function SupervisorRatings({ worker: supervisor }) {
                     )}
                   </td>
 
-                  <td className="comment-cell">
+                  <td className="comment-cell" data-label="Last Comment">
                     {worker.latestRating?.comment ? (
                       <div className="comment-preview" title={worker.latestRating.comment}>
                         <span className="comment-text">{worker.latestRating.comment.substring(0, 40)}{worker.latestRating.comment.length > 40 ? "..." : ""}</span>
