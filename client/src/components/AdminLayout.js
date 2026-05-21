@@ -5,6 +5,7 @@ import AdminHome from "../pages/Admin/AdminHome";
 import AdminUsers from "../pages/Admin/AdminUsers";
 import AdminData from "../pages/Admin/AdminData";
 import AdminDataTools from "../pages/Admin/AdminDataTools";
+import AdminRatingEditRequests from "../pages/Admin/AdminRatingEditRequests";
 import AdminProfile from "../pages/Admin/AdminProfile";
 import WorkerInformation from "../components/common/WorkerInformation";
 import "../styles/Supervisor/SupervisorLayout.css";
@@ -38,6 +39,9 @@ function AdminLayout({ worker, onLogout, onProfileUpdated }) {
 
           {/* Data Tools */}
           <Route path="/tools" element={<AdminDataTools />} />
+
+          {/* Rating Edit Requests */}
+          <Route path="/edit-requests" element={<AdminRatingEditRequests />} />
 
           {/* Profile */}
           <Route path="/profile" element={<AdminProfile worker={worker} onLogout={onLogout} onProfileUpdated={onProfileUpdated} />} />

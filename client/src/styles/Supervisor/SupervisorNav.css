@@ -13,11 +13,11 @@
   flex-direction: column;
   box-sizing: border-box;
 
-  /* 🔥 Smooth resize */
+  /* ðŸ”¥ Smooth resize */
   transition: width 0.3s ease;
 }
 
-/* 🔥 COLLAPSED (mini sidebar) */
+/* ðŸ”¥ COLLAPSED (mini sidebar) */
 .supervisor-nav.collapsed {
   width: 70px;
 }
@@ -37,10 +37,13 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  background: transparent;
+  background: transparent;    
   color: #1a3a7f;
   border: none;
-  font-size: 35px;
+  font-size: 25px;
+  line-height: 1;
+  font-weight: 600;
+  padding: 2px 6px;
   cursor: pointer;
 }
 
@@ -57,7 +60,7 @@
 }
 
 .nav-logo {
-  height: 55px; /* 👈 bigger */
+  height: 55px; /* ðŸ‘ˆ bigger */
   width: auto;
   object-fit: contain;
 }
