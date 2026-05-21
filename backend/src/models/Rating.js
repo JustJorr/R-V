@@ -17,6 +17,19 @@ const ratingSchema = new mongoose.Schema({
   attendance: { type: Number, min: 0, max: 5, required: true },
 
   comment: String,
+  workerEditRequestStatus: {
+    type: String,
+    enum: ["none", "pending", "approved", "rejected"],
+    default: "none"
+  },
+  workerEditRequestReason: { type: String, default: "" },
+  workerEditRequestAt: { type: Date, default: null },
+  workerEditRequestReviewedAt: { type: Date, default: null },
+  workerEditRequestReviewedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+  },
   createdAt: { type: Date, default: Date.now },
   dateKey: { type: String, required: true }
 });

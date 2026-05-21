@@ -79,7 +79,10 @@ export const ratingsService = {
     }),
 
   getRatingsForUser: (userId, params = {}) =>
-    apiClient.get(`/api/ratings/worker/${userId}`, { params })
+    apiClient.get(`/api/ratings/worker/${userId}`, { params }),
+
+  requestWorkerEdit: (ratingId, workerId, reason) =>
+    apiClient.post(`/api/ratings/${ratingId}/request-edit`, { workerId, reason })
 };
 
 // =======================
@@ -102,7 +105,16 @@ export const adminService = {
     apiClient.get("/api/admin/dashboard"),
 
   createUser: (payload) =>
-    apiClient.post("/api/users", payload)
+    apiClient.post("/api/users", payload),
+
+  getPendingRatingEditRequests: () =>
+    apiClient.get("/api/admin/rating-edit-requests"),
+
+  reviewRatingEditRequest: (ratingId, adminId, action) =>
+    apiClient.put(`/api/admin/rating-edit-requests/${ratingId}`, {
+      adminId,
+      action
+    })
 };
 
 export const adminDataService = {

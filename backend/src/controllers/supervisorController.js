@@ -58,7 +58,9 @@ async function getSupervisorRatings(req, res) {
     const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
     const requestedMonth = req.query.month || defaultMonth;
     const allowedMonths = getAllowedMonthsForRole(rater.role);
-    const month = allowedMonths.has(requestedMonth) ? requestedMonth : defaultMonth;
+    const month = rater.role === "worker"
+      ? (allowedMonths.has(requestedMonth) ? requestedMonth : defaultMonth)
+      : requestedMonth;
 
     const ratings = await Rating.find({
       ratedBy: req.params.supervisorId,
@@ -81,7 +83,9 @@ async function getExistingRating(req, res) {
     const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
     const requestedMonth = req.query.month || defaultMonth;
     const allowedMonths = getAllowedMonthsForRole(rater.role);
-    const month = allowedMonths.has(requestedMonth) ? requestedMonth : defaultMonth;
+    const month = rater.role === "worker"
+      ? (allowedMonths.has(requestedMonth) ? requestedMonth : defaultMonth)
+      : requestedMonth;
 
     const rating = await Rating.findOne({
       ratedBy: req.params.supervisorId,

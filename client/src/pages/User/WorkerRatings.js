@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { supervisorService } from "../../services/api";
+import { ratingsService, supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
@@ -49,7 +49,9 @@ function WorkerRatings({ worker }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
+  const [editingRating, setEditingRating] = useState(null);
   const [ratedWorkerIds, setRatedWorkerIds] = useState(new Set());
+  const [ratedWorkerMap, setRatedWorkerMap] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
@@ -81,8 +83,13 @@ function WorkerRatings({ worker }) {
     }
     try {
       const response = await supervisorService.getSupervisorRatings(worker._id, selectedMonth);
-      const ratedIds = new Set((response.data || []).map((rating) => rating.ratedUser));
+      const ratedIds = new Set((response.data || []).map((rating) => String(rating.ratedUser)));
+      const map = (response.data || []).reduce((acc, rating) => {
+        acc[String(rating.ratedUser)] = rating;
+        return acc;
+      }, {});
       setRatedWorkerIds(ratedIds);
+      setRatedWorkerMap(map);
     } catch (err) {
       console.error("Error fetching worker ratings:", err);
     }
@@ -108,14 +115,41 @@ function WorkerRatings({ worker }) {
 
   const handleRatingSuccess = () => {
     setRatingWorker(null);
+    setEditingRating(null);
     fetchWorkers();
     fetchWorkerRatings();
   };
 
-  const isAlreadyRated = useCallback((workerId) => ratedWorkerIds.has(workerId), [ratedWorkerIds]);
+  const isAlreadyRated = useCallback((workerId) => ratedWorkerIds.has(String(workerId)), [ratedWorkerIds]);
+
+  const handleRequestEdit = async (targetWorkerId) => {
+    const rating = ratedWorkerMap[String(targetWorkerId)];
+    if (!rating?._id) return;
+
+    const reason = window.prompt("Why do you need to edit this rating?");
+    if (reason === null) return;
+
+    try {
+      await ratingsService.requestWorkerEdit(rating._id, worker._id, reason);
+      await fetchWorkerRatings();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to send edit request.");
+    }
+  };
 
   const handleRateWorker = (w) => {
+    setEditingRating(null);
     setRatingWorker(w);
+  };
+
+  const handleEditWorker = async (targetWorker) => {
+    try {
+      const response = await supervisorService.getExistingRating(worker._id, targetWorker._id, selectedMonth);
+      setEditingRating(response.data || null);
+      setRatingWorker(targetWorker);
+    } catch (err) {
+      alert(err.response?.data?.message || "Unable to load rating for edit.");
+    }
   };
 
   const ratedThisMonth = useCallback((w) => {
@@ -151,9 +185,12 @@ function WorkerRatings({ worker }) {
           worker={ratingWorker}
           userId={worker?._id}
           onSuccess={handleRatingSuccess}
-          onCancel={() => setRatingWorker(null)}
-          isEditing={false}
-          initialValues={null}
+          onCancel={() => {
+            setRatingWorker(null);
+            setEditingRating(null);
+          }}
+          isEditing={Boolean(editingRating)}
+          initialValues={editingRating}
           selectedMonth={selectedMonth}
         />
       )}
@@ -324,7 +361,25 @@ function WorkerRatings({ worker }) {
 
                   <td className="action-cell" data-label="Action">
                     {isAlreadyRated(w._id) ? (
-                      <span className="status-badge excellent">Rated</span>
+                      ratedWorkerMap[String(w._id)]?.workerEditRequestStatus === "pending" ? (
+                        <span className="status-badge">Edit Pending</span>
+                      ) : ratedWorkerMap[String(w._id)]?.workerEditRequestStatus === "approved" ? (
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => handleEditWorker(w)}
+                          title={`Edit your rating for ${selectedMonth}`}
+                        >
+                          Edit
+                        </button>
+                      ) : (
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => handleRequestEdit(w._id)}
+                          title="Ask admin to unlock this rating for editing"
+                        >
+                          Request Edit
+                        </button>
+                      )
                     ) : (
                       <button
                         className="btn btn-primary"

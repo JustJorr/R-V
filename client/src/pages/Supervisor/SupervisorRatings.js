@@ -50,6 +50,7 @@ function SupervisorRatings({ worker: supervisor }) {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
+  const [editingRating, setEditingRating] = useState(null);
   const [ratedWorkerIds, setRatedWorkerIds] = useState(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -107,6 +108,7 @@ function SupervisorRatings({ worker: supervisor }) {
 
   const handleRatingSuccess = () => {
     setRatingWorker(null);
+    setEditingRating(null);
     fetchDashboardData();
     fetchSupervisorRatings();
   };
@@ -114,7 +116,18 @@ function SupervisorRatings({ worker: supervisor }) {
   const isAlreadyRated = useCallback((workerId) => ratedWorkerIds.has(workerId), [ratedWorkerIds]);
 
   const handleRateWorker = (worker) => {
+    setEditingRating(null);
     setRatingWorker(worker);
+  };
+
+  const handleEditWorker = async (worker) => {
+    try {
+      const response = await supervisorService.getExistingRating(supervisor._id, worker._id, selectedMonth);
+      setEditingRating(response.data || null);
+      setRatingWorker(worker);
+    } catch (err) {
+      alert(err.response?.data?.message || "Unable to load existing rating.");
+    }
   };
 
   const ratedThisMonth = useCallback((worker) => {
@@ -160,9 +173,12 @@ function SupervisorRatings({ worker: supervisor }) {
           worker={ratingWorker}
           userId={supervisor?._id}
           onSuccess={handleRatingSuccess}
-          onCancel={() => setRatingWorker(null)}
-          isEditing={false}
-          initialValues={null}
+          onCancel={() => {
+            setRatingWorker(null);
+            setEditingRating(null);
+          }}
+          isEditing={Boolean(editingRating)}
+          initialValues={editingRating}
           selectedMonth={selectedMonth}
         />
       )}
@@ -353,7 +369,13 @@ function SupervisorRatings({ worker: supervisor }) {
 
                   <td className="action-cell" data-label="Action">
                     {isAlreadyRated(worker._id) ? (
-                      <span className="status-badge excellent">Rated</span>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => handleEditWorker(worker)}
+                        title={`Edit this worker's rating for ${selectedMonth}`}
+                      >
+                        Edit
+                      </button>
                     ) : (
                       <button
                         className="btn btn-primary"
