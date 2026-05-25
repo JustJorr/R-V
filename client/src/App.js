@@ -7,10 +7,12 @@ import LoginPage from "./pages/LoginPage";
 import SupervisorLayout from "./components/SupervisorLayout";
 import WorkerLayout from "./components/WorkerLayout";
 import AdminLayout from "./components/AdminLayout";
+import { LanguageProvider, useLanguage } from "./context/LanguageContext";
 
-function App() {
+function AppContent() {
   const [worker, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const savedUser = localStorage.getItem("worker");
@@ -37,7 +39,7 @@ function App() {
   };
 
   if (loading) {
-    return <div className="loading-screen">Loading...</div>;
+    return <div className="loading-screen">{t("common.loading")}</div>;
   }
 
   if (!worker) {
@@ -72,6 +74,14 @@ function App() {
       {/* fallback */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
+  );
+}
+
+function App() {
+  return (
+    <LanguageProvider>
+      <AppContent />
+    </LanguageProvider>
   );
 }
 

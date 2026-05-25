@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { usersService } from "../../services/api";
 import "../../styles/Supervisor/SupervisorPages.css";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
+import { useLanguage } from "../../context/LanguageContext";
 
 function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
+  const { language, setLanguage, t } = useLanguage();
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -36,10 +38,10 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
     try {
       const response = await usersService.updateProfile(worker._id, { name: formData.name });
       onProfileUpdated?.(response.data);
-      setMessage("Profile updated successfully.");
+      setMessage(t("profile.updatedSuccess"));
       setEditMode(false);
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to update profile.");
+      setError(err?.response?.data?.message || t("profile.updateFailed"));
     } finally {
       setSaving(false);
     }
@@ -59,8 +61,13 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   return (
     <div className="page-content supervisor-profile">
       <div className="page-header">
-        <h1>My Profile</h1>
-        <p>View and manage your account settings</p>
+        <h1>{t("profile.title")}</h1>
+        <p>{t("profile.subtitle")}</p>
+        <div className="language-toggle profile-lang-toggle">
+          <span>{t("common.language")}:</span>
+          <button type="button" className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>{t("common.english")}</button>
+          <button type="button" className={language === "id" ? "active" : ""} onClick={() => setLanguage("id")}>{t("common.indonesian")}</button>
+        </div>
       </div>
 
       <div className="profile-container">
@@ -75,54 +82,54 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
 
         <div className="profile-grid">
           <div className="profile-card">
-            <h3>Account Information</h3>
+            <h3>{t("profile.accountInfo")}</h3>
             {editMode ? (
               <div className="form-group">
-                <label>Full Name</label>
+                <label>{t("common.fullName")}</label>
                 <input type="text" name="name" value={formData.name} onChange={handleChange} className="form-input" />
               </div>
             ) : (
-              <div className="info-row"><span className="info-label">Full Name</span><span className="info-value">{formData.name}</span></div>
+              <div className="info-row"><span className="info-label">{t("common.fullName")}</span><span className="info-value">{formData.name}</span></div>
             )}
 
             {editMode ? (
               <div className="form-group">
-                <label>Email Address</label>
+                <label>{t("common.email")}</label>
                 <input type="email" name="email" value={formData.email} onChange={handleChange} className="form-input" disabled />
               </div>
             ) : (
-              <div className="info-row"><span className="info-label">Email Address</span><span className="info-value">{formData.email}</span></div>
+              <div className="info-row"><span className="info-label">{t("common.email")}</span><span className="info-value">{formData.email}</span></div>
             )}
 
-            <div className="info-row"><span className="info-label">Account Role</span><span className="info-value">{formData.role}</span></div>
+            <div className="info-row"><span className="info-label">{t("common.role")}</span><span className="info-value">{formData.role}</span></div>
           </div>
 
           <div className="profile-card">
-            <h3>Statistics</h3>
+            <h3>{t("profile.statistics")}</h3>
             <div className="stats-list">
-              <div className="stat-row"><span className="stat-label">Account Created</span><span className="stat-value">{worker?.createdAt ? new Date(worker.createdAt).toLocaleDateString() : "Not available"}</span></div>
-              <div className="stat-row"><span className="stat-label">Average Rating</span><span className="stat-value">{typeof worker?.averageRating === "number" ? worker.averageRating.toFixed(1) : "N/A"}</span></div>
-              <div className="stat-row"><span className="stat-label">Total Ratings Given</span><span className="stat-value">{worker?.totalRatings ?? "N/A"}</span></div>
+              <div className="stat-row"><span className="stat-label">{t("profile.accountCreated")}</span><span className="stat-value">{worker?.createdAt ? new Date(worker.createdAt).toLocaleDateString() : t("profile.notAvailable")}</span></div>
+              <div className="stat-row"><span className="stat-label">{t("profile.avgRating")}</span><span className="stat-value">{typeof worker?.averageRating === "number" ? worker.averageRating.toFixed(1) : "N/A"}</span></div>
+              <div className="stat-row"><span className="stat-label">{t("profile.totalRatingsGiven")}</span><span className="stat-value">{worker?.totalRatings ?? "N/A"}</span></div>
             </div>
           </div>
         </div>
 
         <div className="profile-card full-width">
-          <h3>Preferences</h3>
-          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> Receive email notifications</label><p className="preference-desc">Get notified about worker updates and system alerts</p></div></div>
-          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> Show tips and suggestions</label><p className="preference-desc">Display helpful tips when using the dashboard</p></div></div>
+          <h3>{t("profile.preferences")}</h3>
+          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> {t("profile.receiveEmail")}</label><p className="preference-desc">{t("profile.receiveEmailSupervisorDesc")}</p></div></div>
+          <div className="preference-item"><div className="preference-content"><label><input type="checkbox" defaultChecked /> {t("profile.showTipsSupervisor")}</label><p className="preference-desc">{t("profile.showTipsSupervisorDesc")}</p></div></div>
         </div>
 
         <div className="profile-actions">
           {editMode ? (
             <>
-              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save Changes"}</button>
-              <button className="btn btn-secondary" onClick={handleCancel}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? `${t("common.saveChanges")}...` : t("common.saveChanges")}</button>
+              <button className="btn btn-secondary" onClick={handleCancel}>{t("common.cancel")}</button>
             </>
           ) : (
             <>
-              <button className="btn btn-primary" onClick={() => setEditMode(true)}>Edit Profile</button>
-              <button className="btn btn-primary" onClick={() => setShowLogoutConfirm(true)}>Logout</button>
+              <button className="btn btn-primary" onClick={() => setEditMode(true)}>{t("common.editProfile")}</button>
+              <button className="btn btn-primary" onClick={() => setShowLogoutConfirm(true)}>{t("common.logout")}</button>
             </>
           )}
         </div>
@@ -133,10 +140,10 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
 
       <ConfirmDialog
         isOpen={showLogoutConfirm}
-        title="Logout"
-        message="Are you sure you want to logout?"
-        confirmText="Logout"
-        cancelText="Cancel"
+        title={t("profile.logoutTitle")}
+        message={t("profile.logoutConfirm")}
+        confirmText={t("common.logout")}
+        cancelText={t("common.cancel")}
         onCancel={() => setShowLogoutConfirm(false)}
         onConfirm={() => {
           setShowLogoutConfirm(false);

@@ -807,3 +807,39 @@ background: #d1d5db;
     width: 100%;
   }
 }
+
+.profile-lang-toggle {
+  position: static;
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 6px 8px;
+}
+
+.profile-lang-toggle span {
+  font-size: 12px;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.profile-lang-toggle button {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #1f2937;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-lang-toggle button.active {
+  background: #111827;
+  border-color: #111827;
+  color: #fff;
+}
+

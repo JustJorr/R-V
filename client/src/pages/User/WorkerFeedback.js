@@ -2,22 +2,24 @@ import { useEffect, useState, useCallback } from "react";
 import { ratingsService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
+import { useLanguage } from "../../context/LanguageContext";
 
 const ratingFields = [
-  { key: "workAreaCompliance", short: "WA", label: "Work Area Compliance" },
-  { key: "taskCompletion", short: "TC", label: "Task Completion" },
-  { key: "cleanliness", short: "CL", label: "Cleanliness" },
-  { key: "wasteManagement", short: "WM", label: "Waste Management" },
-  { key: "organization", short: "OR", label: "Organization" },
-  { key: "uniformCompliance", short: "UC", label: "Uniform Compliance" },
-  { key: "independence", short: "IN", label: "Independence" },
-  { key: "initiative", short: "IV", label: "Initiative" },
-  { key: "teamworkSupport", short: "TS", label: "Teamwork Support" },
-  { key: "punctuality", short: "PU", label: "Punctuality" },
-  { key: "attendance", short: "AT", label: "Attendance" }
+  { key: "workAreaCompliance", short: "WA" },
+  { key: "taskCompletion", short: "TC" },
+  { key: "cleanliness", short: "CL" },
+  { key: "wasteManagement", short: "WM" },
+  { key: "organization", short: "OR" },
+  { key: "uniformCompliance", short: "UC" },
+  { key: "independence", short: "IN" },
+  { key: "initiative", short: "IV" },
+  { key: "teamworkSupport", short: "TS" },
+  { key: "punctuality", short: "PU" },
+  { key: "attendance", short: "AT" }
 ];
 
 function WorkerFeedback({ worker }) {
+  const { t } = useLanguage();
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterMonth, setFilterMonth] = useState("");
@@ -69,14 +71,14 @@ function WorkerFeedback({ worker }) {
   const renderCard = (item) => {
     const avg = calculateAverage(item);
     const isFromSupervisor = item.ratedBy?.role === "supervisor";
-    const raterName = isFromSupervisor ? item.ratedBy?.name : "Anonymous Colleague";
+    const raterName = isFromSupervisor ? item.ratedBy?.name : t("workerFeedback.anonymousColleague");
 
     return (
       <div className="feedback-card">
         <div className="feedback-header">
           <div className="feedback-left">
             <div className="supervisor-badge">
-              {isFromSupervisor ? "Supervisor" : "Peer"} Feedback
+              {isFromSupervisor ? t("workerFeedback.supervisorLabel") : t("workerFeedback.peerLabel")}
             </div>
             <span className="rater-name">{raterName}</span>
             <span className="feedback-date">
@@ -93,7 +95,7 @@ function WorkerFeedback({ worker }) {
 
         <div className="feedback-ratings">
           {ratingFields.map((f) => (
-            <span key={f.key} className="field-badge" title={f.label}>
+            <span key={f.key} className="field-badge" title={t(`kpi.${f.key}`)}>
               {f.short}: {item[f.key] ?? 0}*
             </span>
           ))}
@@ -109,14 +111,14 @@ function WorkerFeedback({ worker }) {
   return (
     <div className="page-content worker-dashboard">
       <div className="page-header">
-        <h1>Feedback</h1>
-        <p>Feedback from supervisors and colleagues</p>
+        <h1>{t("workerFeedback.title")}</h1>
+        <p>{t("workerFeedback.subtitle")}</p>
       </div>
 
       <div className="wf-filter-bar">
         <div className="wf-filter-inputs">
           <div className="wf-filter-group">
-            <label>By month</label>
+            <label>{t("workerFeedback.byMonth")}</label>
             <input
               type="month"
               value={filterMonth}
@@ -124,7 +126,7 @@ function WorkerFeedback({ worker }) {
             />
           </div>
           <button className="wf-btn-apply" onClick={handleApplyFilter}>
-            Apply
+            {t("workerFeedback.apply")}
           </button>
           {activeFilter && (
             <button className="wf-btn-reset" onClick={handleResetFilter}>
@@ -135,13 +137,13 @@ function WorkerFeedback({ worker }) {
       </div>
 
       {loading ? (
-        <div className="loading">Loading feedback...</div>
+        <div className="loading">{t("workerFeedback.loadingFeedback")}</div>
       ) : (
         <>
           <div className="recent-section">
-            <h2>Supervisor Feedback</h2>
+            <h2>{t("workerFeedback.supervisorFeedback")}</h2>
             {supervisorFeedback.length === 0 ? (
-              <div className="no-data">No supervisor feedback with comments yet.</div>
+              <div className="no-data">{t("workerFeedback.noSupervisorFeedback")}</div>
             ) : (
               <div className="feedback-list">
                 {supervisorFeedback.map((item, i) => (
@@ -152,9 +154,9 @@ function WorkerFeedback({ worker }) {
           </div>
 
           <div className="recent-section">
-            <h2>Peer Feedback</h2>
+            <h2>{t("workerFeedback.peerFeedback")}</h2>
             {peerFeedback.length === 0 ? (
-              <div className="no-data">No peer feedback with comments yet.</div>
+              <div className="no-data">{t("workerFeedback.noPeerFeedback")}</div>
             ) : (
               <div className="feedback-list">
                 {peerFeedback.map((item, i) => (

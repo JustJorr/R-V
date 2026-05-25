@@ -4,6 +4,7 @@ import { getRatingColor } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
+import { useLanguage } from "../../context/LanguageContext";
 
 const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
@@ -46,6 +47,7 @@ function formatMonthLabel(monthKey) {
 }
 
 function WorkerRatings({ worker }) {
+  const { t } = useLanguage();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [ratingWorker, setRatingWorker] = useState(null);
@@ -140,7 +142,7 @@ function WorkerRatings({ worker }) {
       await fetchWorkerRatings();
       setEditRequestModal({ isOpen: false, workerId: null, reason: "" });
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to send edit request.");
+      alert(err.response?.data?.message || t("workerRatings.submitRequest"));
     } finally {
       setSubmitting(false);
     }
@@ -161,7 +163,7 @@ function WorkerRatings({ worker }) {
       setEditingRating(response.data || null);
       setRatingWorker(targetWorker);
     } catch (err) {
-      alert(err.response?.data?.message || "Unable to load rating for edit.");
+      alert(err.response?.data?.message || t("workerRatings.edit"));
     }
   };
 
@@ -213,17 +215,17 @@ function WorkerRatings({ worker }) {
         <div className="modal-overlay" onClick={handleCloseEditModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Request Rating Edit</h3>
+              <h3>{t("workerRatings.modalTitle")}</h3>
               <button className="modal-close" onClick={handleCloseEditModal}>×</button>
             </div>
             <div className="modal-body">
               <label style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>
-                Why do you need to edit this rating?
+                {t("workerRatings.modalReasonLabel")}
               </label>
               <textarea
                 value={editRequestModal.reason}
                 onChange={(e) => setEditRequestModal({ ...editRequestModal, reason: e.target.value })}
-                placeholder="Provide a reason for your edit request..."
+                placeholder={t("workerRatings.modalReasonPlaceholder")}
                 style={{
                   width: "100%",
                   minHeight: "100px",
@@ -241,14 +243,14 @@ function WorkerRatings({ worker }) {
                 onClick={handleSubmitEditRequest}
                 disabled={submitting || !editRequestModal.reason.trim()}
               >
-                {submitting ? "Submitting..." : "Submit Request"}
+                {submitting ? t("workerRatings.submitting") : t("workerRatings.submitRequest")}
               </button>
               <button
                 className="btn btn-secondary"
                 onClick={handleCloseEditModal}
                 disabled={submitting}
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </div>
@@ -256,14 +258,14 @@ function WorkerRatings({ worker }) {
       )}
 
       <div className="page-header">
-        <h1>Rate Colleagues</h1>
-        <p>Rate colleagues for completed months only</p>
+        <h1>{t("workerRatings.rateColleaguesTitle")}</h1>
+        <p>{t("workerRatings.rateColleaguesSubtitle")}</p>
       </div>
 
       <div className="wf-filter-bar">
         <div className="wf-filter-inputs">
           <div className="wf-filter-group">
-            <label>By month</label>
+            <label>{t("workerRatings.byMonth")}</label>
             <input
               type="month"
               value={filterMonth}
@@ -271,7 +273,7 @@ function WorkerRatings({ worker }) {
             />
           </div>
           <button className="wf-btn-apply" onClick={handleApplyFilter}>
-            Apply
+            {t("workerRatings.apply")}
           </button>
           {activeFilter && (
             <button className="wf-btn-reset" onClick={handleResetFilter}>
@@ -283,15 +285,15 @@ function WorkerRatings({ worker }) {
 
       <div className="details-stats-row">
         <div className="quick-stat-pill">
-          <span className="label">Visible Workers</span>
+          <span className="label">{t("workerRatings.visibleWorkers")}</span>
           <span className="value">{filteredWorkers.length}</span>
         </div>
         <div className="quick-stat-pill">
-          <span className="label">Rated by You</span>
+          <span className="label">{t("workerRatings.ratedByYou")}</span>
           <span className="value">{ratedCount}</span>
         </div>
         <div className="quick-stat-pill">
-          <span className="label">Not Yet Rated</span>
+          <span className="label">{t("workerRatings.notYetRated")}</span>
           <span className="value">{unratedCount}</span>
         </div>
       </div>
@@ -300,7 +302,7 @@ function WorkerRatings({ worker }) {
         <div className="search-box">
           <input
             type="text"
-            placeholder="Search by name..."
+            placeholder={t("workerRatings.searchByName")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -312,39 +314,39 @@ function WorkerRatings({ worker }) {
             className={`filter-btn ${filterStatus === "all" ? "active" : ""}`}
             onClick={() => setFilterStatus("all")}
           >
-            All ({workers.length})
+            {t("workerRatings.all")} ({workers.length})
           </button>
           <button
             className={`filter-btn ${filterStatus === "rated" ? "active" : ""}`}
             onClick={() => setFilterStatus("rated")}
           >
-            Rated ({ratedCount})
+            {t("workerRatings.rated")} ({ratedCount})
           </button>
           <button
             className={`filter-btn ${filterStatus === "unrated" ? "active" : ""}`}
             onClick={() => setFilterStatus("unrated")}
           >
-            Unrated ({unratedCount})
+            {t("workerRatings.unrated")} ({unratedCount})
           </button>
         </div>
 
         <div className="quick-stat-pill">
-          <span className="label">Rating Month</span>
+          <span className="label">{t("workerRatings.ratingMonth")}</span>
           <span className="value">{formatMonthLabel(selectedMonth)}</span>
         </div>
       </div>
 
       {!isRatingMonthAvailable && (
         <div className="no-data" style={{ marginBottom: "12px" }}>
-          Rating unavailable for {formatMonthLabel(selectedMonth)}. Workers can only rate in {formatMonthLabel(allowedRatingMonth)}.
+          {t("workerRatings.ratingUnavailable")} {formatMonthLabel(selectedMonth)}. {t("workerRatings.workersCanOnlyRate")} {formatMonthLabel(allowedRatingMonth)}.
         </div>
       )}
 
       {loading ? (
-        <div className="loading">Loading workers...</div>
+        <div className="loading">{t("workerRatings.loadingWorkers")}</div>
       ) : filteredWorkers.length === 0 ? (
         <div className="no-data">
-          {searchTerm ? "No workers found matching your search." : "No workers to display."}
+          {searchTerm ? t("workerRatings.noWorkersSearch") : t("workerRatings.noWorkersDisplay")}
         </div>
       ) : (
         <div className="table-responsive">
@@ -352,18 +354,18 @@ function WorkerRatings({ worker }) {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Name</th>
-                <th>Avg Rating</th>
-                <th>Latest Rating</th>
-                <th>Selected Month</th>
-                <th>Last Comment</th>
+                <th>{t("workerRatings.tableName")}</th>
+                <th>{t("workerRatings.tableAvgRating")}</th>
+                <th>{t("workerRatings.tableLatestRating")}</th>
+                <th>{t("workerRatings.tableSelectedMonth")}</th>
+                <th>{t("workerRatings.tableLastComment")}</th>
               </tr>
             </thead>
             <tbody>
               {filteredWorkers.map((w, index) => (
                 <tr key={w._id} className={isAlreadyRated(w._id) ? "rated-row" : ""}>
                   <td data-label="#"> {index + 1}</td>
-                  <td data-label="Name">
+                  <td data-label={t("workerRatings.tableName")}>
                     <div className="worker-name-cell">
                       <div className="worker-badge">
                         {w.name.charAt(0).toUpperCase()}
@@ -371,7 +373,7 @@ function WorkerRatings({ worker }) {
                       {w.name}
                     </div>
                   </td>
-                  <td data-label="Avg Rating">
+                  <td data-label={t("workerRatings.tableAvgRating")}>
                     {typeof w.monthAverageRating === "number" ? (
                       <span
                         className="rating-badge"
@@ -384,7 +386,7 @@ function WorkerRatings({ worker }) {
                     )}
                   </td>
 
-                  <td className="latest-rating-cell" data-label="Latest Rating">
+                  <td className="latest-rating-cell" data-label={t("workerRatings.tableLatestRating")}>
                     {w.latestRating ? (() => {
                       const scores = KPI_FIELDS.map((f) => w.latestRating[f.key] ?? 0);
                       const avg = scores.reduce((a, b) => a + b, 0) / KPI_FIELDS.length;
@@ -399,45 +401,45 @@ function WorkerRatings({ worker }) {
                             className="summary-avg"
                             style={{ backgroundColor: getRatingColor(avg) }}
                           >
-                            {avg.toFixed(1)} avg
+                            {avg.toFixed(1)} {t("workerRatings.avgShort")}
                           </div>
 
                           <div className="summary-low">
-                            low {lowest.short}: {lowest.value}
+                            {t("workerRatings.lowShort")} {lowest.short}: {lowest.value}
                           </div>
 
                           <small className="rating-timestamp">
                             {formatDate(w.latestRating.createdAt)}
                             {ratedThisMonth(w) && (
-                              <span className="today-tag">selected month</span>
+                              <span className="today-tag">{t("workerRatings.selectedMonthTag")}</span>
                             )}
                           </small>
                         </div>
                       );
                     })() : (
-                      <span className="text-muted">No ratings yet</span>
+                      <span className="text-muted">{t("workerRatings.noRatingsYet")}</span>
                     )}
                   </td>
 
-                  <td className="action-cell" data-label="Action">
+                  <td className="action-cell" data-label={t("workerRatings.action")}>
                     {isAlreadyRated(w._id) ? (
                       ratedWorkerMap[String(w._id)]?.workerEditRequestStatus === "pending" ? (
-                        <span className="status-badge">Edit Pending</span>
+                        <span className="status-badge">{t("workerRatings.editPending")}</span>
                       ) : ratedWorkerMap[String(w._id)]?.workerEditRequestStatus === "approved" ? (
                         <button
                           className="btn btn-primary"
                           onClick={() => handleEditWorker(w)}
                           title={`Edit your rating for ${selectedMonth}`}
                         >
-                          Edit
+                          {t("workerRatings.edit")}
                         </button>
                       ) : (
                         <button
                           className="btn btn-primary"
                           onClick={() => handleRequestEdit(w._id)}
-                          title="Ask admin to unlock this rating for editing"
+                          title={t("workerRatings.askAdminUnlock")}
                         >
-                          Request Edit
+                          {t("workerRatings.requestEdit")}
                         </button>
                       )
                     ) : (
@@ -447,18 +449,18 @@ function WorkerRatings({ worker }) {
                         title={`Rate this colleague for ${selectedMonth}`}
                         disabled={!isRatingMonthAvailable}
                       >
-                        Rate
+                        {t("workerRatings.rate")}
                       </button>
                     )}
                   </td>
 
-                  <td className="comment-cell" data-label="Last Comment">
+                  <td className="comment-cell" data-label={t("workerRatings.tableLastComment")}>
                     {w.latestRating?.comment ? (
                       <div className="comment-preview" title={w.latestRating.comment}>
                         <span className="comment-text">{w.latestRating.comment.substring(0, 40)}{w.latestRating.comment.length > 40 ? "..." : ""}</span>
                       </div>
                     ) : (
-                      <span className="text-muted">-</span>
+                      <span className="text-muted">{t("workerRatings.dash")}</span>
                     )}
                   </td>
                 </tr>
@@ -472,3 +474,4 @@ function WorkerRatings({ worker }) {
 }
 
 export default WorkerRatings;
+

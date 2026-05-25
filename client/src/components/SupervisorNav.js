@@ -1,23 +1,19 @@
 import "../styles/Supervisor/SupervisorNav.css";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 
-function SupervisorNav({
-  userName,
-  onLogout,
-  collapsed,
-  setCollapsed
-}) {
+function SupervisorNav({ userName, onLogout, collapsed, setCollapsed }) {
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
 
   const pages = [
-    { id: "home", label: "Home", icon: "🏠", path: "/" },
-    { id: "details", label: "Details", icon: "👥", path: "/details" },
-    { id: "visuals", label: "Data Visuals", icon: "📊", path: "/visuals" },
-    { id: "profile", label: "Profile", icon: "👤", path: "/profile" }
+    { id: "home", label: t("supervisorNav.home"), icon: "\uD83C\uDFE0", path: "/" },
+    { id: "details", label: t("supervisorNav.details"), icon: "\uD83D\uDC65", path: "/details" },
+    { id: "visuals", label: t("supervisorNav.dataVisuals"), icon: "\uD83D\uDCCA", path: "/visuals" },
+    { id: "profile", label: t("supervisorNav.profile"), icon: "\uD83D\uDC64", path: "/profile" }
   ];
 
-  // detect active page from URL instead of state
   const isActive = (path) => {
     if (path === "/" && location.pathname === "/") return true;
     if (path !== "/" && location.pathname.includes(path)) return true;
@@ -27,24 +23,19 @@ function SupervisorNav({
   return (
     <nav className={`supervisor-nav ${collapsed ? "collapsed" : ""}`}>
       <div className="nav-container">
-
-        {/* Toggle */}
         <button
           className="toggle-btn"
           onClick={() => setCollapsed(!collapsed)}
-          title={collapsed ? "Expand" : "Collapse"}
+          title={collapsed ? t("supervisorNav.expand") : t("supervisorNav.collapse")}
         >
           {collapsed ? "»" : "«"}
         </button>
 
-        {/* Logo */}
         <div className="nav-brand">
           <img src="/PGE_Logo.png" alt="Logo" className="nav-logo" />
         </div>
 
-        {/* Menu */}
         <div className="nav-menu">
-
           <div className="nav-pages">
             {pages.map((page) => (
               <button
@@ -54,33 +45,23 @@ function SupervisorNav({
                 title={page.label}
               >
                 <span className="nav-icon">{page.icon}</span>
-
-                {!collapsed && (
-                  <span className="nav-label">{page.label}</span>
-                )}
+                {!collapsed && <span className="nav-label">{page.label}</span>}
               </button>
             ))}
           </div>
 
-          {/* User Section */}
           <div className="nav-worker">
             <div className="worker-info">
-              <div className="worker-avatar">
-                {userName?.charAt(0)?.toUpperCase()}
-              </div>
-
-              {!collapsed && (
-                <span className="worker-name">{userName}</span>
-              )}
+              <div className="worker-avatar">{userName?.charAt(0)?.toUpperCase()}</div>
+              {!collapsed && <span className="worker-name">{userName}</span>}
             </div>
 
             {!collapsed && (
               <button className="logout-btn" onClick={onLogout}>
-                Logout
+                {t("supervisorNav.logout")}
               </button>
             )}
           </div>
-
         </div>
       </div>
     </nav>

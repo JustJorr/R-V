@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { authService } from "../services/api";
 import "../styles/Login.css";
+import { useLanguage } from "../context/LanguageContext";
 
 function LoginPage({ onLogin }) {
+  const { language, setLanguage, t } = useLanguage();
   const [isActive, setIsActive] = useState(false);
 
   // Login state
@@ -38,7 +40,7 @@ function LoginPage({ onLogin }) {
       onLogin(response.data);
     } catch (err) {
       setLoginError(
-        err.response?.data?.message || "Login failed"
+        err.response?.data?.message || t("login.loginFailed")
       );
     } finally {
       setLoginLoading(false);
@@ -61,7 +63,7 @@ function LoginPage({ onLogin }) {
       );
 
       setRegSuccess(
-        "Registration successful! Waiting for admin approval..."
+        t("login.registrationSuccess")
       );
 
       setRegName("");
@@ -75,7 +77,7 @@ function LoginPage({ onLogin }) {
 
     } catch (err) {
       setRegError(
-        err.response?.data?.message || "Registration failed"
+        err.response?.data?.message || t("login.registrationFailed")
       );
     } finally {
       setRegLoading(false);
@@ -84,6 +86,15 @@ function LoginPage({ onLogin }) {
 
   return (
     <div className="auth-page">
+      <div className="language-toggle">
+        <span>{t("common.language")}:</span>
+        <button type="button" className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>
+          {t("common.english")}
+        </button>
+        <button type="button" className={language === "id" ? "active" : ""} onClick={() => setLanguage("id")}>
+          {t("common.indonesian")}
+        </button>
+      </div>
       <div
         className={`auth-container ${
           isActive ? "right-panel-active" : ""
@@ -102,8 +113,8 @@ function LoginPage({ onLogin }) {
               />
             </div>
 
-            <h1>Create Account</h1>
-            <span>Register as a worker</span>
+            <h1>{t("login.createAccount")}</h1>
+            <span>{t("login.registerAsWorker")}</span>
 
             {regError && (
               <p className="form-error">{regError}</p>
@@ -115,7 +126,7 @@ function LoginPage({ onLogin }) {
 
             <input
               type="text"
-              placeholder="Full Name"
+              placeholder={t("common.fullName")}
               value={regName}
               onChange={(e) => setRegName(e.target.value)}
               required
@@ -124,7 +135,7 @@ function LoginPage({ onLogin }) {
 
             <input
               type="email"
-              placeholder="Email"
+              placeholder={t("common.email")}
               value={regEmail}
               onChange={(e) => setRegEmail(e.target.value)}
               required
@@ -133,7 +144,7 @@ function LoginPage({ onLogin }) {
 
             <input
               type="password"
-              placeholder="Password"
+              placeholder={t("login.password")}
               value={regPassword}
               onChange={(e) => setRegPassword(e.target.value)}
               required
@@ -145,7 +156,7 @@ function LoginPage({ onLogin }) {
               disabled={regLoading}
               tabIndex={isActive ? 0 : -1}
             >
-              {regLoading ? "Signing Up..." : "Sign Up"}
+              {regLoading ? t("login.signingUp") : t("login.signUp")}
             </button>
 
             <button
@@ -153,7 +164,7 @@ function LoginPage({ onLogin }) {
               className="mobile-switch-btn"
               onClick={() => setIsActive(false)}
             >
-              Already have an account? Sign In
+              {t("login.haveAccount")}
             </button>
 
           </form>
@@ -171,8 +182,8 @@ function LoginPage({ onLogin }) {
               />
             </div>
 
-            <h1>Sign In</h1>
-            <span>Worker Rating System</span>
+            <h1>{t("login.signIn")}</h1>
+            <span>{t("login.systemName")}</span>
 
             {loginError && (
               <p className="form-error">{loginError}</p>
@@ -180,7 +191,7 @@ function LoginPage({ onLogin }) {
 
             <input
               type="email"
-              placeholder="Email"
+              placeholder={t("common.email")}
               value={loginEmail}
               onChange={(e) =>
                 setLoginEmail(e.target.value)
@@ -191,7 +202,7 @@ function LoginPage({ onLogin }) {
 
             <input
               type="password"
-              placeholder="Password"
+              placeholder={t("login.password")}
               value={loginPassword}
               onChange={(e) =>
                 setLoginPassword(e.target.value)
@@ -205,7 +216,7 @@ function LoginPage({ onLogin }) {
               disabled={loginLoading}
               tabIndex={isActive ? -1 : 0}
             >
-              {loginLoading ? "Signing In..." : "Sign In"}
+              {loginLoading ? t("login.signingIn") : t("login.signIn")}
             </button>
 
             <button
@@ -213,7 +224,7 @@ function LoginPage({ onLogin }) {
               className="mobile-switch-btn"
               onClick={() => setIsActive(true)}
             >
-              Need an account? Sign Up
+              {t("login.needAccount")}
             </button>
 
           </form>
@@ -224,34 +235,32 @@ function LoginPage({ onLogin }) {
           <div className="overlay">
 
             <div className="overlay-panel overlay-left">
-              <h1>Welcome Back!</h1>
+              <h1>{t("login.welcomeBack")}</h1>
 
               <p>
-                Already have an account?
-                Sign in with your credentials.
+                {t("login.haveAccountOverlay")}
               </p>
 
               <button
                 className="ghost"
                 onClick={() => setIsActive(false)}
               >
-                Sign In
+                {t("login.signIn")}
               </button>
             </div>
 
             <div className="overlay-panel overlay-right">
-              <h1>Hello, Pekerja!</h1>
+              <h1>{t("login.helloWorker")}</h1>
 
               <p>
-                Belum punya akun?
-                Daftar dan join rekan anda!
+                {t("login.noAccountOverlay")}
               </p>
 
               <button
                 className="ghost"
                 onClick={() => setIsActive(true)}
               >
-                Sign Up
+                {t("login.signUp")}
               </button>
             </div>
 
