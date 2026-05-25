@@ -120,6 +120,63 @@ async function reviewRatingEditRequest(req, res) {
   }
 }
 
+async function getPendingWorkerApprovals(req, res) {
+  try {
+    const pendingWorkers = await User.find({
+      role: "worker",
+      isApproved: false
+    })
+      .select("-password")
+      .sort({ createdAt: -1 });
+
+    res.json(pendingWorkers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function approveWorker(req, res) {
+  try {
+    const { workerId } = req.params;
+    const worker = await User.findById(workerId);
+
+    if (!worker) {
+      return res.status(404).json({ message: "Worker not found" });
+    }
+
+    if (worker.role !== "worker") {
+      return res.status(400).json({ message: "Only workers can be approved" });
+    }
+
+    worker.isApproved = true;
+    await worker.save();
+
+    res.json({ message: "Worker approved successfully", worker: worker.select("-password") });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function rejectWorker(req, res) {
+  try {
+    const { workerId } = req.params;
+    const worker = await User.findById(workerId);
+
+    if (!worker) {
+      return res.status(404).json({ message: "Worker not found" });
+    }
+
+    if (worker.role !== "worker") {
+      return res.status(400).json({ message: "Only workers can be rejected" });
+    }
+
+    await User.findByIdAndDelete(workerId);
+    res.json({ message: "Worker rejected and deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
 module.exports = {
   getAdminUsers,
   updateUserRole,
@@ -127,5 +184,8 @@ module.exports = {
   changePassword,
   getAdminDashboard,
   getPendingRatingEditRequests,
-  reviewRatingEditRequest
+  reviewRatingEditRequest,
+  getPendingWorkerApprovals,
+  approveWorker,
+  rejectWorker
 };

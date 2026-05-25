@@ -40,7 +40,7 @@ function AdminLayout({ worker, onLogout, onProfileUpdated }) {
           {/* Data Tools */}
           <Route path="/tools" element={<AdminDataTools />} />
 
-          {/* Rating Edit Requests */}
+          {/* Rating Edit Requests & Worker Approvals */}
           <Route path="/edit-requests" element={<AdminRatingEditRequests />} />
 
           {/* Profile */}

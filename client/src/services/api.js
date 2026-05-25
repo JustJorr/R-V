@@ -114,7 +114,16 @@ export const adminService = {
     apiClient.put(`/api/admin/rating-edit-requests/${ratingId}`, {
       adminId,
       action
-    })
+    }),
+
+  getPendingWorkerApprovals: () =>
+    apiClient.get("/api/admin/worker-approvals"),
+
+  approveWorker: (workerId) =>
+    apiClient.put(`/api/admin/worker-approvals/${workerId}/approve`),
+
+  rejectWorker: (workerId) =>
+    apiClient.delete(`/api/admin/worker-approvals/${workerId}/reject`)
 };
 
 export const adminDataService = {

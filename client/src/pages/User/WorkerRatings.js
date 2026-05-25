@@ -57,6 +57,8 @@ function WorkerRatings({ worker }) {
   const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
   const [filterMonth, setFilterMonth] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
+  const [editRequestModal, setEditRequestModal] = useState({ isOpen: false, workerId: null, reason: "" });
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchWorkers = useCallback(async () => {
     try {
@@ -125,16 +127,27 @@ function WorkerRatings({ worker }) {
   const handleRequestEdit = async (targetWorkerId) => {
     const rating = ratedWorkerMap[String(targetWorkerId)];
     if (!rating?._id) return;
+    setEditRequestModal({ isOpen: true, workerId: targetWorkerId, reason: "" });
+  };
 
-    const reason = window.prompt("Why do you need to edit this rating?");
-    if (reason === null) return;
+  const handleSubmitEditRequest = async () => {
+    const rating = ratedWorkerMap[String(editRequestModal.workerId)];
+    if (!rating?._id || !editRequestModal.reason.trim()) return;
 
     try {
-      await ratingsService.requestWorkerEdit(rating._id, worker._id, reason);
+      setSubmitting(true);
+      await ratingsService.requestWorkerEdit(rating._id, worker._id, editRequestModal.reason);
       await fetchWorkerRatings();
+      setEditRequestModal({ isOpen: false, workerId: null, reason: "" });
     } catch (err) {
       alert(err.response?.data?.message || "Failed to send edit request.");
+    } finally {
+      setSubmitting(false);
     }
+  };
+
+  const handleCloseEditModal = () => {
+    setEditRequestModal({ isOpen: false, workerId: null, reason: "" });
   };
 
   const handleRateWorker = (w) => {
@@ -193,6 +206,53 @@ function WorkerRatings({ worker }) {
           initialValues={editingRating}
           selectedMonth={selectedMonth}
         />
+      )}
+
+      {/* Edit Request Modal */}
+      {editRequestModal.isOpen && (
+        <div className="modal-overlay" onClick={handleCloseEditModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Request Rating Edit</h3>
+              <button className="modal-close" onClick={handleCloseEditModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>
+                Why do you need to edit this rating?
+              </label>
+              <textarea
+                value={editRequestModal.reason}
+                onChange={(e) => setEditRequestModal({ ...editRequestModal, reason: e.target.value })}
+                placeholder="Provide a reason for your edit request..."
+                style={{
+                  width: "100%",
+                  minHeight: "100px",
+                  padding: "10px",
+                  border: "1px solid #ddd",
+                  borderRadius: "6px",
+                  fontFamily: "inherit",
+                  fontSize: "14px"
+                }}
+              />
+            </div>
+            <div className="modal-actions">
+              <button
+                className="btn btn-primary"
+                onClick={handleSubmitEditRequest}
+                disabled={submitting || !editRequestModal.reason.trim()}
+              >
+                {submitting ? "Submitting..." : "Submit Request"}
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={handleCloseEditModal}
+                disabled={submitting}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="page-header">

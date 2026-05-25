@@ -6,7 +6,10 @@ const {
   changePassword,
   getAdminDashboard,
   getPendingRatingEditRequests,
-  reviewRatingEditRequest
+  reviewRatingEditRequest,
+  getPendingWorkerApprovals,
+  approveWorker,
+  rejectWorker
 } = require("../controllers/adminController");
 
 const router = express.Router();
@@ -18,5 +21,8 @@ router.put("/admin/users/:id/password", changePassword);
 router.get("/admin/dashboard", getAdminDashboard);
 router.get("/admin/rating-edit-requests", getPendingRatingEditRequests);
 router.put("/admin/rating-edit-requests/:ratingId", reviewRatingEditRequest);
+router.get("/admin/worker-approvals", getPendingWorkerApprovals);
+router.put("/admin/worker-approvals/:workerId/approve", approveWorker);
+router.delete("/admin/worker-approvals/:workerId/reject", rejectWorker);
 
 module.exports = router;

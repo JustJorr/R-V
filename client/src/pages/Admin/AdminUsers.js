@@ -26,6 +26,8 @@ function AdminUsers() {
   const [filterRole, setFilter] = useState("all");
   const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [passwordModal, setPasswordModal] = useState({ isOpen: false, userId: null, newPassword: "" });
+  const [passwordSubmitting, setPasswordSubmitting] = useState(false);
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -50,11 +52,26 @@ function AdminUsers() {
     fetchUsers();
   };
 
-  const handlePasswordReset = async (id) => {
-    const newPass = prompt("Enter new password for this user:");
-    if (!newPass) return;
-    await adminService.changePassword(id, newPass);
-    alert("Password updated successfully.");
+  const handlePasswordReset = (id) => {
+    setPasswordModal({ isOpen: true, userId: id, newPassword: "" });
+  };
+
+  const handleSubmitPasswordReset = async () => {
+    if (!passwordModal.newPassword.trim()) return;
+    try {
+      setPasswordSubmitting(true);
+      await adminService.changePassword(passwordModal.userId, passwordModal.newPassword);
+      setPasswordModal({ isOpen: false, userId: null, newPassword: "" });
+      fetchUsers();
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to update password");
+    } finally {
+      setPasswordSubmitting(false);
+    }
+  };
+
+  const handleClosePasswordModal = () => {
+    setPasswordModal({ isOpen: false, userId: null, newPassword: "" });
   };
 
   const handleCreateUser = async (e) => {
@@ -89,6 +106,54 @@ function AdminUsers() {
 
   return (
     <div className="page-content admin-page">
+      {/* Password Reset Modal */}
+      {passwordModal.isOpen && (
+        <div className="modal-overlay" onClick={handleClosePasswordModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Reset User Password</h3>
+              <button className="modal-close" onClick={handleClosePasswordModal}>×</button>
+            </div>
+            <div className="modal-body">
+              <label style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>
+                Enter new password for this user
+              </label>
+              <input
+                type="password"
+                value={passwordModal.newPassword}
+                onChange={(e) => setPasswordModal({ ...passwordModal, newPassword: e.target.value })}
+                placeholder="New password"
+                style={{
+                  width: "100%",
+                  padding: "10px",
+                  border: "1px solid #ddd",
+                  borderRadius: "6px",
+                  fontFamily: "inherit",
+                  fontSize: "14px",
+                  boxSizing: "border-box"
+                }}
+              />
+            </div>
+            <div className="modal-actions">
+              <button
+                className="btn btn-primary"
+                onClick={handleSubmitPasswordReset}
+                disabled={passwordSubmitting || !passwordModal.newPassword.trim()}
+              >
+                {passwordSubmitting ? "Updating..." : "Update Password"}
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={handleClosePasswordModal}
+                disabled={passwordSubmitting}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="page-header">
         <h1>👥 Manage Users</h1>
         <p>Full control over accounts, roles, and access</p>

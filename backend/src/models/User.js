@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ["worker", "supervisor", "admin"], default: "worker" },
+  isApproved: { type: Boolean, default: function() { return this.role !== "worker"; } },
   averageRating: { type: Number, default: 0 },
   totalRatings: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }

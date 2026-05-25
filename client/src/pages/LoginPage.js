@@ -51,30 +51,6 @@ function LoginPage({ onLogin }) {
     }
   };
 
-  const handleDemoMode = () => {
-    const demoUser = {
-      _id: "507f1f77bcf86cd799439011",
-      name: "Demo Supervisor",
-      email: "demo@example.com",
-      role: "supervisor",
-      averageRating: 4.5,
-    };
-    localStorage.setItem("worker", JSON.stringify(demoUser));
-    onLogin(demoUser);
-  };
-
-  const handleAdminDemo = () => {
-    const demoAdmin = {
-      _id: "507f1f77bcf86cd799439012",
-      name: "Demo Admin",
-      email: "admin@example.com",
-      role: "admin",
-      averageRating: 0,
-    };
-    localStorage.setItem("worker", JSON.stringify(demoAdmin));
-    onLogin(demoAdmin);
-  };
-
   return (
     <div className="auth-page">
       <div className={`auth-container ${isActive ? "right-panel-active" : ""}`}>
@@ -146,26 +122,6 @@ function LoginPage({ onLogin }) {
             <button type="submit" disabled={loginLoading} tabIndex={isActive ? -1 : 0}>
               {loginLoading ? "Signing In..." : "Sign In"}
             </button>
-
-            <div className="demo-section">
-              <span className="demo-label">— Quick Access —</span>
-              <button
-                type="button"
-                className="demo-btn"
-                onClick={handleDemoMode}
-                tabIndex={isActive ? -1 : 0}
-              >
-                Supervisor Demo
-              </button>
-              <button
-                type="button"
-                className="demo-btn"
-                onClick={handleAdminDemo}
-                tabIndex={isActive ? -1 : 0}
-              >
-                Admin Demo
-              </button>
-            </div>
           </form>
         </div>
 
