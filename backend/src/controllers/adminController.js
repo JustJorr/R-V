@@ -151,7 +151,9 @@ async function approveWorker(req, res) {
     worker.isApproved = true;
     await worker.save();
 
-    res.json({ message: "Worker approved successfully", worker: worker.select("-password") });
+    const workerObj = worker.toObject();
+    delete workerObj.password;
+    res.json({ message: "Worker approved successfully", worker: workerObj });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

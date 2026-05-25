@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { usersService } from "../../services/api";
 import "../../styles/Admin/AdminPages.css";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
 
 function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [formData, setFormData] = useState({
     name: worker?.name || "",
     email: worker?.email || "",
@@ -150,14 +152,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
               <button className="admin-btn primary" onClick={() => setEditMode(true)}>
                 Edit Profile
               </button>
-              <button
-                className="admin-btn primary"
-                onClick={() => {
-                  if (window.confirm("Are you sure you want to logout?")) {
-                    onLogout();
-                  }
-                }}
-              >
+              <button className="admin-btn primary" onClick={() => setShowLogoutConfirm(true)}>
                 Logout
               </button>
             </>
@@ -167,6 +162,19 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
         {message && <p className="profile-success">{message}</p>}
         {error && <p className="profile-error">{error}</p>}
       </div>
+
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        confirmText="Logout"
+        cancelText="Cancel"
+        onCancel={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          setShowLogoutConfirm(false);
+          onLogout();
+        }}
+      />
     </div>
   );
 }

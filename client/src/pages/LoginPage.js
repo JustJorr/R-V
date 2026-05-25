@@ -17,17 +17,29 @@ function LoginPage({ onLogin }) {
   const [regPassword, setRegPassword] = useState("");
   const [regLoading, setRegLoading] = useState(false);
   const [regError, setRegError] = useState("");
+  const [regSuccess, setRegSuccess] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError("");
     setLoginLoading(true);
+
     try {
-      const response = await authService.login(loginEmail, loginPassword);
-      localStorage.setItem("worker", JSON.stringify(response.data));
+      const response = await authService.login(
+        loginEmail,
+        loginPassword
+      );
+
+      localStorage.setItem(
+        "worker",
+        JSON.stringify(response.data)
+      );
+
       onLogin(response.data);
     } catch (err) {
-      setLoginError(err.response?.data?.message || "Login failed");
+      setLoginError(
+        err.response?.data?.message || "Login failed"
+      );
     } finally {
       setLoginLoading(false);
     }
@@ -35,17 +47,36 @@ function LoginPage({ onLogin }) {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+
     setRegError("");
+    setRegSuccess("");
     setRegLoading(true);
+
     try {
-      await authService.register(regName, regEmail, regPassword, "worker");
-      alert("Registration successful! Please login.");
-      setIsActive(false);
+      await authService.register(
+        regName,
+        regEmail,
+        regPassword,
+        "worker"
+      );
+
+      setRegSuccess(
+        "Registration successful! Waiting for admin approval..."
+      );
+
       setRegName("");
       setRegEmail("");
       setRegPassword("");
+
+      setTimeout(() => {
+        setIsActive(false);
+        setRegSuccess("");
+      }, 3000);
+
     } catch (err) {
-      setRegError(err.response?.data?.message || "Registration failed");
+      setRegError(
+        err.response?.data?.message || "Registration failed"
+      );
     } finally {
       setRegLoading(false);
     }
@@ -53,17 +84,35 @@ function LoginPage({ onLogin }) {
 
   return (
     <div className="auth-page">
-      <div className={`auth-container ${isActive ? "right-panel-active" : ""}`}>
+      <div
+        className={`auth-container ${
+          isActive ? "right-panel-active" : ""
+        }`}
+      >
 
         {/* ── SIGN UP FORM ── */}
         <div className="form-container sign-up-container">
           <form onSubmit={handleRegister}>
+
             <div className="logo-wrap">
-              <img src="/PGE_Logo.png" alt="PGE Logo" className="form-logo" />
+              <img
+                src="/PGE_Logo.png"
+                alt="PGE Logo"
+                className="form-logo"
+              />
             </div>
+
             <h1>Create Account</h1>
             <span>Register as a worker</span>
-            {regError && <p className="form-error">{regError}</p>}
+
+            {regError && (
+              <p className="form-error">{regError}</p>
+            )}
+
+            {regSuccess && (
+              <p className="form-success">{regSuccess}</p>
+            )}
+
             <input
               type="text"
               placeholder="Full Name"
@@ -72,6 +121,7 @@ function LoginPage({ onLogin }) {
               required
               tabIndex={isActive ? 0 : -1}
             />
+
             <input
               type="email"
               placeholder="Email"
@@ -80,6 +130,7 @@ function LoginPage({ onLogin }) {
               required
               tabIndex={isActive ? 0 : -1}
             />
+
             <input
               type="password"
               placeholder="Password"
@@ -88,60 +139,122 @@ function LoginPage({ onLogin }) {
               required
               tabIndex={isActive ? 0 : -1}
             />
-            <button type="submit" disabled={regLoading} tabIndex={isActive ? 0 : -1}>
+
+            <button
+              type="submit"
+              disabled={regLoading}
+              tabIndex={isActive ? 0 : -1}
+            >
               {regLoading ? "Signing Up..." : "Sign Up"}
             </button>
+
+            <button
+              type="button"
+              className="mobile-switch-btn"
+              onClick={() => setIsActive(false)}
+            >
+              Already have an account? Sign In
+            </button>
+
           </form>
         </div>
 
         {/* ── SIGN IN FORM ── */}
         <div className="form-container sign-in-container">
           <form onSubmit={handleLogin}>
+
             <div className="logo-wrap">
-              <img src="/PGE_Logo.png" alt="PGE Logo" className="form-logo" />
+              <img
+                src="/PGE_Logo.png"
+                alt="PGE Logo"
+                className="form-logo"
+              />
             </div>
+
             <h1>Sign In</h1>
             <span>Worker Rating System</span>
-            {loginError && <p className="form-error">{loginError}</p>}
+
+            {loginError && (
+              <p className="form-error">{loginError}</p>
+            )}
+
             <input
               type="email"
               placeholder="Email"
               value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
+              onChange={(e) =>
+                setLoginEmail(e.target.value)
+              }
               required
               tabIndex={isActive ? -1 : 0}
             />
+
             <input
               type="password"
               placeholder="Password"
               value={loginPassword}
-              onChange={(e) => setLoginPassword(e.target.value)}
+              onChange={(e) =>
+                setLoginPassword(e.target.value)
+              }
               required
               tabIndex={isActive ? -1 : 0}
             />
-            <button type="submit" disabled={loginLoading} tabIndex={isActive ? -1 : 0}>
+
+            <button
+              type="submit"
+              disabled={loginLoading}
+              tabIndex={isActive ? -1 : 0}
+            >
               {loginLoading ? "Signing In..." : "Sign In"}
             </button>
+
+            <button
+              type="button"
+              className="mobile-switch-btn"
+              onClick={() => setIsActive(true)}
+            >
+              Need an account? Sign Up
+            </button>
+
           </form>
         </div>
 
         {/* ── SLIDING OVERLAY ── */}
         <div className="overlay-container">
           <div className="overlay">
+
             <div className="overlay-panel overlay-left">
               <h1>Welcome Back!</h1>
-              <p>Already have an account? Sign in with your credentials.</p>
-              <button className="ghost" onClick={() => setIsActive(false)}>
+
+              <p>
+                Already have an account?
+                Sign in with your credentials.
+              </p>
+
+              <button
+                className="ghost"
+                onClick={() => setIsActive(false)}
+              >
                 Sign In
               </button>
             </div>
+
             <div className="overlay-panel overlay-right">
               <h1>Hello, Pekerja!</h1>
-              <p>Belum punya akun? Daftar dan join rekan anda!</p>
-              <button className="ghost" onClick={() => setIsActive(true)}>
+
+              <p>
+                Belum punya akun?
+                Daftar dan join rekan anda!
+              </p>
+
+              <button
+                className="ghost"
+                onClick={() => setIsActive(true)}
+              >
                 Sign Up
               </button>
             </div>
+
           </div>
         </div>
 

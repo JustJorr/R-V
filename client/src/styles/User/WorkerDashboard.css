@@ -648,9 +648,16 @@
 
 /* Worker Ratings: mobile card layout */
 @media (max-width: 768px) {
+  .table-responsive {
+    border: none;
+    background: transparent;
+    overflow-x: visible;
+  }
+
   /* Worker Ratings Table Mobile */
   .worker-ratings-table {
-    width: 100% !important;
+    width: min(100%, 430px) !important;
+    margin: 0 auto;
     border-collapse: separate;
     border-spacing: 0 12px;
     background: transparent;
@@ -670,7 +677,8 @@
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 12px;
+    margin: 0 auto 12px;
+    width: 100%;
     box-shadow: 0 2px 4px rgba(0,0,0,0.06);
   }
 
@@ -696,7 +704,7 @@
     content: attr(data-label);
     font-weight: 700;
     color: #666;
-    font-size: 12px;
+    font-size: 11px;
     min-width: 90px;
     margin-right: 10px;
     text-transform: uppercase;
@@ -707,6 +715,10 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    width: 100%;
+    font-size: 13px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
   }
 
   .worker-ratings-table .worker-badge {
@@ -720,6 +732,7 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    width: 100%;
   }
 
   .worker-ratings-table .action-cell .btn {
@@ -780,6 +793,7 @@
   .worker-ratings-table td {
     flex-direction: column;
     align-items: flex-start;
+    font-size: 13px;
   }
 
   .worker-ratings-table td::before {
