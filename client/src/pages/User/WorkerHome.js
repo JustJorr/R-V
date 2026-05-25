@@ -21,13 +21,11 @@ function WorkerHome({ worker }) {
   const [loading, setLoading] = useState(true);
   const [ratingData, setRatingData] = useState(null);
   const [showLegend, setShowLegend] = useState(false);
-  const [refreshing, setRefreshing] = useState(false); // ⭐ NEW
 
   const fetchData = useCallback(async () => {
     if (!worker?._id) return;
     
     try {
-      setRefreshing(true); // ⭐ better UX
       setLoading(true);
 
       const response = await supervisorService.getRatingsForUser(worker._id);
@@ -36,7 +34,6 @@ function WorkerHome({ worker }) {
       console.error("Error fetching worker ratings:", err);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, [worker?._id]);
 
@@ -151,16 +148,6 @@ function WorkerHome({ worker }) {
         </p>
       </div>
 
-      {/* ===== IMPROVED REFRESH BUTTON ===== */}
-      <div className="home-actions">
-        <button
-          className="btn btn-refresh"
-          onClick={fetchData}
-          disabled={refreshing}
-        >
-          {refreshing ? "⏳ Refreshing..." : "🔄 Refresh"}
-        </button>
-      </div>
 
       {/* ===== STATS ===== */}
       <div className="stats-grid">
@@ -360,3 +347,5 @@ function WorkerHome({ worker }) {
 }
 
 export default WorkerHome;
+
+

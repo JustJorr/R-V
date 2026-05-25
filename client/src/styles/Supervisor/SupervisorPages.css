@@ -26,16 +26,21 @@
 /* ===== MANAGER HOME PAGE ===== */
 .supervisor-home .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
   align-items: stretch;
+}
+
+.supervisor-home {
+  max-width: 980px;
+  margin: 0 auto;
 }
 
 .stat-card {
   background: white;
   border-radius: 12px;
-  padding: 20px 22px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -83,7 +88,7 @@
 
 .stat-info .stat-number {
   margin: 2px 0 0;
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 800;
   line-height: 1;
   color: #333;
@@ -106,14 +111,14 @@
 .recent-section {
   background: white;
   border-radius: 12px;
-  padding: 30px;
-  margin-bottom: 30px;
+  padding: 18px;
+  margin-bottom: 18px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .recent-section h2 {
-  margin: 0 0 25px 0;
-  font-size: 20px;
+  margin: 0 0 14px 0;
+  font-size: 16px;
   color: #333;
   font-weight: 700;
 }
@@ -208,7 +213,7 @@
 .quick-stat {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 14px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }

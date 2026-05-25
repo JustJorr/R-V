@@ -21,11 +21,9 @@ function SupervisorHome() {
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showLegend, setShowLegend] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
-      setRefreshing(true);
       setLoading(true);
       const response = await supervisorService.getDashboard();
       setWorkers(response.data || []);
@@ -33,7 +31,6 @@ function SupervisorHome() {
       console.error("Error fetching home data:", err);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, []);
 
@@ -115,18 +112,7 @@ function SupervisorHome() {
       <div className="page-header">
         <h1>Welcome Back!</h1>
         <p>Here is your performance overview</p>
-      </div>
-
-      <div className="home-actions">
-        <button
-          className="btn btn-refresh"
-          onClick={fetchData}
-          disabled={refreshing}
-        >
-          {refreshing ? "⏳ Refreshing..." : "🔄 Refresh"}
-        </button>
-      </div>
-
+      </div>`r`n
       {/* ===== STATS ===== */}
       <div className="stats-grid">
         <div className="stat-card primary">
