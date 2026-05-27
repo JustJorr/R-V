@@ -2,29 +2,31 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
+import { useLanguage } from "../../context/LanguageContext";
 
 const ratingFields = [
-  { key: "workAreaCompliance", label: "Work Area" },
-  { key: "taskCompletion", label: "Task Completion" },
-  { key: "cleanliness", label: "Cleanliness" },
-  { key: "wasteManagement", label: "Waste Mgmt" },
-  { key: "organization", label: "Organization" },
-  { key: "uniformCompliance", label: "Uniform" },
-  { key: "independence", label: "Independence" },
-  { key: "initiative", label: "Initiative" },
-  { key: "teamworkSupport", label: "Teamwork" },
-  { key: "punctuality", label: "Punctuality" },
-  { key: "attendance", label: "Attendance" }
+  { key: "workAreaCompliance" },
+  { key: "taskCompletion" },
+  { key: "cleanliness" },
+  { key: "wasteManagement" },
+  { key: "organization" },
+  { key: "uniformCompliance" },
+  { key: "independence" },
+  { key: "initiative" },
+  { key: "teamworkSupport" },
+  { key: "punctuality" },
+  { key: "attendance" }
 ];
 
 const PIE_SEGMENTS = [
-  { key: "excellent", label: "Excellent (4.5+)", color: "#4caf50" },
-  { key: "good", label: "Good (3.5-4.4)", color: "#2196f3" },
-  { key: "average", label: "Average (2.5-3.4)", color: "#ff9800" },
-  { key: "poor", label: "Poor (<2.5)", color: "#f44336" }
+  { key: "excellent", labelKey: "supervisorVisuals.excellentLabel", color: "#4caf50" },
+  { key: "good", labelKey: "supervisorVisuals.goodLabel", color: "#2196f3" },
+  { key: "average", labelKey: "supervisorVisuals.averageLabel", color: "#ff9800" },
+  { key: "poor", labelKey: "supervisorVisuals.poorLabel", color: "#f44336" }
 ];
 
 function SupervisorDataVisuals() {
+  const { t } = useLanguage();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
@@ -165,7 +167,7 @@ function SupervisorDataVisuals() {
   if (loading) {
     return (
       <div className="page-content">
-        <div className="loading">Loading analytics...</div>
+        <div className="loading">{t("supervisorVisuals.loading")}</div>
       </div>
     );
   }
@@ -173,14 +175,14 @@ function SupervisorDataVisuals() {
   return (
     <div className="page-content supervisor-visuals">
       <div className="page-header">
-        <h1>Data Visuals and Analytics</h1>
-        <p>Performance metrics and insights</p>
+        <h1>{t("supervisorVisuals.title")}</h1>
+        <p>{t("supervisorVisuals.subtitle")}</p>
       </div>
 
       <div className="dv-filter-bar">
         <div className="dv-filter-inputs">
           <div className="dv-filter-group">
-            <label>By month</label>
+            <label>{t("supervisorVisuals.byMonth")}</label>
             <input
               type="month"
               value={filterMonth}
@@ -188,7 +190,7 @@ function SupervisorDataVisuals() {
             />
           </div>
           <button className="dv-btn-apply" onClick={handleApplyFilter}>
-            Apply
+            {t("supervisorVisuals.apply")}
           </button>
           {activeFilter && (
             <button className="dv-btn-reset" onClick={handleResetFilter}>
@@ -198,42 +200,42 @@ function SupervisorDataVisuals() {
         </div>
         {activeFilter && (
           <p className="dv-filter-note">
-            Showing workers whose latest rating month matches the selected month.
+            {t("supervisorVisuals.filterNote")}
           </p>
         )}
       </div>
 
       <div className="visuals-summary">
         <div className="summary-card">
-          <h3>Overall Average Rating</h3>
+          <h3>{t("supervisorVisuals.overallAverage")}</h3>
           <div className="big-stat">{stats.avgRating}</div>
-          <p className="summary-note">Based on {totalWorkers} workers</p>
+          <p className="summary-note">{t("supervisorVisuals.basedOnWorkers").replace("{count}", String(totalWorkers))}</p>
         </div>
 
         <div className="summary-card">
-          <h3>Total Workers Evaluated</h3>
+          <h3>{t("supervisorVisuals.totalWorkersEvaluated")}</h3>
           <div className="big-stat">{totalWorkers}</div>
-          <p className="summary-note">Active in system</p>
+          <p className="summary-note">{t("supervisorVisuals.activeInSystem")}</p>
         </div>
 
         <div className="summary-card">
-          <h3>Excellent Performers</h3>
+          <h3>{t("supervisorVisuals.excellentPerformers")}</h3>
           <div className="big-stat">{stats.ratingDistribution.excellent}</div>
-          <p className="summary-note">Rating 4.5+</p>
+          <p className="summary-note">{t("supervisorVisuals.ratingFourFive")}</p>
         </div>
       </div>
 
       {totalWorkers === 0 ? (
-        <div className="no-data">No data matches the selected filter.</div>
+        <div className="no-data">{t("supervisorVisuals.noDataFilter")}</div>
       ) : (
         <>
           <div className="chart-section">
-            <h2>Rating Distribution</h2>
+            <h2>{t("supervisorVisuals.ratingDistribution")}</h2>
             <div className="distribution-container">
               {PIE_SEGMENTS.map((item) => (
                 <div key={item.key} className="distribution-bar">
                   <div className="bar-label">
-                    <span>{item.label}</span>
+                    <span>{t(item.labelKey)}</span>
                     <span>{stats.ratingDistribution[item.key]}</span>
                   </div>
                   <div className="bar-background">
@@ -251,12 +253,12 @@ function SupervisorDataVisuals() {
           </div>
 
           <div className="chart-section">
-            <h2>Rating Distribution Pie</h2>
+            <h2>{t("supervisorVisuals.pieTitle")}</h2>
             <div className="pie-chart-layout">
               <div className="pie-chart" style={{ background: pieData.background }}>
                 <div className="pie-center">
                   <span>{pieData.total}</span>
-                  <small>workers</small>
+                  <small>{t("supervisorVisuals.workers")}</small>
                 </div>
               </div>
 
@@ -264,7 +266,7 @@ function SupervisorDataVisuals() {
                 {pieData.legend.map((item) => (
                   <div key={item.key} className="pie-legend-item">
                     <span className="pie-dot" style={{ backgroundColor: item.color }} />
-                    <span className="pie-label">{item.label}</span>
+                    <span className="pie-label">{t(item.labelKey)}</span>
                     <span className="pie-value">{item.count} ({item.percent.toFixed(0)}%)</span>
                   </div>
                 ))}
@@ -273,7 +275,7 @@ function SupervisorDataVisuals() {
           </div>
 
           <div className="chart-section">
-            <h2>Top 6 Performers</h2>
+            <h2>{t("supervisorVisuals.topPerformers")}</h2>
             <div className="top-performers">
               {stats.topRated.map((worker, index) => (
                 <div key={worker._id} className="performer-item">
@@ -291,7 +293,7 @@ function SupervisorDataVisuals() {
                     </span>
                   </div>
                   <div className="performer-meta">
-                    <p>{worker.totalRatings} ratings</p>
+                    <p>{worker.totalRatings} {t("supervisorVisuals.ratings")}</p>
                   </div>
                 </div>
               ))}
@@ -299,14 +301,14 @@ function SupervisorDataVisuals() {
           </div>
 
           <div className="chart-section">
-            <h2>Performance KPI Averages</h2>
-            <p className="kpi-note">Based on workers with submitted monthly ratings: {ratedWorkers.length}</p>
+            <h2>{t("supervisorVisuals.kpiAverages")}</h2>
+            <p className="kpi-note">{t("supervisorVisuals.kpiNote").replace("{count}", String(ratedWorkers.length))}</p>
             <div className="skills-overview">
               {ratingFields.map((field) => {
                 const avg = getKpiAverage(field.key);
                 return (
                   <div className="skill-item" key={field.key}>
-                    <span className="skill-name">{field.label}</span>
+                    <span className="skill-name">{t(`kpi.${field.key}`)}</span>
                     <div className="skill-bar">
                       <div
                         className="skill-fill"

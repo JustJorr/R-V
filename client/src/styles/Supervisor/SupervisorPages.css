@@ -26,16 +26,21 @@
 /* ===== MANAGER HOME PAGE ===== */
 .supervisor-home .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
   align-items: stretch;
+}
+
+.supervisor-home {
+  max-width: 980px;
+  margin: 0 auto;
 }
 
 .stat-card {
   background: white;
   border-radius: 12px;
-  padding: 20px 22px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -83,7 +88,7 @@
 
 .stat-info .stat-number {
   margin: 2px 0 0;
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 800;
   line-height: 1;
   color: #333;
@@ -106,14 +111,14 @@
 .recent-section {
   background: white;
   border-radius: 12px;
-  padding: 30px;
-  margin-bottom: 30px;
+  padding: 18px;
+  margin-bottom: 18px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .recent-section h2 {
-  margin: 0 0 25px 0;
-  font-size: 20px;
+  margin: 0 0 14px 0;
+  font-size: 16px;
   color: #333;
   font-weight: 700;
 }
@@ -208,7 +213,7 @@
 .quick-stat {
   background: white;
   border-radius: 12px;
-  padding: 20px;
+  padding: 14px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
@@ -2448,51 +2453,300 @@
 
 /* Supervisor ratings: mobile card table */
 @media (max-width: 768px) {
+  .table-responsive {
+    background: transparent;
+    box-shadow: none;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
   .supervisor-ratings-table {
+    width: 100% !important;
     min-width: 0 !important;
     border-collapse: separate;
     border-spacing: 0 10px;
+    background: transparent;
+    table-layout: fixed;
   }
 
   .supervisor-ratings-table thead {
     display: none;
   }
 
-  .supervisor-ratings-table tbody,
-  .supervisor-ratings-table tr,
-  .supervisor-ratings-table td {
-    display: block;
-    width: 100%;
-    text-align: left !important;
+  .supervisor-ratings-table tbody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
 
   .supervisor-ratings-table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: min(360px, calc(100vw - 28px));
     background: #ffffff;
-    border: 1px solid #e5e7eb;
     border-radius: 12px;
-    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  .supervisor-ratings-table tr.rated-row {
+    background: #f0f7f0;
   }
 
   .supervisor-ratings-table td {
-    border: 0;
-    padding: 6px 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 14px;
+    border: none;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 13px;
+    text-align: left !important;
   }
 
   .supervisor-ratings-table td::before {
     content: attr(data-label);
-    display: block;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
-    color: #64748b;
+    color: #999;
     text-transform: uppercase;
-    margin-bottom: 3px;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .supervisor-ratings-table td[data-label="#"] {
+    display: none;
+  }
+
+  .supervisor-ratings-table td[data-label="Name"] {
+    grid-column: 1 / -1;
+    border-bottom: 1px solid #f0f0f0;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+
+  .supervisor-ratings-table td[data-label="Action"] {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: center;
+    border-bottom: none;
+    padding: 10px 16px 14px;
+  }
+
+  .supervisor-ratings-table td[data-label="Action"]::before {
+    display: none;
   }
 
   .supervisor-ratings-table .worker-name-cell {
-    justify-content: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
   }
 
-  .supervisor-ratings-table .comment-cell .comment-preview {
-    white-space: normal;
+  .supervisor-ratings-table .worker-badge {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    font-size: 13px;
+  }
+
+  .supervisor-ratings-table .btn {
+    width: 100%;
+    max-width: 180px;
+    padding: 9px 14px;
+    font-size: 13px;
+    text-align: center;
   }
 }
+
+/* Worker ratings mobile stack (shared in supervisor pages context) */
+@media (max-width: 768px) {
+  .table-responsive {
+    background: transparent;
+    box-shadow: none;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .worker-ratings-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    background: transparent;
+    table-layout: fixed;
+  }
+
+  .worker-ratings-table thead {
+    display: none;
+  }
+
+  .worker-ratings-table tbody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .worker-ratings-table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    max-width: min(360px, calc(100vw - 28px));
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  .worker-ratings-table tr.rated-row {
+    background: #f0f7f0;
+  }
+
+  .worker-ratings-table td[data-label="Name"] {
+    grid-column: 1 / -1;
+    border-bottom: 1px solid #f0f0f0;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 12px 16px;
+  }
+
+  .worker-ratings-table td[data-label="#"] {
+    display: none;
+  }
+
+  .worker-ratings-table td {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 10px 14px;
+    border: none;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 13px;
+  }
+
+  .worker-ratings-table td::before {
+    content: attr(data-label);
+    font-size: 10px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .worker-ratings-table td[data-label="Action"] {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    justify-content: center;
+    border-bottom: none;
+    padding: 10px 16px 14px;
+  }
+
+  .worker-ratings-table td[data-label="Action"]::before {
+    display: none;
+  }
+
+  .worker-ratings-table .worker-name-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .worker-ratings-table .worker-badge {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    font-size: 13px;
+  }
+
+  .worker-ratings-table .btn {
+    width: 100%;
+    max-width: 180px;
+    padding: 9px 14px;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .details-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .search-box {
+    min-width: unset;
+  }
+
+  .filter-buttons {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .filter-btn {
+    flex: 1;
+    min-width: 80px;
+    padding: 8px 10px;
+    font-size: 12px;
+    text-align: center;
+  }
+
+  .details-stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .quick-stat-pill {
+    padding: 10px 12px;
+  }
+
+  .quick-stat-pill .value {
+    font-size: 16px;
+  }
+}
+
+.profile-lang-toggle {
+  position: static;
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 6px 8px;
+}
+
+.profile-lang-toggle span {
+  font-size: 12px;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.profile-lang-toggle button {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #1f2937;
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.profile-lang-toggle button.active {
+  background: #1a3a7f;
+  border-color: #1a3a7f;
+  color: #fff;
+}
+

@@ -11,14 +11,14 @@ function AdminNav({
   const location = useLocation();
 
   const pages = [
-    { id: "home", label: "Home", icon: "🏠", path: "/" },
-    { id: "users", label: "Manage Users", icon: "👥", path: "/users" },
-    { id: "data", label: "Data Visuals", icon: "📊", path: "/data" },
-    { id: "tools", label: "Data Tools", icon: "🔧", path: "/tools" },
-    { id: "profile", label: "Profile", icon: "👤", path: "/profile" }
+    { id: "home", label: "Home", icon: "\u{1F3E0}", path: "/" },
+    { id: "users", label: "Manage Users", icon: "\u{1F465}", path: "/users" },
+    { id: "data", label: "Data Visuals", icon: "\u{1F4CA}", path: "/data" },
+    { id: "tools", label: "Data Tools", icon: "\u{1F527}", path: "/tools" },
+    { id: "edit-requests", label: "Edit Requests", icon: "\u{1F4E8}", path: "/edit-requests" },
+    { id: "profile", label: "Profile", icon: "\u{1F464}", path: "/profile" }
   ];
 
-  // detect active page from URL instead of state
   const isActive = (path) => {
     if (path === "/" && location.pathname === "/") return true;
     if (path !== "/" && location.pathname.includes(path)) return true;
@@ -28,24 +28,19 @@ function AdminNav({
   return (
     <nav className={`supervisor-nav ${collapsed ? "collapsed" : ""}`}>
       <div className="nav-container">
-
-        {/* Toggle */}
         <button
           className="toggle-btn"
           onClick={() => setCollapsed(!collapsed)}
           title={collapsed ? "Expand" : "Collapse"}
         >
-          {collapsed ? "»" : "«"}
+          {collapsed ? ">" : "<"}
         </button>
 
-        {/* Logo */}
         <div className="nav-brand">
           <img src="/PGE_Logo.png" alt="Logo" className="nav-logo" />
         </div>
 
-        {/* Menu */}
         <div className="nav-menu">
-
           <div className="nav-pages">
             {pages.map((page) => (
               <button
@@ -55,24 +50,15 @@ function AdminNav({
                 title={page.label}
               >
                 <span className="nav-icon">{page.icon}</span>
-
-                {!collapsed && (
-                  <span className="nav-label">{page.label}</span>
-                )}
+                {!collapsed && <span className="nav-label">{page.label}</span>}
               </button>
             ))}
           </div>
 
-          {/* User Section */}
           <div className="nav-worker">
             <div className="worker-info">
-              <div className="worker-avatar">
-                {userName?.charAt(0)?.toUpperCase()}
-              </div>
-
-              {!collapsed && (
-                <span className="worker-name">{userName}</span>
-              )}
+              <div className="worker-avatar">{userName?.charAt(0)?.toUpperCase()}</div>
+              {!collapsed && <span className="worker-name">{userName}</span>}
             </div>
 
             {!collapsed && (
@@ -81,7 +67,6 @@ function AdminNav({
               </button>
             )}
           </div>
-
         </div>
       </div>
     </nav>

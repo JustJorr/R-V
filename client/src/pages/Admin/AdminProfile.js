@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { usersService } from "../../services/api";
 import "../../styles/Admin/AdminPages.css";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
+import { useLanguage } from "../../context/LanguageContext";
 
 function AdminProfile({ worker, onLogout, onProfileUpdated }) {
+  const { language, setLanguage, t } = useLanguage();
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [formData, setFormData] = useState({
     name: worker?.name || "",
     email: worker?.email || "",
@@ -36,10 +40,10 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
     try {
       const response = await usersService.updateProfile(worker._id, { name: formData.name });
       onProfileUpdated?.(response.data);
-      setMessage("Profile updated successfully.");
+      setMessage(t("profile.updatedSuccess"));
       setEditMode(false);
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to update profile.");
+      setError(err?.response?.data?.message || t("profile.updateFailed"));
     } finally {
       setSaving(false);
     }
@@ -59,8 +63,13 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
   return (
     <div className="page-content admin-page admin-profile-page">
       <div className="page-header">
-        <h1>My Profile</h1>
-        <p>View and manage your account settings</p>
+        <h1>{t("profile.title")}</h1>
+        <p>{t("profile.subtitle")}</p>
+        <div className="language-toggle profile-lang-toggle">
+          <span>{t("common.language")}:</span>
+          <button type="button" className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>{t("common.english")}</button>
+          <button type="button" className={language === "id" ? "active" : ""} onClick={() => setLanguage("id")}>{t("common.indonesian")}</button>
+        </div>
       </div>
 
       <div className="admin-profile-container">
@@ -75,11 +84,11 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
 
         <div className="admin-profile-grid">
           <div className="admin-card">
-            <h3>Account Information</h3>
+            <h3>{t("profile.accountInfo")}</h3>
             {editMode ? (
               <>
                 <div className="form-group" style={{ marginBottom: "15px" }}>
-                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Full Name</label>
+                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>{t("common.fullName")}</label>
                   <input
                     type="text"
                     name="name"
@@ -89,7 +98,7 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
                   />
                 </div>
                 <div className="form-group" style={{ marginBottom: "15px" }}>
-                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>Email Address</label>
+                  <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>{t("common.email")}</label>
                   <input
                     type="email"
                     name="email"
@@ -103,62 +112,55 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
             ) : (
               <>
                 <div className="admin-profile-row">
-                  <span>Full Name</span>
+                  <span>{t("common.fullName")}</span>
                   <strong>{formData.name}</strong>
                 </div>
                 <div className="admin-profile-row">
-                  <span>Email Address</span>
+                  <span>{t("common.email")}</span>
                   <strong>{formData.email}</strong>
                 </div>
               </>
             )}
             <div className="admin-profile-row">
-              <span>Account Role</span>
+              <span>{t("common.role")}</span>
               <strong>{formData.role}</strong>
             </div>
           </div>
 
           <div className="admin-card">
-            <h3>Statistics</h3>
+            <h3>{t("profile.statistics")}</h3>
             <div className="admin-profile-stats">
-              <div className="admin-profile-stat"><span>Account Created</span><strong>{worker?.createdAt ? new Date(worker.createdAt).toLocaleDateString() : "Not available"}</strong></div>
-              <div className="admin-profile-stat"><span>Average Rating</span><strong>{typeof worker?.averageRating === "number" ? worker.averageRating.toFixed(1) : "N/A"}</strong></div>
-              <div className="admin-profile-stat"><span>Total Ratings</span><strong>{worker?.totalRatings ?? "N/A"}</strong></div>
-              <div className="admin-profile-stat"><span>Account ID</span><strong>{worker?._id ? String(worker._id).slice(-8) : "N/A"}</strong></div>
+              <div className="admin-profile-stat"><span>{t("profile.accountCreated")}</span><strong>{worker?.createdAt ? new Date(worker.createdAt).toLocaleDateString() : t("profile.notAvailable")}</strong></div>
+              <div className="admin-profile-stat"><span>{t("profile.avgRating")}</span><strong>{typeof worker?.averageRating === "number" ? worker.averageRating.toFixed(1) : "N/A"}</strong></div>
+              <div className="admin-profile-stat"><span>{t("profile.totalRatings")}</span><strong>{worker?.totalRatings ?? "N/A"}</strong></div>
+              <div className="admin-profile-stat"><span>{t("profile.accountId")}</span><strong>{worker?._id ? String(worker._id).slice(-8) : "N/A"}</strong></div>
             </div>
           </div>
         </div>
 
         <div className="admin-card admin-profile-full">
-          <h3>Preferences</h3>
-          <div className="admin-profile-pref">Receive email notifications</div>
-          <div className="admin-profile-pref">Show admin dashboard tips</div>
+          <h3>{t("profile.preferences")}</h3>
+          <div className="admin-profile-pref">{t("profile.receiveEmail")}</div>
+          <div className="admin-profile-pref">{t("profile.showTipsAdmin")}</div>
         </div>
 
         <div className="admin-profile-actions" style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
           {editMode ? (
             <>
               <button className="admin-btn primary" onClick={handleSave} disabled={saving}>
-                {saving ? "Saving..." : "Save Changes"}
+                {saving ? `${t("common.saveChanges")}...` : t("common.saveChanges")}
               </button>
               <button className="admin-btn secondary" onClick={handleCancel}>
-                Cancel
+                {t("common.cancel")}
               </button>
             </>
           ) : (
             <>
               <button className="admin-btn primary" onClick={() => setEditMode(true)}>
-                Edit Profile
+                {t("common.editProfile")}
               </button>
-              <button
-                className="admin-btn primary"
-                onClick={() => {
-                  if (window.confirm("Are you sure you want to logout?")) {
-                    onLogout();
-                  }
-                }}
-              >
-                Logout
+              <button className="admin-btn primary" onClick={() => setShowLogoutConfirm(true)}>
+                {t("common.logout")}
               </button>
             </>
           )}
@@ -167,6 +169,19 @@ function AdminProfile({ worker, onLogout, onProfileUpdated }) {
         {message && <p className="profile-success">{message}</p>}
         {error && <p className="profile-error">{error}</p>}
       </div>
+
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        title={t("profile.logoutTitle")}
+        message={t("profile.logoutConfirm")}
+        confirmText={t("common.logout")}
+        cancelText={t("common.cancel")}
+        onCancel={() => setShowLogoutConfirm(false)}
+        onConfirm={() => {
+          setShowLogoutConfirm(false);
+          onLogout();
+        }}
+      />
     </div>
   );
 }

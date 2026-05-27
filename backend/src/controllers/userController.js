@@ -45,6 +45,11 @@ async function login(req, res) {
     if (worker.password !== req.body.password) {
       return res.status(400).json({ message: "Invalid password" });
     }
+    
+    // Check if worker is approved (workers must be approved, supervisors/admins are auto-approved)
+    if (worker.role === "worker" && !worker.isApproved) {
+      return res.status(403).json({ message: "Your account is pending admin approval" });
+    }
 
     res.json({
       _id: worker._id,

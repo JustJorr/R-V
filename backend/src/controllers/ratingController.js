@@ -12,8 +12,7 @@ async function submitRating(req, res) {
     const previousMonth = getPreviousMonthKey();
     const targetMonth = req.body.dateKey || (rater.role === "worker" ? previousMonth : currentMonth);
     const allowedMonths = getAllowedMonthsForRole(rater.role);
-
-    if (!allowedMonths.has(targetMonth)) {
+    if (rater.role === "worker" && !allowedMonths.has(targetMonth)) {
       const roleMessage = rater.role === "worker"
         ? "Workers can only submit or edit ratings for last month after the month has ended."
         : "Ratings can only be submitted or edited for this month or last month.";
@@ -29,10 +28,21 @@ async function submitRating(req, res) {
     let newRating;
 
     if (existingRating) {
+      if (rater.role === "worker" && existingRating.workerEditRequestStatus !== "approved") {
+        return res.status(403).json({
+          message: "This rating is locked. Please request admin approval before editing."
+        });
+      }
+
       KPI_FIELDS.forEach((f) => {
         existingRating[f] = req.body[f];
       });
       existingRating.comment = req.body.comment;
+      if (rater.role === "worker") {
+        existingRating.workerEditRequestStatus = "none";
+        existingRating.workerEditRequestReason = "";
+        existingRating.workerEditRequestAt = null;
+      }
       newRating = await existingRating.save();
     } else {
       const rating = new Rating({
@@ -65,6 +75,35 @@ async function submitRating(req, res) {
     });
 
     res.status(201).json(newRating);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+}
+
+async function requestWorkerRatingEdit(req, res) {
+  try {
+    const { ratingId } = req.params;
+    const { workerId, reason } = req.body;
+
+    const worker = await User.findById(workerId).select("role");
+    if (!worker || worker.role !== "worker") {
+      return res.status(403).json({ message: "Only workers can request rating edits." });
+    }
+
+    const rating = await Rating.findById(ratingId);
+    if (!rating) return res.status(404).json({ message: "Rating not found." });
+    if (String(rating.ratedBy) !== String(workerId)) {
+      return res.status(403).json({ message: "You can only request edit for your own rating." });
+    }
+
+    rating.workerEditRequestStatus = "pending";
+    rating.workerEditRequestReason = (reason || "").trim();
+    rating.workerEditRequestAt = new Date();
+    rating.workerEditRequestReviewedAt = null;
+    rating.workerEditRequestReviewedBy = null;
+    await rating.save();
+
+    res.json({ message: "Edit request sent to admin.", rating });
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -120,5 +159,6 @@ async function getRatingHistory(req, res) {
 module.exports = {
   submitRating,
   getRatingsForWorker,
-  getRatingHistory
+  getRatingHistory,
+  requestWorkerRatingEdit
 };

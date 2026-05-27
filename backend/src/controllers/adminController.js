@@ -74,10 +74,120 @@ async function getAdminDashboard(req, res) {
   }
 }
 
+async function getPendingRatingEditRequests(req, res) {
+  try {
+    const requests = await Rating.find({
+      workerEditRequestStatus: "pending"
+    })
+      .populate("ratedBy", "name email role")
+      .populate("ratedUser", "name email role")
+      .sort({ workerEditRequestAt: -1 });
+
+    res.json(requests);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function reviewRatingEditRequest(req, res) {
+  try {
+    const { ratingId } = req.params;
+    const { adminId, action } = req.body;
+
+    if (!["approve", "reject"].includes(action)) {
+      return res.status(400).json({ message: "Action must be approve or reject." });
+    }
+
+    const admin = await User.findById(adminId).select("role");
+    if (!admin || admin.role !== "admin") {
+      return res.status(403).json({ message: "Only admins can review edit requests." });
+    }
+
+    const rating = await Rating.findById(ratingId);
+    if (!rating) return res.status(404).json({ message: "Rating not found." });
+    if (rating.workerEditRequestStatus !== "pending") {
+      return res.status(400).json({ message: "This request is not pending." });
+    }
+
+    rating.workerEditRequestStatus = action === "approve" ? "approved" : "rejected";
+    rating.workerEditRequestReviewedAt = new Date();
+    rating.workerEditRequestReviewedBy = adminId;
+    await rating.save();
+
+    res.json({ message: `Request ${action}d successfully.`, rating });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function getPendingWorkerApprovals(req, res) {
+  try {
+    const pendingWorkers = await User.find({
+      role: "worker",
+      isApproved: false
+    })
+      .select("-password")
+      .sort({ createdAt: -1 });
+
+    res.json(pendingWorkers);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function approveWorker(req, res) {
+  try {
+    const { workerId } = req.params;
+    const worker = await User.findById(workerId);
+
+    if (!worker) {
+      return res.status(404).json({ message: "Worker not found" });
+    }
+
+    if (worker.role !== "worker") {
+      return res.status(400).json({ message: "Only workers can be approved" });
+    }
+
+    worker.isApproved = true;
+    await worker.save();
+
+    const workerObj = worker.toObject();
+    delete workerObj.password;
+    res.json({ message: "Worker approved successfully", worker: workerObj });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
+async function rejectWorker(req, res) {
+  try {
+    const { workerId } = req.params;
+    const worker = await User.findById(workerId);
+
+    if (!worker) {
+      return res.status(404).json({ message: "Worker not found" });
+    }
+
+    if (worker.role !== "worker") {
+      return res.status(400).json({ message: "Only workers can be rejected" });
+    }
+
+    await User.findByIdAndDelete(workerId);
+    res.json({ message: "Worker rejected and deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+}
+
 module.exports = {
   getAdminUsers,
   updateUserRole,
   deleteUser,
   changePassword,
-  getAdminDashboard
+  getAdminDashboard,
+  getPendingRatingEditRequests,
+  reviewRatingEditRequest,
+  getPendingWorkerApprovals,
+  approveWorker,
+  rejectWorker
 };
