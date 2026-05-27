@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+﻿import { useState, useEffect, useCallback, useMemo } from "react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor, getRatingStatus } from "../../utils/helpers";
 import { useNavigate } from "react-router-dom";
@@ -351,7 +351,7 @@ function SupervisorRatings({ worker: supervisor }) {
                           </div>
 
                           <div className="summary-low">
-                            {t("supervisorRatings.lowShort")} {lowest.short}: {lowest.value}
+                            {t("supervisorRatings.lowShort")} {t(`kpiShort.${lowest.key}`)}: {lowest.value}
                           </div>
 
                           <small className="rating-timestamp">
@@ -408,4 +408,6 @@ function SupervisorRatings({ worker: supervisor }) {
 }
 
 export default SupervisorRatings;
+
+
 

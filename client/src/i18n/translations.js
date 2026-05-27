@@ -78,11 +78,12 @@ export const translations = {
       legendTitle: "Rating Field Abbreviations",
       hide: "Hide",
       show: "Show",
-      monthlyHistory: "Monthly Rating History",
+      monthlyHistory: "Monthly Rating History", 
       ratingsSuffix: "ratings",
       ratingSuffix: "rating",
       overallRating: "Overall Rating",
-      noMonthlyHistory: "No monthly history available yet."
+      noMonthlyHistory: "No monthly history available yet.",
+      avgShort: "avg"
     },
     workerRatings: {
       modalTitle: "Request Rating Edit",
@@ -252,6 +253,19 @@ export const translations = {
       teamworkSupport: "Teamwork Support",
       punctuality: "Punctuality",
       attendance: "Attendance"
+    },
+    kpiShort: {
+      workAreaCompliance: "WA",
+      taskCompletion: "TC",
+      cleanliness: "CL",
+      wasteManagement: "WM",
+      organization: "OR",
+      uniformCompliance: "UC",
+      independence: "IN",
+      initiative: "IV",
+      teamworkSupport: "TS",
+      punctuality: "PU",
+      attendance: "AT"
     }
   },
   id: {
@@ -337,7 +351,8 @@ export const translations = {
       ratingsSuffix: "penilaian",
       ratingSuffix: "penilaian",
       overallRating: "Nilai Keseluruhan",
-      noMonthlyHistory: "Belum ada riwayat bulanan."
+      noMonthlyHistory: "Belum ada riwayat bulanan.",
+      avgShort: "rata-rata"
     },
     workerRatings: {
       modalTitle: "Minta Edit Penilaian",
@@ -500,13 +515,26 @@ export const translations = {
       taskCompletion: "Penyelesaian Tugas",
       cleanliness: "Kebersihan",
       wasteManagement: "Pengelolaan Sampah",
-      organization: "Kerapihan Organisasi",
-      uniformCompliance: "Kepatuhan Seragam/APD",
+      organization: "Kerapihan",
+      uniformCompliance: "Kepatuhan Seragam",
       independence: "Kemandirian",
       initiative: "Inisiatif",
-      teamworkSupport: "Dukungan Kerja Tim",
+      teamworkSupport: "Kerja Sama Tim",
       punctuality: "Ketepatan Waktu",
       attendance: "Kehadiran"
+    },
+    kpiShort: {
+      workAreaCompliance: "KAK",
+      taskCompletion: "PT",
+      cleanliness: "KB",
+      wasteManagement: "PS",
+      organization: "KR",
+      uniformCompliance: "KS",
+      independence: "KM",
+      initiative: "IS",
+      teamworkSupport: "KST",
+      punctuality: "KW",
+      attendance: "KH"
     }
   }
 };

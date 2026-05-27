@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+﻿import { useState, useEffect, useMemo, useCallback } from "react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/Supervisor/SupervisorPages.css";
@@ -127,7 +127,7 @@ function SupervisorHome() {
           <div className="stat-info">
             <h3>{t("supervisorHome.averageRating")}</h3>
             <p className="stat-number" style={{ color: getRatingColor(Number(dashboard.avgRating)) }}>
-              {dashboard.avgRating}★
+              {dashboard.avgRating} ★
             </p>
           </div>
         </div>
@@ -138,7 +138,7 @@ function SupervisorHome() {
             <h3>{t("supervisorHome.topPerformer")}</h3>
             <p className="stat-text">{dashboard.topWorker?.name || t("supervisorHome.notAvailable")}</p>
             {dashboard.topWorker && (
-              <p className="stat-meta">{Number(dashboard.topWorker.averageRating).toFixed(1)}★</p>
+              <p className="stat-meta">{Number(dashboard.topWorker.averageRating).toFixed(1)} ★</p>
             )}
           </div>
         </div>
@@ -149,7 +149,7 @@ function SupervisorHome() {
             <h3>{t("supervisorHome.supportNeeded")}</h3>
             <p className="stat-text">{dashboard.supportWorker?.name || t("supervisorHome.notAvailable")}</p>
             {dashboard.supportWorker && (
-              <p className="stat-meta">{Number(dashboard.supportWorker.averageRating).toFixed(1)}★</p>
+              <p className="stat-meta">{Number(dashboard.supportWorker.averageRating).toFixed(1)} ★</p>
             )}
           </div>
         </div>
@@ -160,41 +160,43 @@ function SupervisorHome() {
 
         {dashboard.recentRatings.length > 0 ? (
           <div className="recent-list">
-            {dashboard.recentRatings.map((item) => (
-              <div key={`${item.worker._id}-${item.rating.createdAt}`} className="recent-item">
-                <div className="recent-worker">
-                  <div className="worker-avatar">{item.worker.name.charAt(0).toUpperCase()}</div>
-                  <div className="worker-details">
-                    <h4>{item.worker.name}</h4>
-                    <p className="worker-email">{item.worker.email}</p>
+            {dashboard.recentRatings.map((item) => {
+              const ratingAvg = (
+                ratingFields.reduce((sum, f) => sum + (Number(item.rating[f.key]) || 0), 0) /
+                ratingFields.length
+              ).toFixed(1);
+
+              const lowestFields = [...ratingFields]
+                .map((f) => ({ ...f, value: Number(item.rating[f.key]) || 0 }))
+                .sort((a, b) => a.value - b.value)
+                .slice(0, 3);
+
+              return (
+                <div key={`${item.worker._id}-${item.rating.createdAt}`} className="recent-item">
+                  <div className="recent-worker">
+                    <div className="worker-avatar">{item.worker.name.charAt(0).toUpperCase()}</div>
+                    <div className="worker-details">
+                      <h4>{item.worker.name}</h4>
+                      <p className="worker-email">{item.worker.email}</p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="recent-rating">
-                  <div className="rating-fields-small">
-                    <span className="field-badge main">
-                      AVG:{" "}
-                      {(
-                        ratingFields.reduce((sum, f) => sum + (Number(item.rating[f.key]) || 0), 0) / ratingFields.length
-                      ).toFixed(1)}
-                      ★
-                    </span>
-
-                    {ratingFields
-                      .map((f) => ({ ...f, value: Number(item.rating[f.key]) || 0 }))
-                      .sort((a, b) => a.value - b.value)
-                      .slice(0, 3)
-                      .map((f) => (
+                  <div className="recent-rating">
+                    <div className="rating-fields-small">
+                      <span className="field-badge main">
+                        AVG: {ratingAvg} ★
+                      </span>
+                      {lowestFields.map((f) => (
                         <span key={f.key} className="field-badge warning">
-                          {f.short}: {f.value}★
+                          {t(`kpiShort.${f.key}`)}: {f.value} ★
                         </span>
                       ))}
+                    </div>
+                    <p className="recent-time">{new Date(item.rating.createdAt).toLocaleDateString()}</p>
                   </div>
-
-                  <p className="recent-time">{new Date(item.rating.createdAt).toLocaleDateString()}</p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="no-data">{t("supervisorHome.noRatings")}</p>
@@ -226,13 +228,15 @@ function SupervisorHome() {
       <div className="legend-box bottom">
         <div className="legend-header" onClick={() => setShowLegend((prev) => !prev)}>
           <span className="legend-title">ℹ️ {t("supervisorHome.legendTitle")}</span>
-          <span className="legend-toggle">{showLegend ? `▲ ${t("supervisorHome.hide")}` : `▼ ${t("supervisorHome.show")}`}</span>
+          <span className="legend-toggle">
+            {showLegend ? `▲ ${t("supervisorHome.hide")}` : `▼ ${t("supervisorHome.show")}`}
+          </span>
         </div>
         {showLegend && (
           <div className="legend-grid">
             {ratingFields.map((f) => (
               <div key={f.key} className="legend-item">
-                <span className="legend-short">{f.short}</span>
+                <span className="legend-short">{t(`kpiShort.${f.key}`)}</span>
                 <span className="legend-label">{t(`kpi.${f.key}`)}</span>
               </div>
             ))}

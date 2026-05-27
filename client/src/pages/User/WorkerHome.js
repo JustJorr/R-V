@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+﻿import { useState, useEffect, useMemo, useCallback } from "react";
 import { supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
@@ -21,7 +21,7 @@ const ratingFields = [
 function WorkerHome({ worker }) {
   const { t } = useLanguage();
   const [loading, setLoading] = useState(true);
-  const [ratingData, setRatingData] = useState(null);
+  const [ratingData, setRatingData] = useState([]);
   const [showLegend, setShowLegend] = useState(false);
 
   const fetchData = useCallback(async () => {
@@ -33,6 +33,7 @@ function WorkerHome({ worker }) {
       setRatingData(Array.isArray(response.data) ? response.data : []);
     } catch (err) {
       console.error("Error fetching worker ratings:", err);
+      setRatingData([]);
     } finally {
       setLoading(false);
     }
@@ -43,28 +44,28 @@ function WorkerHome({ worker }) {
   }, [fetchData]);
 
   const dashboard = useMemo(() => {
-    if (!Array.isArray(ratingData)) {
+    if (!Array.isArray(ratingData) || ratingData.length === 0) {
       return {
         avgRating: "0.00",
         totalRatings: 0,
         recentRatings: [],
         updatedInLastWeek: 0,
         lowestAreas: [],
+        fieldAverages: {},
         monthlyHistory: []
       };
     }
 
-    const ratings = ratingData;
+    const ratings = [...ratingData];
 
-    const avgRatingRaw = ratings.length > 0
-      ? ratings.reduce((sum, r) => {
-          const fieldValues = ratingFields.map((f) => Number(r[f.key]) || 0);
-          const avg = fieldValues.reduce((a, b) => a + b, 0) / fieldValues.length;
-          return sum + avg;
-        }, 0) / ratings.length
-      : 0;
+    const avgRatingRaw =
+      ratings.reduce((sum, r) => {
+        const fieldValues = ratingFields.map((f) => Number(r[f.key]) || 0);
+        const avg = fieldValues.reduce((a, b) => a + b, 0) / fieldValues.length;
+        return sum + avg;
+      }, 0) / ratings.length;
 
-    const recentRatings = ratings
+    const recentRatings = [...ratings]
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 8);
 
@@ -80,9 +81,10 @@ function WorkerHome({ worker }) {
     const fieldAverages = {};
     ratingFields.forEach((f) => {
       const values = ratings.map((r) => Number(r[f.key]) || 0);
-      fieldAverages[f.key] = values.length > 0
-        ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
-        : 0;
+      fieldAverages[f.key] =
+        values.length > 0
+          ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
+          : "0.0";
     });
 
     const lowestAreas = ratingFields
@@ -93,7 +95,9 @@ function WorkerHome({ worker }) {
     const monthlyMap = ratings.reduce((acc, rating) => {
       const monthKey =
         rating.dateKey ||
-        (rating.createdAt ? new Date(rating.createdAt).toISOString().slice(0, 7) : "Unknown");
+        (rating.createdAt
+          ? new Date(rating.createdAt).toISOString().slice(0, 7)
+          : "Unknown");
       if (!acc[monthKey]) acc[monthKey] = [];
       acc[monthKey].push(rating);
       return acc;
@@ -111,7 +115,10 @@ function WorkerHome({ worker }) {
         return {
           monthKey,
           monthLabel: /^\d{4}-\d{2}$/.test(monthKey)
-            ? new Date(`${monthKey}-01`).toLocaleDateString(undefined, { year: "numeric", month: "long" })
+            ? new Date(`${monthKey}-01`).toLocaleDateString(undefined, {
+                year: "numeric",
+                month: "long"
+              })
             : monthKey,
           count: entries.length,
           average: monthAverage
@@ -152,8 +159,11 @@ function WorkerHome({ worker }) {
           <div className="stat-icon">⭐</div>
           <div className="stat-info">
             <h3>{t("workerHome.avgRating")}</h3>
-            <p className="stat-number" style={{ color: getRatingColor(Number(dashboard.avgRating)) }}>
-              {dashboard.avgRating}★
+            <p
+              className="stat-number"
+              style={{ color: getRatingColor(Number(dashboard.avgRating)) }}
+            >
+              {dashboard.avgRating}
             </p>
           </div>
         </div>
@@ -167,7 +177,7 @@ function WorkerHome({ worker }) {
         </div>
 
         <div className="stat-card warning">
-          <div className="stat-icon">📉</div>
+          <div className="stat-icon">⚠️</div>
           <div className="stat-info">
             <h3>{t("workerHome.updated7Days")}</h3>
             <p className="stat-number">{dashboard.updatedInLastWeek}</p>
@@ -180,56 +190,65 @@ function WorkerHome({ worker }) {
 
         {dashboard.recentRatings.length > 0 ? (
           <div className="recent-list">
-            {dashboard.recentRatings.map((rating, idx) => (
-              <div key={`${rating._id}-${idx}`} className="recent-item">
-                <div className="recent-worker">
-                  {rating.ratedBy?.role === "supervisor" && (
-                    <div className="worker-avatar">
-                      {(rating.ratedBy?.name || "S").charAt(0).toUpperCase()}
+            {dashboard.recentRatings.map((rating, idx) => {
+              const ratingAvg = (
+                ratingFields.reduce(
+                  (sum, f) => sum + (Number(rating[f.key]) || 0),
+                  0
+                ) / ratingFields.length
+              ).toFixed(1);
+
+              const lowestFields = [...ratingFields]
+                .map((f) => ({ ...f, value: Number(rating[f.key]) || 0 }))
+                .sort((a, b) => a.value - b.value)
+                .slice(0, 3);
+
+              const isSupervisor = rating.ratedBy?.role === "supervisor";
+              const sourceLabel = isSupervisor
+                ? t("workerHome.supervisor")
+                : t("workerHome.peer");
+              const raterName = isSupervisor
+                ? rating.ratedBy?.name || t("workerHome.teamLead")
+                : t("workerHome.anonymousColleague");
+
+              return (
+                <div key={`${rating._id}-${idx}`} className="recent-item">
+                  <div className="recent-worker">
+                    {isSupervisor && (
+                      <div className="worker-avatar">
+                        {(rating.ratedBy?.name || "S").charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="worker-details">
+                      <h4>
+                        {sourceLabel} • {raterName}
+                      </h4>
+                      <p className="worker-email">
+                        {isSupervisor
+                          ? t("workerHome.supervisorRating")
+                          : t("workerHome.peerRating")}
+                      </p>
                     </div>
-                  )}
-                  <div className="worker-details">
-                    {(() => {
-                      const isSupervisor = rating.ratedBy?.role === "supervisor";
-                      const sourceLabel = isSupervisor ? t("workerHome.supervisor") : t("workerHome.peer");
-                      const raterName = isSupervisor
-                        ? (rating.ratedBy?.name || t("workerHome.teamLead"))
-                        : t("workerHome.anonymousColleague");
-                      return (
-                        <>
-                          <h4>{sourceLabel} • {raterName}</h4>
-                          <p className="worker-email">{isSupervisor ? t("workerHome.supervisorRating") : t("workerHome.peerRating")}</p>
-                        </>
-                      );
-                    })()}
                   </div>
-                </div>
 
-                <div className="recent-rating">
-                  <div className="rating-fields-small">
-                    <span className="field-badge main">
-                      AVG:{" "}
-                      {(
-                        ratingFields.reduce((sum, f) => sum + (Number(rating[f.key]) || 0), 0) / ratingFields.length
-                      ).toFixed(1)}
-                      ★
-                    </span>
-
-                    {ratingFields
-                      .map((f) => ({ ...f, value: Number(rating[f.key]) || 0 }))
-                      .sort((a, b) => a.value - b.value)
-                      .slice(0, 3)
-                      .map((f) => (
+                  <div className="recent-rating">
+                    <div className="rating-fields-small">
+                      <span className="field-badge main">
+                        AVG: {ratingAvg}
+                      </span>
+                      {lowestFields.map((f) => (
                         <span key={f.key} className="field-badge warning">
-                          {f.short}: {f.value}★
+                          {t(`kpiShort.${f.key}`)}: {f.value}
                         </span>
                       ))}
+                    </div>
+                    <p className="recent-time">
+                      {new Date(rating.createdAt).toLocaleDateString()}
+                    </p>
                   </div>
-
-                  <p className="recent-time">{new Date(rating.createdAt).toLocaleDateString()}</p>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <p className="no-data">{t("workerHome.noRatings")}</p>
@@ -250,21 +269,30 @@ function WorkerHome({ worker }) {
         {dashboard.lowestAreas.length > 0 && (
           <div className="quick-stat">
             <span className="label">{t("workerHome.needsAttention")}</span>
-            <span className="value">{dashboard.lowestAreas.map((f) => f.short).join(", ")}</span>
+            <span className="value">
+              {dashboard.lowestAreas.map((f) => t(`kpiShort.${f.key}`)).join(", ")}
+            </span>
           </div>
         )}
       </div>
 
       <div className="legend-box">
-        <div className="legend-header" onClick={() => setShowLegend((prev) => !prev)}>
-          <span className="legend-title">ℹ️ {t("workerHome.legendTitle")}</span>
-          <span className="legend-toggle">{showLegend ? `▲ ${t("workerHome.hide")}` : `▼ ${t("workerHome.show")}`}</span>
+        <div
+          className="legend-header"
+          onClick={() => setShowLegend((prev) => !prev)}
+        >
+          <span className="legend-title">{t("workerHome.legendTitle")}</span>
+          <span className="legend-toggle">
+            {showLegend
+              ? `– ${t("workerHome.hide")}`
+              : `+ ${t("workerHome.show")}`}
+          </span>
         </div>
         {showLegend && (
           <div className="legend-grid">
             {ratingFields.map((f) => (
               <div key={f.key} className="legend-item">
-                <span className="legend-short">{f.short}</span>
+                <span className="legend-short">{t(`kpiShort.${f.key}`)}</span>
                 <span className="legend-label">{t(`kpi.${f.key}`)}</span>
               </div>
             ))}
@@ -284,13 +312,23 @@ function WorkerHome({ worker }) {
                     <div className="worker-details">
                       <h4>{month.monthLabel}</h4>
                       <p className="worker-email">
-                        {month.count} {month.count !== 1 ? t("workerHome.ratingsSuffix") : t("workerHome.ratingSuffix")}
+                        {month.count}{" "}
+                        {month.count !== 1
+                          ? t("workerHome.ratingsSuffix")
+                          : t("workerHome.ratingSuffix")}
                       </p>
                     </div>
                   </div>
 
                   <div className="recent-rating">
-                    <div className="stat-number" style={{ color: getRatingColor(Number(month.average.toFixed(2))) }}>
+                    <div
+                      className="stat-number"
+                      style={{
+                        color: getRatingColor(
+                          Number(month.average.toFixed(2))
+                        )
+                      }}
+                    >
                       {month.average.toFixed(2)} {t("workerHome.avgShort")}
                     </div>
                   </div>
@@ -301,7 +339,12 @@ function WorkerHome({ worker }) {
             <div className="quick-stats" style={{ marginTop: "12px" }}>
               <div className="quick-stat">
                 <span className="label">{t("workerHome.overallRating")}</span>
-                <span className="value" style={{ color: getRatingColor(Number(dashboard.avgRating)) }}>
+                <span
+                  className="value"
+                  style={{
+                    color: getRatingColor(Number(dashboard.avgRating))
+                  }}
+                >
                   {dashboard.avgRating}
                 </span>
               </div>

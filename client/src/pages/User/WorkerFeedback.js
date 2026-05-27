@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+﻿import { useEffect, useState, useCallback } from "react";
 import { ratingsService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import "../../styles/User/WorkerDashboard.css";
@@ -96,7 +96,7 @@ function WorkerFeedback({ worker }) {
         <div className="feedback-ratings">
           {ratingFields.map((f) => (
             <span key={f.key} className="field-badge" title={t(`kpi.${f.key}`)}>
-              {f.short}: {item[f.key] ?? 0}*
+              {t(`kpiShort.${f.key}`)}: {item[f.key] ?? 0}*
             </span>
           ))}
         </div>
@@ -172,3 +172,4 @@ function WorkerFeedback({ worker }) {
 }
 
 export default WorkerFeedback;
+

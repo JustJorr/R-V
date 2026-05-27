@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+﻿import { useState, useEffect, useCallback, useMemo } from "react";
 import { ratingsService, supervisorService } from "../../services/api";
 import { getRatingColor } from "../../utils/helpers";
 import RatingForm from "../../components/RatingForm";
@@ -214,9 +214,9 @@ function WorkerRatings({ worker }) {
       {editRequestModal.isOpen && (
         <div className="modal-overlay" onClick={handleCloseEditModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+                <div className="modal-header">
               <h3>{t("workerRatings.modalTitle")}</h3>
-              <button className="modal-close" onClick={handleCloseEditModal}>×</button>
+              <button className="modal-close" onClick={handleCloseEditModal}>—</button>
             </div>
             <div className="modal-body">
               <label style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>
@@ -405,7 +405,7 @@ function WorkerRatings({ worker }) {
                           </div>
 
                           <div className="summary-low">
-                            {t("workerRatings.lowShort")} {lowest.short}: {lowest.value}
+                            {t("workerRatings.lowShort")} {t(`kpiShort.${lowest.key}`)}: {lowest.value}
                           </div>
 
                           <small className="rating-timestamp">
@@ -474,4 +474,5 @@ function WorkerRatings({ worker }) {
 }
 
 export default WorkerRatings;
+
 
