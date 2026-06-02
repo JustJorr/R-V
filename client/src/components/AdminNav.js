@@ -1,5 +1,6 @@
 import "../styles/Supervisor/SupervisorNav.css";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useLanguage } from "../context/LanguageContext";
 
 function AdminNav({
   userName,
@@ -9,14 +10,15 @@ function AdminNav({
 }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useLanguage();
 
   const pages = [
-    { id: "home", label: "Home", icon: "\u{1F3E0}", path: "/" },
-    { id: "users", label: "Manage Users", icon: "\u{1F465}", path: "/users" },
-    { id: "data", label: "Data Visuals", icon: "\u{1F4CA}", path: "/data" },
-    { id: "tools", label: "Data Tools", icon: "\u{1F527}", path: "/tools" },
-    { id: "edit-requests", label: "Edit Requests", icon: "\u{1F4E8}", path: "/edit-requests" },
-    { id: "profile", label: "Profile", icon: "\u{1F464}", path: "/profile" }
+    { id: "home", label: t("adminNav.home"), icon: "\u{1F3E0}", path: "/" },
+    { id: "users", label: t("adminNav.manageUsers"), icon: "\u{1F465}", path: "/users" },
+    { id: "data", label: t("adminNav.dataVisuals"), icon: "\u{1F4CA}", path: "/data" },
+    { id: "tools", label: t("adminNav.dataTools"), icon: "\u{1F527}", path: "/tools" },
+    { id: "edit-requests", label: t("adminNav.editRequests"), icon: "\u{1F4E8}", path: "/edit-requests" },
+    { id: "profile", label: t("adminNav.profile"), icon: "\u{1F464}", path: "/profile" }
   ];
 
   const isActive = (path) => {
@@ -31,7 +33,7 @@ function AdminNav({
         <button
           className="toggle-btn"
           onClick={() => setCollapsed(!collapsed)}
-          title={collapsed ? "Expand" : "Collapse"}
+          title={collapsed ? t("adminNav.expand") : t("adminNav.collapse")}
         >
           {collapsed ? ">" : "<"}
         </button>
@@ -63,7 +65,7 @@ function AdminNav({
 
             {!collapsed && (
               <button className="logout-btn" onClick={onLogout}>
-                Logout
+                {t("adminNav.logout")}
               </button>
             )}
           </div>

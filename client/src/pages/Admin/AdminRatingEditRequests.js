@@ -1,16 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { adminService } from "../../services/api";
+import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/Admin/AdminPages.css";
 
 function AdminRatingEditRequests() {
   const admin = JSON.parse(localStorage.getItem("worker") || "{}");
+  const { t } = useLanguage();
   const [requests, setRequests] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submittingId, setSubmittingId] = useState("");
   const [error, setError] = useState("");
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -21,15 +23,15 @@ function AdminRatingEditRequests() {
       setRequests(requestsRes.data || []);
       setWorkers(workersRes.data || []);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load data.");
+      setError(err.response?.data?.message || t("adminEditRequests.loading"));
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleReview = async (ratingId, action) => {
     try {
@@ -37,7 +39,7 @@ function AdminRatingEditRequests() {
       await adminService.reviewRatingEditRequest(ratingId, admin._id, action);
       await fetchData();
     } catch (err) {
-      setError(err.response?.data?.message || `Failed to ${action} request.`);
+      setError(err.response?.data?.message || t("common.cancel"));
     } finally {
       setSubmittingId("");
     }
@@ -50,7 +52,7 @@ function AdminRatingEditRequests() {
       await adminService.approveWorker(workerId);
       setWorkers(workers.filter((w) => w._id !== workerId));
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to approve worker");
+      setError(err.response?.data?.message || t("adminApprovals.approveFailed"));
     } finally {
       setSubmittingId("");
     }
@@ -63,7 +65,7 @@ function AdminRatingEditRequests() {
       await adminService.rejectWorker(workerId);
       setWorkers(workers.filter((w) => w._id !== workerId));
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to reject worker");
+      setError(err.response?.data?.message || t("adminApprovals.rejectFailed"));
     } finally {
       setSubmittingId("");
     }
@@ -72,55 +74,57 @@ function AdminRatingEditRequests() {
   return (
     <div className="page-content admin-page">
       <div className="page-header">
-        <h1>📋 Approvals & Requests</h1>
-        <p>Manage worker registrations and rating edit requests</p>
+        <h1>📋 {t("adminEditRequests.title")}</h1>
+        <p>{t("adminEditRequests.subtitle")}</p>
       </div>
 
       {error && <div className="admin-error">{error}</div>}
 
       {loading ? (
-        <div className="admin-loading">Loading data...</div>
+        <div className="admin-loading">
+          <span>⏳</span> {t("adminEditRequests.loading")}
+        </div>
       ) : (
         <>
           {/* ===== WORKER APPROVALS SECTION ===== */}
           <div className="admin-section admin-card" style={{ marginBottom: "40px" }}>
-            <h2 className="section-title">👷 Worker Approvals</h2>
+            <h2 className="section-title">👷 {t("adminEditRequests.workerApprovalsTitle")}</h2>
             {workers.length === 0 ? (
-              <div className="admin-empty">No pending worker approvals.</div>
+              <div className="admin-empty">{t("adminEditRequests.noWorkerApprovals")}</div>
             ) : (
               <div className="table-responsive admin-table">
                 <table className="workers-table admin-home-table">
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Registered At</th>
-                      <th>Action</th>
+                      <th>{t("adminEditRequests.name")}</th>
+                      <th>{t("adminEditRequests.email")}</th>
+                      <th>{t("adminEditRequests.registeredAt")}</th>
+                      <th>{t("adminEditRequests.action")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {workers.map((worker) => (
                       <tr key={worker._id}>
-                        <td data-label="Name">{worker.name}</td>
-                        <td data-label="Email">{worker.email}</td>
-                        <td data-label="Registered At">
+                        <td data-label={t("adminEditRequests.name")}>{worker.name}</td>
+                        <td data-label={t("adminEditRequests.email")}>{worker.email}</td>
+                        <td data-label={t("adminEditRequests.registeredAt")}>
                           {new Date(worker.createdAt).toLocaleString()}
                         </td>
-                        <td data-label="Action">
+                        <td data-label={t("adminEditRequests.action")}>
                           <button
                             className="btn btn-primary"
                             onClick={() => handleApprove(worker._id)}
                             disabled={submittingId === worker._id}
                             style={{ marginRight: 8 }}
                           >
-                            {submittingId === worker._id ? "Processing..." : "✓ Approve"}
+                            {submittingId === worker._id ? t("adminEditRequests.processing") : `✓ ${t("adminEditRequests.approve")}`}
                           </button>
                           <button
                             className="btn btn-danger"
                             onClick={() => handleReject(worker._id)}
                             disabled={submittingId === worker._id}
                           >
-                            {submittingId === worker._id ? "Processing..." : "✕ Reject"}
+                            {submittingId === worker._id ? t("adminEditRequests.processing") : `✕ ${t("adminEditRequests.reject")}`}
                           </button>
                         </td>
                       </tr>
@@ -133,53 +137,53 @@ function AdminRatingEditRequests() {
 
           {/* ===== RATING EDIT REQUESTS SECTION ===== */}
           <div className="admin-section admin-card">
-            <h2 className="section-title">📝 Rating Edit Requests</h2>
+            <h2 className="section-title">📝 {t("adminEditRequests.ratingEditRequestsTitle")}</h2>
             {requests.length === 0 ? (
-              <div className="admin-empty">No pending edit requests.</div>
+              <div className="admin-empty">{t("adminEditRequests.noEditRequests")}</div>
             ) : (
               <div className="table-responsive admin-table">
                 <table className="workers-table admin-home-table">
                   <thead>
                     <tr>
-                      <th>Worker (Rater)</th>
-                      <th>Rated User</th>
-                      <th>Month</th>
-                      <th>Requested At</th>
-                      <th>Reason</th>
-                      <th>Action</th>
+                      <th>{t("adminEditRequests.rater")}</th>
+                      <th>{t("adminEditRequests.ratedUser")}</th>
+                      <th>{t("adminEditRequests.month")}</th>
+                      <th>{t("adminEditRequests.requestedAt")}</th>
+                      <th>{t("adminEditRequests.reason")}</th>
+                      <th>{t("adminEditRequests.action")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {requests.map((r) => (
                       <tr key={r._id}>
-                        <td data-label="Worker (Rater)">
+                        <td data-label={t("adminEditRequests.rater")}>
                           {r.ratedBy?.name || "-"}
                           <div className="text-muted">{r.ratedBy?.email || "-"}</div>
                         </td>
-                        <td data-label="Rated User">
+                        <td data-label={t("adminEditRequests.ratedUser")}>
                           {r.ratedUser?.name || "-"}
                           <div className="text-muted">{r.ratedUser?.email || "-"}</div>
                         </td>
-                        <td data-label="Month">{r.dateKey || "-"}</td>
-                        <td data-label="Requested At">
+                        <td data-label={t("adminEditRequests.month")}>{r.dateKey || "-"}</td>
+                        <td data-label={t("adminEditRequests.requestedAt")}>
                           {r.workerEditRequestAt ? new Date(r.workerEditRequestAt).toLocaleString() : "-"}
                         </td>
-                        <td data-label="Reason">{r.workerEditRequestReason || "-"}</td>
-                        <td data-label="Action">
+                        <td data-label={t("adminEditRequests.reason")}>{r.workerEditRequestReason || "-"}</td>
+                        <td data-label={t("adminEditRequests.action")}>
                           <button
                             className="btn btn-primary"
                             onClick={() => handleReview(r._id, "approve")}
                             disabled={submittingId === r._id}
                             style={{ marginRight: 8 }}
                           >
-                            Approve
+                            {submittingId === r._id ? t("adminEditRequests.processing") : t("adminEditRequests.approve")}
                           </button>
                           <button
                             className="btn btn-danger"
                             onClick={() => handleReview(r._id, "reject")}
                             disabled={submittingId === r._id}
                           >
-                            Reject
+                            {submittingId === r._id ? t("adminEditRequests.processing") : t("adminEditRequests.reject")}
                           </button>
                         </td>
                       </tr>

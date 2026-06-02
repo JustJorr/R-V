@@ -344,6 +344,38 @@ export const translations = {
       loadFailed: "Failed to load pending approvals",
       approveFailed: "Failed to approve worker",
       rejectFailed: "Failed to reject worker"
+    },
+    adminEditRequests: {
+      title: "Approvals & Requests",
+      subtitle: "Manage worker registrations and rating edit requests",
+      loading: "Loading data...",
+      workerApprovalsTitle: "Worker Approvals",
+      noWorkerApprovals: "No pending worker approvals.",
+      ratingEditRequestsTitle: "Rating Edit Requests",
+      noEditRequests: "No pending edit requests.",
+      name: "Name",
+      email: "Email",
+      registeredAt: "Registered At",
+      action: "Action",
+      month: "Month",
+      requestedAt: "Requested At",
+      reason: "Reason",
+      rater: "Worker (Rater)",
+      ratedUser: "Rated User",
+      processing: "Processing...",
+      approve: "Approve",
+      reject: "Reject"
+    },
+    adminNav: {
+      home: "Home",
+      manageUsers: "Manage Users",
+      dataVisuals: "Data Visuals",
+      dataTools: "Data Tools",
+      editRequests: "Edit Requests",
+      profile: "Profile",
+      logout: "Logout",
+      expand: "Expand",
+      collapse: "Collapse"
     }
   },
   id: {
@@ -691,6 +723,38 @@ export const translations = {
       loadFailed: "Gagal memuat persetujuan yang tertunda",
       approveFailed: "Gagal menyetujui pekerja",
       rejectFailed: "Gagal menolak pekerja"
+    },
+    adminEditRequests: {
+      title: "Persetujuan & Permintaan",
+      subtitle: "Kelola pendaftaran pekerja dan permintaan edit penilaian",
+      loading: "Memuat data...",
+      workerApprovalsTitle: "Persetujuan Pekerja",
+      noWorkerApprovals: "Tidak ada persetujuan pekerja yang tertunda.",
+      ratingEditRequestsTitle: "Permintaan Edit Penilaian",
+      noEditRequests: "Tidak ada permintaan edit yang tertunda.",
+      name: "Nama",
+      email: "Email",
+      registeredAt: "Terdaftar Pada",
+      action: "Aksi",
+      month: "Bulan",
+      requestedAt: "Diminta Pada",
+      reason: "Alasan",
+      rater: "Pekerja (Penilai)",
+      ratedUser: "Pengguna Dinilai",
+      processing: "Memproses...",
+      approve: "Setujui",
+      reject: "Tolak"
+    },
+    adminNav: {
+      home: "Beranda",
+      manageUsers: "Kelola Pengguna",
+      dataVisuals: "Visualisasi Data",
+      dataTools: "Alat Data",
+      editRequests: "Permintaan Edit",
+      profile: "Profil",
+      logout: "Keluar",
+      expand: "Perluas",
+      collapse: "Ciutkan"
     }
   }
 };
