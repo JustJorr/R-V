@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { adminDataService } from "../../services/api";
+import { useLanguage } from "../../context/LanguageContext";
 
 function AdminDataTools() {
+  const { t } = useLanguage();
   const [lang, setLang] = useState("en");
   const [exportScope, setExportScope] = useState("month");
   const [exportMonth, setExportMonth] = useState(new Date().toISOString().slice(0, 7));
-
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -16,7 +17,6 @@ function AdminDataTools() {
         scope: exportScope,
         month: exportScope === "month" ? exportMonth : undefined
       });
-
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -32,7 +32,6 @@ function AdminDataTools() {
     try {
       setLoading(true);
       const res = await adminDataService.downloadTemplate(lang);
-
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -45,16 +44,13 @@ function AdminDataTools() {
   };
 
   const handleImport = async () => {
-    if (!file) {
-      return alert("Please select a file");
-    }
-
+    if (!file) return alert(t("adminDataTools.selectFileAlert"));
     try {
       setLoading(true);
       await adminDataService.importExcel(file);
-      alert("Import successful");
+      alert(t("adminDataTools.importSuccess"));
     } catch {
-      alert("Import failed");
+      alert(t("adminDataTools.importFailed"));
     } finally {
       setLoading(false);
     }
@@ -63,28 +59,25 @@ function AdminDataTools() {
   return (
     <div className="page-content admin-page">
       <div className="page-header">
-        <h1>Data Tools</h1>
-        <p>Import and export system data (Excel)</p>
+        <h1>{t("adminDataTools.title")}</h1>
+        <p>{t("adminDataTools.subtitle")}</p>
       </div>
 
       <div className="admin-card admin-section">
-        <h2>Language</h2>
-
+        <h2>{t("common.language")}</h2>
         <select className="sort-select" value={lang} onChange={(e) => setLang(e.target.value)}>
-          <option value="en">English</option>
-          <option value="id">Indonesian</option>
+          <option value="en">{t("common.english")}</option>
+          <option value="id">{t("common.indonesian")}</option>
         </select>
       </div>
 
       <div className="admin-card admin-section">
-        <h2>Export Data</h2>
-
+        <h2>{t("adminDataTools.exportData")}</h2>
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center", marginBottom: "12px" }}>
           <select className="sort-select export-filter-select" value={exportScope} onChange={(e) => setExportScope(e.target.value)}>
-            <option value="month">Selected Month</option>
-            <option value="overall">Overall (All Ratings)</option>
+            <option value="month">{t("adminDataTools.selectedMonth")}</option>
+            <option value="overall">{t("adminDataTools.overall")}</option>
           </select>
-
           <input
             type="month"
             className="sort-select export-filter-select"
@@ -93,24 +86,20 @@ function AdminDataTools() {
             disabled={exportScope === "overall"}
           />
         </div>
-
         <button className="admin-btn primary" onClick={handleExport} disabled={loading}>
-          {loading ? "Exporting..." : "Download Excel"}
+          {loading ? t("adminDataTools.exporting") : t("adminDataTools.downloadExcel")}
         </button>
       </div>
 
       <div className="admin-card admin-section">
-        <h2>Import Data</h2>
-
+        <h2>{t("adminDataTools.importData")}</h2>
         <input type="file" accept=".xlsx" onChange={(e) => setFile(e.target.files[0])} />
-
         <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "12px" }}>
           <button className="admin-btn" onClick={handleImport} disabled={loading}>
-            {loading ? "Importing..." : "Upload Excel"}
+            {loading ? t("adminDataTools.importing") : t("adminDataTools.uploadExcel")}
           </button>
-
           <button className="admin-btn secondary" onClick={handleDownloadTemplate} disabled={loading}>
-            Download Template
+            {t("adminDataTools.downloadTemplate")}
           </button>
         </div>
       </div>

@@ -1,25 +1,28 @@
 import { useEffect, useMemo, useState } from "react";
 import { adminService } from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
 import "../../styles/Admin/AdminPages.css";
-
-const ROLES = [
-  { value: "worker", label: "Worker", emoji: "👷" },
-  { value: "supervisor", label: "Supervisor", emoji: "🧑‍💼" },
-  { value: "admin", label: "Admin", emoji: "🛡️" }
-];
-
-const FILTER_TABS = [
-  { key: "all", label: "All", emoji: "📊" },
-  { key: "worker", label: "Workers", emoji: "👷" },
-  { key: "supervisor", label: "Supervisors", emoji: "🧑‍💼" },
-  { key: "admin", label: "Admins", emoji: "🛡️" }
-];
-
-const EMPTY_FORM = { name: "", email: "", password: "", role: "worker" };
 
 function AdminUsers() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
+
+  const ROLES = [
+    { value: "worker", label: t("adminUsers.roleWorker"), emoji: "👷" },
+    { value: "supervisor", label: t("adminUsers.roleSupervisor"), emoji: "🧑‍💼" },
+    { value: "admin", label: t("adminUsers.roleAdmin"), emoji: "🛡️" }
+  ];
+
+  const FILTER_TABS = [
+    { key: "all", label: t("adminUsers.filterAll"), emoji: "📊" },
+    { key: "worker", label: t("adminUsers.filterWorkers"), emoji: "👷" },
+    { key: "supervisor", label: t("adminUsers.filterSupervisors"), emoji: "🧑‍💼" },
+    { key: "admin", label: t("adminUsers.filterAdmins"), emoji: "🛡️" }
+  ];
+
+  const EMPTY_FORM = { name: "", email: "", password: "", role: "worker" };
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearch] = useState("");
@@ -47,7 +50,7 @@ function AdminUsers() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm(t("adminUsers.confirmDelete"))) return;
     await adminService.deleteUser(id);
     fetchUsers();
   };
@@ -64,7 +67,7 @@ function AdminUsers() {
       setPasswordModal({ isOpen: false, userId: null, newPassword: "" });
       fetchUsers();
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to update password");
+      alert(err.response?.data?.message || t("adminUsers.passwordUpdateFailed"));
     } finally {
       setPasswordSubmitting(false);
     }
@@ -111,18 +114,18 @@ function AdminUsers() {
         <div className="modal-overlay" onClick={handleClosePasswordModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Reset User Password</h3>
+              <h3>{t("adminUsers.resetPasswordTitle")}</h3>
               <button className="modal-close" onClick={handleClosePasswordModal}>×</button>
             </div>
             <div className="modal-body">
               <label style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>
-                Enter new password for this user
+                {t("adminUsers.resetPasswordLabel")}
               </label>
               <input
                 type="password"
                 value={passwordModal.newPassword}
                 onChange={(e) => setPasswordModal({ ...passwordModal, newPassword: e.target.value })}
-                placeholder="New password"
+                placeholder={t("adminUsers.newPasswordPlaceholder")}
                 style={{
                   width: "100%",
                   padding: "10px",
@@ -140,14 +143,14 @@ function AdminUsers() {
                 onClick={handleSubmitPasswordReset}
                 disabled={passwordSubmitting || !passwordModal.newPassword.trim()}
               >
-                {passwordSubmitting ? "Updating..." : "Update Password"}
+                {passwordSubmitting ? t("adminUsers.updating") : t("adminUsers.updatePassword")}
               </button>
               <button
                 className="btn btn-secondary"
                 onClick={handleClosePasswordModal}
                 disabled={passwordSubmitting}
               >
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </div>
@@ -155,34 +158,34 @@ function AdminUsers() {
       )}
 
       <div className="page-header">
-        <h1>👥 Manage Users</h1>
-        <p>Full control over accounts, roles, and access</p>
+        <h1>👥 {t("adminUsers.title")}</h1>
+        <p>{t("adminUsers.subtitle")}</p>
       </div>
 
       <div className="admin-section admin-card">
-        <h2 className="section-title">Add New User</h2>
+        <h2 className="section-title">{t("adminUsers.addNewUser")}</h2>
         <form className="admin-form-row" onSubmit={handleCreateUser}>
-          <input className="admin-input" placeholder="Full name" value={form.name} onChange={setField("name")} required />
-          <input className="admin-input" type="email" placeholder="Email address" value={form.email} onChange={setField("email")} required />
-          <input className="admin-input" type="password" placeholder="Password" value={form.password} onChange={setField("password")} required />
+          <input className="admin-input" placeholder={t("common.fullName")} value={form.name} onChange={setField("name")} required />
+          <input className="admin-input" type="email" placeholder={t("common.email")} value={form.email} onChange={setField("email")} required />
+          <input className="admin-input" type="password" placeholder={t("login.password")} value={form.password} onChange={setField("password")} required />
           <select className="admin-select" value={form.role} onChange={setField("role")}>
             {ROLES.map((r) => (
               <option key={r.value} value={r.value}>{r.emoji} {r.label}</option>
             ))}
           </select>
           <button className="admin-btn primary" type="submit" disabled={submitting}>
-            {submitting ? "Creating..." : "Create User"}
+            {submitting ? t("adminUsers.creating") : t("adminUsers.createUser")}
           </button>
         </form>
       </div>
 
       <div className="admin-section admin-card">
-        <h2 className="section-title">User Directory</h2>
+        <h2 className="section-title">{t("adminUsers.userDirectory")}</h2>
 
         <div className="admin-toolbar">
           <input
             type="text"
-            placeholder="Search by name or email..."
+            placeholder={t("adminUsers.searchPlaceholder")}
             value={searchTerm}
             onChange={(e) => setSearch(e.target.value)}
             className="admin-input admin-search"
@@ -198,40 +201,47 @@ function AdminUsers() {
         </div>
 
         {loading ? (
-          <div className="admin-loading"><span>⏳</span> Loading users...</div>
+          <div className="admin-loading"><span>⏳</span> {t("adminUsers.loadingUsers")}</div>
         ) : filteredUsers.length === 0 ? (
-          <div className="admin-empty">No users match your current filters.</div>
+          <div className="admin-empty">{t("adminUsers.noUsersMatch")}</div>
         ) : (
           <div className="table-responsive admin-table">
             <table className="workers-table admin-users-table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-                  <th>Created</th>
-                  <th>Actions</th>
+                  <th>{t("common.fullName")}</th>
+                  <th>{t("common.email")}</th>
+                  <th>{t("common.role")}</th>
+                  <th>{t("adminHome.created")}</th>
+                  <th>{t("adminUsers.actions")}</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.map((u) => (
                   <tr key={u._id}>
-                    <td data-label="Name" className="td-name clickable" onClick={() => navigate(`/worker/${u._id}`)} title="View profile details" style={{ cursor: "pointer" }}>
+                    <td data-label={t("common.fullName")} className="td-name clickable"
+                      onClick={() => navigate(`/worker/${u._id}`)}
+                      title={t("adminHome.viewProfile")}
+                      style={{ cursor: "pointer" }}>
                       {u.name}
                     </td>
-                    <td className="td-email" data-label="Email">{u.email}</td>
-                    <td data-label="Role">
+                    <td className="td-email" data-label={t("common.email")}>{u.email}</td>
+                    <td data-label={t("common.role")}>
                       <select className="admin-select admin-select-inline" value={u.role} onChange={(e) => handleRoleChange(u._id, e.target.value)}>
                         {ROLES.map((r) => (
                           <option key={r.value} value={r.value}>{r.emoji} {r.label}</option>
                         ))}
                       </select>
                     </td>
-                    <td data-label="Created">{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "-"}</td>
-                    <td data-label="Actions">
+                    <td data-label={t("adminHome.created")}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : "-"}</td>
+                    <td data-label={t("adminUsers.actions")}>
                       <div className="admin-table-actions">
-                        <button className="admin-btn warning" onClick={() => handlePasswordReset(u._id)} title="Reset password">Reset</button>
-                        <button className="admin-btn danger" onClick={() => handleDelete(u._id)} title="Delete user">Delete</button>
+                        <button className="admin-btn warning" onClick={() => handlePasswordReset(u._id)} title={t("adminUsers.resetPassword")}>
+                          {t("adminUsers.reset")}
+                        </button>
+                        <button className="admin-btn danger" onClick={() => handleDelete(u._id)} title={t("adminUsers.deleteUser")}>
+                          {t("adminUsers.delete")}
+                        </button>
                       </div>
                     </td>
                   </tr>
