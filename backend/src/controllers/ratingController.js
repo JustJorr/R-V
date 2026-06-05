@@ -1,7 +1,7 @@
 ﻿const User = require("../models/User");
 const Rating = require("../models/Rating");
 const { KPI_FIELDS } = require("../constants/kpiFields");
-const { getMonthKey, getPreviousMonthKey, getAllowedMonthsForRole } = require("../utils/dateKeys");
+const { getMonthKey, getPreviousMonthKey, getAllowedMonthsForRole, getLastThreeMonths } = require("../utils/dateKeys");
 
 async function submitRating(req, res) {
   try {
@@ -11,12 +11,14 @@ async function submitRating(req, res) {
     const currentMonth = getMonthKey();
     const previousMonth = getPreviousMonthKey();
     const targetMonth = req.body.dateKey || (rater.role === "worker" ? previousMonth : currentMonth);
-    const allowedMonths = getAllowedMonthsForRole(rater.role);
-    if (rater.role === "worker" && !allowedMonths.has(targetMonth)) {
-      const roleMessage = rater.role === "worker"
-        ? "Workers can only submit or edit ratings for last month after the month has ended."
-        : "Ratings can only be submitted or edited for this month or last month.";
-      return res.status(403).json({ message: roleMessage });
+    
+    // Workers can only submit/edit for last month; supervisors/admins can use any month
+    if (rater.role === "worker") {
+      if (targetMonth !== previousMonth) {
+        return res.status(403).json({ 
+          message: "Workers can only submit or edit ratings for last month after the month has ended." 
+        });
+      }
     }
 
     const existingRating = await Rating.findOne({
@@ -94,6 +96,14 @@ async function requestWorkerRatingEdit(req, res) {
     if (!rating) return res.status(404).json({ message: "Rating not found." });
     if (String(rating.ratedBy) !== String(workerId)) {
       return res.status(403).json({ message: "You can only request edit for your own rating." });
+    }
+
+    // Check if rating is within last 3 months
+    const allowedMonths = getLastThreeMonths();
+    if (!allowedMonths.has(rating.dateKey)) {
+      return res.status(403).json({ 
+        message: "You can only request edits for ratings from the last 3 months." 
+      });
     }
 
     rating.workerEditRequestStatus = "pending";
