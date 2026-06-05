@@ -28,14 +28,6 @@ function getCurrentMonthKey() {
   return `${year}-${month}`;
 }
 
-function getPreviousMonthKey() {
-  const now = new Date();
-  now.setMonth(now.getMonth() - 1);
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  return `${year}-${month}`;
-}
-
 function formatDate(dateStr) {
   if (!dateStr) return "-";
   const d = new Date(dateStr);
@@ -68,10 +60,7 @@ function SupervisorRatings({ worker: supervisor }) {
   const [filterMonth, setFilterMonth] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
   const navigate = useNavigate();
-
-  const previousMonth = getPreviousMonthKey();
   const currentMonth = getCurrentMonthKey();
-  const isRatingMonthAvailable = selectedMonth === previousMonth || selectedMonth === currentMonth;
 
   const fetchDashboardData = useCallback(async () => {
     try {
