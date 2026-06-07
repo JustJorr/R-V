@@ -57,10 +57,13 @@ async function getSupervisorRatings(req, res) {
     const previousMonth = getPreviousMonthKey();
     const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
     const requestedMonth = req.query.month || defaultMonth;
-    const allowedMonths = getAllowedMonthsForRole(rater.role);
-    const month = rater.role === "worker"
-      ? (allowedMonths.has(requestedMonth) ? requestedMonth : defaultMonth)
-      : requestedMonth;
+    
+    // Workers can only view current/previous month; supervisors can view any month
+    let month = requestedMonth;
+    if (rater.role === "worker") {
+      const allowedMonths = getAllowedMonthsForRole(rater.role);
+      month = allowedMonths.has(requestedMonth) ? requestedMonth : defaultMonth;
+    }
 
     const ratings = await Rating.find({
       ratedBy: req.params.supervisorId,
@@ -82,10 +85,13 @@ async function getExistingRating(req, res) {
     const previousMonth = getPreviousMonthKey();
     const defaultMonth = rater.role === "worker" ? previousMonth : currentMonth;
     const requestedMonth = req.query.month || defaultMonth;
-    const allowedMonths = getAllowedMonthsForRole(rater.role);
-    const month = rater.role === "worker"
-      ? (allowedMonths.has(requestedMonth) ? requestedMonth : defaultMonth)
-      : requestedMonth;
+    
+    // Workers can only view current/previous month; supervisors can view any month
+    let month = requestedMonth;
+    if (rater.role === "worker") {
+      const allowedMonths = getAllowedMonthsForRole(rater.role);
+      month = allowedMonths.has(requestedMonth) ? requestedMonth : defaultMonth;
+    }
 
     const rating = await Rating.findOne({
       ratedBy: req.params.supervisorId,

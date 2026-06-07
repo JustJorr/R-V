@@ -21,9 +21,8 @@ const KPI_FIELDS = [
   { key: "attendance", label: "Attendance", short: "AT" }
 ];
 
-function getPreviousMonthKey() {
+function getCurrentMonthKey() {
   const now = new Date();
-  now.setMonth(now.getMonth() - 1);
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
   return `${year}-${month}`;
@@ -57,13 +56,11 @@ function SupervisorRatings({ worker: supervisor }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [selectedMonth, setSelectedMonth] = useState(getPreviousMonthKey());
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonthKey());
   const [filterMonth, setFilterMonth] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
   const navigate = useNavigate();
-
-  const previousMonth = getPreviousMonthKey();
-  const isRatingMonthAvailable = selectedMonth === previousMonth;
+  const currentMonth = getCurrentMonthKey();
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -97,7 +94,7 @@ function SupervisorRatings({ worker: supervisor }) {
   }, [fetchDashboardData, fetchSupervisorRatings]);
 
   const handleApplyFilter = () => {
-    const month = filterMonth || previousMonth;
+    const month = filterMonth || currentMonth;
     setSelectedMonth(month);
     setActiveFilter(filterMonth ? `Month: ${filterMonth}` : "");
   };
@@ -105,7 +102,7 @@ function SupervisorRatings({ worker: supervisor }) {
   const handleResetFilter = () => {
     setFilterMonth("");
     setActiveFilter("");
-    setSelectedMonth(previousMonth);
+    setSelectedMonth(currentMonth);
   };
 
   const handleRatingSuccess = () => {
@@ -128,7 +125,13 @@ function SupervisorRatings({ worker: supervisor }) {
       setEditingRating(response.data || null);
       setRatingWorker(worker);
     } catch (err) {
-      alert(err.response?.data?.message || t("supervisorRatings.edit"));
+      // If no rating exists for this month, open as a new rating instead
+      if (err.response?.status === 404) {
+        setEditingRating(null);
+        setRatingWorker(worker);
+      } else {
+        alert(err.response?.data?.message || t("supervisorRatings.edit"));
+      }
     }
   };
 
@@ -200,7 +203,9 @@ function SupervisorRatings({ worker: supervisor }) {
               onChange={(e) => setFilterMonth(e.target.value)}
             />
           </div>
-          <button className="wf-btn-apply" onClick={handleApplyFilter}>{t("supervisorRatings.apply")}</button>
+          <button className="wf-btn-apply" onClick={handleApplyFilter}>
+            {t("supervisorRatings.apply")}
+          </button>
           {activeFilter && (
             <button className="wf-btn-reset" onClick={handleResetFilter}>
               x {activeFilter}
@@ -253,15 +258,21 @@ function SupervisorRatings({ worker: supervisor }) {
           <button
             className={`filter-btn ${filterStatus === "all" ? "active" : ""}`}
             onClick={() => setFilterStatus("all")}
-          >{t("supervisorRatings.all")} ({workers.length})</button>
+          >
+            {t("supervisorRatings.all")} ({workers.length})
+          </button>
           <button
             className={`filter-btn ${filterStatus === "rated" ? "active" : ""}`}
             onClick={() => setFilterStatus("rated")}
-          >{t("supervisorRatings.rated")} ({ratedCount})</button>
+          >
+            {t("supervisorRatings.rated")} ({ratedCount})
+          </button>
           <button
             className={`filter-btn ${filterStatus === "unrated" ? "active" : ""}`}
             onClick={() => setFilterStatus("unrated")}
-          >{t("supervisorRatings.unrated")} ({unratedCount})</button>
+          >
+            {t("supervisorRatings.unrated")} ({unratedCount})
+          </button>
         </div>
 
         <div className="quick-stat-pill">
@@ -269,12 +280,6 @@ function SupervisorRatings({ worker: supervisor }) {
           <span className="value">{formatMonthLabel(selectedMonth)}</span>
         </div>
       </div>
-
-      {!isRatingMonthAvailable && (
-        <div className="no-data" style={{ marginBottom: "12px" }}>
-          {t("supervisorRatings.ratingUnavailable")} {formatMonthLabel(selectedMonth)}. {t("supervisorRatings.onlyAvailableIn")} {formatMonthLabel(previousMonth)}.
-        </div>
-      )}
 
       {loading ? (
         <div className="loading">{t("supervisorRatings.loadingWorkers")}</div>
@@ -336,11 +341,9 @@ function SupervisorRatings({ worker: supervisor }) {
                     {worker.latestRating ? (() => {
                       const scores = KPI_FIELDS.map((f) => worker.latestRating[f.key] ?? 0);
                       const avg = scores.reduce((a, b) => a + b, 0) / KPI_FIELDS.length;
-
                       const lowest = KPI_FIELDS
                         .map((f) => ({ ...f, value: worker.latestRating[f.key] ?? 0 }))
                         .sort((a, b) => a.value - b.value)[0];
-
                       return (
                         <div className="rating-summary">
                           <div
@@ -349,11 +352,9 @@ function SupervisorRatings({ worker: supervisor }) {
                           >
                             {avg.toFixed(1)} {t("supervisorRatings.avgShort")}
                           </div>
-
                           <div className="summary-low">
                             {t("supervisorRatings.lowShort")} {t(`kpiShort.${lowest.key}`)}: {lowest.value}
                           </div>
-
                           <small className="rating-timestamp">
                             {formatDate(worker.latestRating.createdAt)}
                             {ratedThisMonth(worker) && (
@@ -366,7 +367,6 @@ function SupervisorRatings({ worker: supervisor }) {
                       <span className="text-muted">{t("supervisorRatings.noRatingsYet")}</span>
                     )}
                   </td>
-
                   <td className="action-cell" data-label={t("supervisorRatings.action")}>
                     {isAlreadyRated(worker._id) ? (
                       <button
@@ -381,17 +381,18 @@ function SupervisorRatings({ worker: supervisor }) {
                         className="btn btn-primary"
                         onClick={() => handleRateWorker(worker)}
                         title={`Rate this worker for ${selectedMonth}`}
-                        disabled={!isRatingMonthAvailable}
                       >
                         {t("supervisorRatings.rate")}
                       </button>
                     )}
                   </td>
-
                   <td className="comment-cell" data-label={t("supervisorRatings.lastComment")}>
                     {worker.latestRating?.comment ? (
                       <div className="comment-preview" title={worker.latestRating.comment}>
-                        <span className="comment-text">{worker.latestRating.comment.substring(0, 40)}{worker.latestRating.comment.length > 40 ? "..." : ""}</span>
+                        <span className="comment-text">
+                          {worker.latestRating.comment.substring(0, 40)}
+                          {worker.latestRating.comment.length > 40 ? "..." : ""}
+                        </span>
                       </div>
                     ) : (
                       <span className="text-muted">{t("supervisorRatings.dash")}</span>
@@ -408,6 +409,3 @@ function SupervisorRatings({ worker: supervisor }) {
 }
 
 export default SupervisorRatings;
-
-
-

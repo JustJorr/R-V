@@ -189,15 +189,11 @@ function WorkerInformation() {
                             year: "numeric", month: "short", day: "numeric"
                           })}
                         </span>
-                        {r.ratedBy?.role === "supervisor" ? (
-                          <span className="wi-card-ratedby">
-                            Supervisor • {r.ratedBy.name}
-                          </span>
-                        ) : (
-                          <span className="wi-card-ratedby">
-                            Peer (Anonymous)
-                          </span>
-                        )}
+                        <span className="wi-card-ratedby">
+                          {r.ratedBy?.role === "supervisor"
+                            ? `Supervisor • ${r.ratedBy?.name || "Unknown"}`
+                            : `Peer • ${r.ratedBy?.name || "Unknown"}`}
+                        </span>
                       </div>
                     </div>
                     <div className="wi-card-right">

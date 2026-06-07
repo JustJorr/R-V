@@ -20,8 +20,21 @@ function getAllowedMonthsForRole(role) {
   return new Set([currentMonth, previousMonth]);
 }
 
+function getLastThreeMonths() {
+  const months = [];
+  for (let i = 0; i < 3; i++) {
+    const date = new Date();
+    date.setMonth(date.getMonth() - i);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    months.push(`${year}-${month}`);
+  }
+  return new Set(months);
+}
+
 module.exports = {
   getMonthKey,
   getPreviousMonthKey,
-  getAllowedMonthsForRole
+  getAllowedMonthsForRole,
+  getLastThreeMonths
 };

@@ -239,7 +239,14 @@ export const translations = {
       excellentLabel: "Excellent (4.5+)",
       goodLabel: "Good (3.5-4.4)",
       averageLabel: "Average (2.5-3.4)",
-      poorLabel: "Poor (<2.5)"
+      poorLabel: "Poor (<2.5)",
+      notRatedLabel: "Not Rated",
+      filterBy: "Filter By",
+      byQuarter: "Quarter (3 Months)",
+      selectQuarter: "Select a quarter...",
+      notRatedSummary: "Not Rated",
+      notRatedNote: "No ratings recorded",
+      byDate: "Month"
     },
     kpi: {
       workAreaCompliance: "Work Area Compliance",
@@ -618,7 +625,14 @@ export const translations = {
       excellentLabel: "Sangat Baik (4.5+)",
       goodLabel: "Baik (3.5-4.4)",
       averageLabel: "Cukup (2.5-3.4)",
-      poorLabel: "Kurang (<2.5)"
+      poorLabel: "Kurang (<2.5)",
+      notRatedLabel: "Belum Dinilai",
+      filterBy: "Filter Berdasarkan",
+      byQuarter: "Kuartal (3 Bulan)",
+      selectQuarter: "Pilih kuartal...",
+      notRatedSummary: "Belum Dinilai",
+      notRatedNote: "Tidak ada penilaian tercatat",
+      byDate:"Bulan"
     },
     kpi: {
       workAreaCompliance: "Kepatuhan Area Kerja",
