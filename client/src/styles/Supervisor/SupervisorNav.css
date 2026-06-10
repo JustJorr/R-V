@@ -156,6 +156,12 @@
   flex-shrink: 0;
 }
 
+.worker-avatar-image {
+  background: none;
+  object-fit: cover;
+  border: 2px solid #f0f0f0;
+}
+
 .worker-name {
   font-size: 13px;
   font-weight: 600;

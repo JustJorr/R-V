@@ -20,7 +20,7 @@ async function updateUserRole(req, res) {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    const updated = await User.findByIdAndUpdate(req.params.id, { role }, { new: true }).select("-password");
+    const updated = await User.findByIdAndUpdate(req.params.id, { role }, { returnDocument: 'after' }).select("-password");
     res.json(updated);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -43,7 +43,7 @@ async function deleteUser(req, res) {
 async function changePassword(req, res) {
   try {
     const { password } = req.body;
-    const updated = await User.findByIdAndUpdate(req.params.id, { password }, { new: true }).select("-password");
+    const updated = await User.findByIdAndUpdate(req.params.id, { password }, { returnDocument: 'after' }).select("-password");
     res.json(updated);
   } catch (err) {
     res.status(500).json({ message: err.message });

@@ -28,7 +28,17 @@ export const usersService = {
     apiClient.get(`/api/users/${id}`),
 
   updateProfile: (id, payload) =>
-    apiClient.put(`/api/users/${id}/profile`, payload)
+    apiClient.put(`/api/users/${id}/profile`, payload),
+
+  uploadProfilePicture: (id, file) => {
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+    return apiClient.put(`/api/users/${id}/profile-picture`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    });
+  }
 };
 
 // =======================

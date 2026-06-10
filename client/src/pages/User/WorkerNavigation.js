@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/Supervisor/SupervisorNav.css";
 import { useLanguage } from "../../context/LanguageContext";
 
-function WorkerNav({ userName, onLogout, collapsed, setCollapsed }) {
+function WorkerNav({ worker, userName, onLogout, collapsed, setCollapsed }) {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
@@ -45,7 +45,15 @@ function WorkerNav({ userName, onLogout, collapsed, setCollapsed }) {
 
           <div className="nav-worker">
             <div className="worker-info">
-              <div className="worker-avatar">{userName.charAt(0).toUpperCase()}</div>
+              {worker?.profilePicture ? (
+                <img
+                  src={`/${worker.profilePicture}`}
+                  alt="Profile"
+                  className="worker-avatar worker-avatar-image"
+                />
+              ) : (
+                <div className="worker-avatar">{userName.charAt(0).toUpperCase()}</div>
+              )}
               {!collapsed && <span className="worker-name">{userName}</span>}
             </div>
 

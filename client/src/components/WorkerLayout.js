@@ -14,6 +14,7 @@ function WorkerLayout({ worker, onLogout, onProfileUpdated }) {
       {/* Reuse same layout class */}
 
       <WorkerNav
+        worker={worker}
         userName={worker?.name || "Worker"}
         onLogout={onLogout}
         collapsed={collapsed}
