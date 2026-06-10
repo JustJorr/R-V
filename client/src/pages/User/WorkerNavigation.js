@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import "../../styles/Supervisor/SupervisorNav.css";
 import { useLanguage } from "../../context/LanguageContext";
+import { config } from "../../config/config";
 
 function WorkerNav({ worker, userName, onLogout, collapsed, setCollapsed }) {
   const { t } = useLanguage();
@@ -47,7 +48,7 @@ function WorkerNav({ worker, userName, onLogout, collapsed, setCollapsed }) {
             <div className="worker-info">
               {worker?.profilePicture ? (
                 <img
-                  src={`/${worker.profilePicture}`}
+                  src={`${config.API_BASE_URL}/${worker.profilePicture}`}
                   alt="Profile"
                   className="worker-avatar worker-avatar-image"
                 />

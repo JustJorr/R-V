@@ -5,6 +5,7 @@ import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
+import { config } from "../../config/config";
 
 const ratingFields = [
   { key: "workAreaCompliance", short: "WA" },
@@ -367,9 +368,17 @@ function WorkerRatings({ worker }) {
                   <td data-label="#"> {index + 1}</td>
                   <td data-label={t("workerRatings.tableName")}>
                     <div className="worker-name-cell">
-                      <div className="worker-badge">
-                        {w.name.charAt(0).toUpperCase()}
-                      </div>
+                      {w.profilePicture ? (
+                        <img
+                          src={`${config.API_BASE_URL}/${w.profilePicture}`}
+                          alt={w.name}
+                          className="worker-badge worker-badge-image"
+                        />
+                      ) : (
+                        <div className="worker-badge">
+                          {w.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                       {w.name}
                     </div>
                   </td>

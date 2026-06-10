@@ -7,7 +7,7 @@ async function getDashboard(req, res) {
   try {
     const selectedMonth = req.query.month;
     const workers = await User.find({ role: "worker" })
-      .select("_id name email role averageRating totalRatings createdAt")
+      .select("_id name email role profilePicture averageRating totalRatings createdAt")
       .lean()
       .sort({ averageRating: -1 });
 

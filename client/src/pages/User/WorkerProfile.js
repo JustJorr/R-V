@@ -150,7 +150,7 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
               <img
                 src={
                     profilePicturePreview ||
-                    `${config.API_BASE_URL}/${currentWorker.profilePicture.replace(/^\/+/, "")}`
+                    `${config.API_BASE_URL}/${currentWorker.profilePicture}`
                   }
                 alt="Profile"
                 className="profile-avatar-large profile-image"
