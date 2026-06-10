@@ -18,6 +18,7 @@ function AdminLayout({ worker, onLogout, onProfileUpdated }) {
     <div className="supervisor-layout">
       {/* Sidebar */}
       <AdminNav
+        worker={worker}
         userName={worker?.name || "Admin"}
         onLogout={onLogout}
         collapsed={collapsed}

@@ -1,8 +1,10 @@
 import "../styles/Supervisor/SupervisorNav.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "../context/LanguageContext";
+import { config } from "../config/config";
 
 function AdminNav({
+  worker,
   userName,
   onLogout,
   collapsed,
@@ -59,7 +61,15 @@ function AdminNav({
 
           <div className="nav-worker">
             <div className="worker-info">
-              <div className="worker-avatar">{userName?.charAt(0)?.toUpperCase()}</div>
+              {worker?.profilePicture ? (
+                <img
+                  src={`${config.API_BASE_URL}/${worker.profilePicture}`}
+                  alt="Profile"
+                  className="worker-avatar worker-avatar-image"
+                />
+              ) : (
+                <div className="worker-avatar">{userName?.charAt(0)?.toUpperCase()}</div>
+              )}
               {!collapsed && <span className="worker-name">{userName}</span>}
             </div>
 

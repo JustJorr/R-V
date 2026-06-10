@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { adminService } from "../../services/api";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "../../context/LanguageContext";
+import { config } from "../../config/config";
 import "../../styles/Admin/AdminPages.css";
 
 function AdminUsers() {
@@ -223,7 +224,20 @@ function AdminUsers() {
                       onClick={() => navigate(`/worker/${u._id}`)}
                       title={t("adminHome.viewProfile")}
                       style={{ cursor: "pointer" }}>
-                      {u.name}
+                      <div className="worker-name-cell">
+                        {u.profilePicture ? (
+                          <img
+                            src={`${config.API_BASE_URL}/${u.profilePicture}`}
+                            alt={u.name}
+                            className="worker-badge worker-badge-image"
+                          />
+                        ) : (
+                          <div className="worker-badge">
+                            {u.name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        {u.name}
+                      </div>
                     </td>
                     <td className="td-email" data-label={t("common.email")}>{u.email}</td>
                     <td data-label={t("common.role")}>

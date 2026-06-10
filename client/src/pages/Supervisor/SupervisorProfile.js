@@ -3,14 +3,18 @@ import { usersService } from "../../services/api";
 import "../../styles/Supervisor/SupervisorPages.css";
 import ConfirmDialog from "../../components/common/ConfirmDialog";
 import { useLanguage } from "../../context/LanguageContext";
+import { config } from "../../config/config";
 
 function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   const { language, setLanguage, t } = useLanguage();
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
+  const [currentWorker, setCurrentWorker] = useState(worker);
   const [formData, setFormData] = useState({
     name: worker?.name || "",
     email: worker?.email || "",
@@ -18,6 +22,7 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
   });
 
   useEffect(() => {
+    setCurrentWorker(worker);
     setFormData({
       name: worker?.name || "",
       email: worker?.email || "",
@@ -58,6 +63,62 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
     setEditMode(false);
   };
 
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+      if (!allowedTypes.includes(file.type)) {
+        setError(t("profile.invalidFileType") || "Only image files are allowed");
+        e.target.value = "";
+        return;
+      }
+      
+      if (file.size > 5 * 1024 * 1024) {
+        setError(t("profile.fileTooLarge") || "File size must be less than 5MB");
+        e.target.value = "";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicturePreview(reader.result);
+        handleUploadProfilePicture(file, e);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUploadProfilePicture = async (file, e) => {
+    if (!worker?._id || uploading) return;
+    setUploading(true);
+    setError("");
+    setMessage("");
+    
+    try {
+      const response = await usersService.uploadProfilePicture(worker._id, file);
+      const updatedUser = response.data.user;
+      
+      setCurrentWorker(updatedUser);
+      setProfilePicturePreview(null);
+      
+      if (e?.target) {
+        e.target.value = "";
+      }
+      
+      onProfileUpdated?.(updatedUser);
+      setMessage(t("profile.pictureUpdatedSuccess") || "Profile picture updated successfully");
+    } catch (err) {
+      setError(err?.response?.data?.message || t("profile.pictureUploadFailed") || "Failed to upload profile picture");
+      setProfilePicturePreview(null);
+      
+      if (e?.target) {
+        e.target.value = "";
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <div className="page-content supervisor-profile">
       <div className="page-header">
@@ -72,11 +133,31 @@ function SupervisorProfile({ worker, onLogout, onProfileUpdated }) {
 
       <div className="profile-container">
         <div className="profile-header">
-          <div className="profile-avatar-large">{worker?.name?.charAt(0).toUpperCase()}</div>
+          <div className="profile-picture-container">
+            {profilePicturePreview || currentWorker?.profilePicture ? (
+              <img
+                src={profilePicturePreview || `${config.API_BASE_URL}/${currentWorker.profilePicture}`}
+                alt="Profile"
+                className="profile-avatar-large profile-image"
+              />
+            ) : (
+              <div className="profile-avatar-large">{currentWorker?.name?.charAt(0).toUpperCase()}</div>
+            )}
+            <label className="profile-picture-upload">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleProfilePictureChange}
+                disabled={uploading}
+                className="profile-picture-input"
+              />
+              <span className="upload-icon">📷</span>
+            </label>
+          </div>
           <div className="profile-header-info">
-            <h2>{worker?.name}</h2>
-            <p className="profile-email">{worker?.email}</p>
-            <span className="profile-badge">{worker?.role?.toUpperCase()}</span>
+            <h2>{currentWorker?.name}</h2>
+            <p className="profile-email">{currentWorker?.email}</p>
+            <span className="profile-badge">{currentWorker?.role?.toUpperCase()}</span>
           </div>
         </div>
 
