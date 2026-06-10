@@ -56,7 +56,8 @@ export const translations = {
       updatedSuccess: "Profile updated successfully.",
       updateFailed: "Failed to update profile.",
       logoutTitle: "Logout",
-      logoutConfirm: "Are you sure you want to logout?"
+      logoutConfirm: "Are you sure you want to logout?",
+      changePhoto:"Change profile picture"
     },
     workerHome: {
       loading: "Loading...",
@@ -442,7 +443,8 @@ export const translations = {
       updatedSuccess: "Profil berhasil diperbarui.",
       updateFailed: "Gagal memperbarui profil.",
       logoutTitle: "Keluar",
-      logoutConfirm: "Apakah Anda yakin ingin keluar?"
+      logoutConfirm: "Apakah Anda yakin ingin keluar?",
+      changePhoto:"Ganti Foto Profil"
     },
     workerHome: {
       loading: "Memuat...",

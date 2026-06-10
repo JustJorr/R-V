@@ -468,6 +468,12 @@
   flex-shrink: 0;
 }
 
+.worker-badge-image {
+  background: none;
+  object-fit: cover;
+  border: 2px solid #f0f0f0;
+}
+
 .worker-email {
   font-size: 12px;
   color: #999;

@@ -17,6 +17,7 @@ function SupervisorLayout({ worker, onLogout, onProfileUpdated }) {
     <div className="supervisor-layout">
       {/* Sidebar */}
       <SupervisorNav
+        worker={worker}
         userName={worker?.name || "Supervisor"}
         onLogout={onLogout}
         collapsed={collapsed}

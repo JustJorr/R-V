@@ -54,6 +54,46 @@
   flex-shrink: 0;
 }
 
+.profile-avatar-large.profile-image {
+  background: none;
+  object-fit: cover;
+}
+
+.profile-picture-container {
+  position: relative;
+  width: fit-content;
+}
+
+.profile-picture-upload {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  background: #3b82f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid white;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.profile-picture-upload:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+}
+
+.profile-picture-input {
+  display: none;
+}
+
+.upload-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
 .profile-header-info h2 {
   font-size: 1.35rem;
   font-weight: 700;
@@ -369,3 +409,132 @@
   color: #fff;
 }
 
+.profile-picture-container{
+  display:flex;
+  justify-content:center;
+}
+
+.profile-avatar-wrapper{
+  position:relative;
+  width:160px;
+  height:160px;
+}
+
+.profile-avatar-large{
+  width:160px;
+  height:160px;
+
+  border-radius:50%;
+
+  overflow:hidden;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:56px;
+
+  font-weight:700;
+
+  background:linear-gradient(
+    145deg,
+    #0d5fd9,
+    #3f8cff
+  );
+
+  color:white;
+
+  border:5px solid white;
+
+  box-shadow:
+    0 16px 40px rgba(0,0,0,.15);
+
+  transition:.25s;
+}
+
+.profile-image{
+  object-fit:cover;
+}
+
+.profile-image.uploading{
+  opacity:.45;
+}
+
+.profile-avatar-fallback{
+  user-select:none;
+}
+
+.profile-upload-overlay{
+
+  position:absolute;
+
+  inset:0;
+
+  border-radius:50%;
+
+  display:flex;
+
+  flex-direction:column;
+
+  justify-content:center;
+
+  align-items:center;
+
+  gap:6px;
+
+  background:rgba(0,0,0,.55);
+
+  color:white;
+
+  opacity:0;
+
+  cursor:pointer;
+
+  transition:.25s;
+}
+
+.profile-avatar-wrapper:hover
+.profile-upload-overlay{
+  opacity:1;
+}
+
+.profile-picture-input{
+  display:none;
+}
+
+.camera-icon{
+  font-size:26px;
+}
+
+.upload-text{
+  font-size:13px;
+  font-weight:600;
+}
+
+.upload-loader{
+
+  width:34px;
+
+  height:34px;
+
+  border-radius:50%;
+
+  border:4px solid rgba(255,255,255,.3);
+
+  border-top-color:white;
+
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+.profile-avatar-wrapper:hover
+.profile-avatar-large{
+  transform:scale(1.03);
+}

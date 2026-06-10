@@ -6,6 +6,7 @@ import RatingForm from "../../components/RatingForm";
 import "../../styles/Supervisor/SupervisorPages.css";
 import "../../styles/User/WorkerDashboard.css";
 import { useLanguage } from "../../context/LanguageContext";
+import { config } from "../../config/config";
 
 const KPI_FIELDS = [
   { key: "workAreaCompliance", label: "Work Area Compliance", short: "WA" },
@@ -312,9 +313,17 @@ function SupervisorRatings({ worker: supervisor }) {
                       className="worker-name-cell clickable"
                       onClick={() => navigate(`/worker/${worker._id}`)}
                     >
-                      <div className="worker-badge">
-                        {worker.name.charAt(0).toUpperCase()}
-                      </div>
+                      {worker.profilePicture ? (
+                        <img
+                          src={`${config.API_BASE_URL}/${worker.profilePicture}`}
+                          alt={worker.name}
+                          className="worker-badge worker-badge-image"
+                        />
+                      ) : (
+                        <div className="worker-badge">
+                          {worker.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                       {worker.name}
                     </div>
                   </td>
