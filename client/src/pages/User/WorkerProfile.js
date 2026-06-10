@@ -146,28 +146,50 @@ function WorkerProfile({ worker, onLogout, onProfileUpdated }) {
       <div className="profile-container">
         <div className="profile-header">
           <div className="profile-picture-container">
-            {profilePicturePreview || currentWorker?.profilePicture ? (
-              <img
-                src={
+            <div className="profile-avatar-wrapper">
+
+              {profilePicturePreview || currentWorker?.profilePicture ? (
+                <img
+                  src={
                     profilePicturePreview ||
                     `${config.API_BASE_URL}/${currentWorker.profilePicture}`
                   }
-                alt="Profile"
-                className="profile-avatar-large profile-image"
-              />
-            ) : (
-              <div className="profile-avatar-large">{currentWorker?.name?.charAt(0).toUpperCase()}</div>
-            )}
-            <label className="profile-picture-upload">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleProfilePictureChange}
-                disabled={uploading}
-                className="profile-picture-input"
-              />
-              <span className="upload-icon">📷</span>
-            </label>
+                  alt="Profile"
+                  className={`profile-avatar-large profile-image ${
+                    uploading ? "uploading" : ""
+                  }`}
+                />
+              ) : (
+                <div className="profile-avatar-large profile-avatar-fallback">
+                  {currentWorker?.name?.charAt(0)?.toUpperCase()}
+                </div>
+              )}
+
+              <label className="profile-upload-overlay">
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleProfilePictureChange}
+                  disabled={uploading}
+                  className="profile-picture-input"
+                />
+
+                {uploading ? (
+                  <span className="upload-loader"></span>
+                ) : (
+                  <>
+                    <span className="camera-icon">📷</span>
+                    <span className="upload-text">
+                      {t("profile.changePhoto")}
+                    </span>
+                  </>
+                )}
+
+              </label>
+
+            </div>
+
           </div>
           <div className="profile-header-info">
             <h2>{currentWorker?.name}</h2>
