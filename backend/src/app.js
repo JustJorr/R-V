@@ -1,4 +1,4 @@
-﻿const express = require("express");
+const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
@@ -23,10 +23,16 @@ app.use("/api", adminRoutes);
 app.use("/api", adminDataRoutes);
 
 // Serve React frontend
-const buildPath = path.join(__dirname, "../../client/build");
+const buildPath = path.resolve(__dirname, "../../client/build");
+
 app.use(express.static(buildPath));
+
+// Express 5 catch-all
 app.get("/{*path}", (req, res) => {
   res.sendFile(path.join(buildPath, "index.html"));
 });
+
+console.log("Build path:", buildPath);
+console.log("Build exists:", require("fs").existsSync(buildPath));
 
 module.exports = app;
